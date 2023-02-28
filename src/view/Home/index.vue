@@ -188,7 +188,7 @@
                           :style="{ backgroundColor: '#3370ff',cursor:'pointer','user-select':'none'}"
                           :imageUrl="user.userAvatarUrl"
                         >
-                          <IconUser />
+                          <IconUser v-if="user.userAvatarUrl===''" />
                           <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                         </a-avatar>
                         <template #content>
@@ -565,6 +565,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { userStore } from "@/store/userStore";
 import { login } from "@/api/login";
+import { logout } from "@/api/logout";
 import { loginAccount } from "@/api/loginAccount";
 import { register } from "@/api/register";
 import { ref, reactive } from "vue";
@@ -693,19 +694,36 @@ export default {
   mounted() {},
 
   methods: {
-    logOut(){
-      localStorage.setItem('user',null);
-      this.user = null;
-
+    logOut() {
+      const that = this;
+      let v = {
+        userId: this.user.userId,
+        userName: this.user.usernam
+      };
+      const res = logout(v);
+      res
+        .then(response => {
+          const r = response.data;
+          if (r.code === 100) {
+            Message.success("退出登录成功");
+            localStorage.setItem("user", null);
+            router.go(0);
+          } else {
+            Message.warning(r.msg);
+          }
+        })
+        .catch(error => {});
     },
-    getUserInfo(){   
-      const access_token = localStorage.getItem('login_token');
+    getUserInfo() {
+      const access_token = localStorage.getItem("access_token");
       const user = JSON.parse(localStorage.getItem("user"));
-      this.user.userAvatarUrl = user.userAvatarUrl;
-      this.user.usercoin = user.usercoin;
-      this.user.username = user.username;
-      this.user.userId = user.username;     
-      this.user.loginStatus = user.loginStatus;
+      if (user !== null && user !== undefined) {
+        this.user.userAvatarUrl = user.userAvatarUrl;
+        this.user.usercoin = user.usercoin;
+        this.user.username = user.username;
+        this.user.userId = user.username;
+        this.user.loginStatus = user.loginStatus;
+      }
     },
     confirmRegister() {
       this.registerView = "1";
@@ -743,16 +761,7 @@ export default {
               Message.warning("账号注册失败");
             }
           })
-          .catch(error => {
-            console.log(error);
-            Message.error(
-              error.code === "ECONNABORTED"
-                ? "请求超时"
-                : "请求错误，请重新尝试"
-            );
-            //这里是请求失败后的操作
-            console.log(error);
-          });
+          .catch(error => {});
       } else {
         Message.warning("请检查您的输入是否合法");
       }
@@ -797,12 +806,9 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error);
-          Message.error(
-            error.code === "ECONNABORTED" ? "请求超时" : "请求错误，请重新尝试"
-          );
-          //这里是请求失败后的操作
-          console.log(error);
+          // Message.error(
+          //   error.code === "ECONNABORTED" ? "请求超时" : "请求错误，请重新尝试"
+          // );
         });
     },
     checkEmail(v) {
@@ -896,7 +902,7 @@ export default {
       try {
         this.loginSocket.close();
       } catch (error) {
-        console.log(error);
+        Message.error(error);
       }
     },
     changeLoginMode(key) {
@@ -973,14 +979,7 @@ export default {
           that.loginQrData = window.URL.createObjectURL(new Blob(binary));
           that.initWebSocket(response.headers.token);
         })
-        .catch(error => {
-          console.log(error);
-          Message.error(
-            error.code === "ECONNABORTED" ? "请求超时" : "请求错误，请重新尝试"
-          );
-          //这里是请求失败后的操作
-          console.log(error);
-        });
+        .catch(error => {});
     },
     closeRegister() {
       this.rVisible = false;

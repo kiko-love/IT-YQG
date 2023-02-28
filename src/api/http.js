@@ -27,7 +27,11 @@ const http = axios.create({
 // 请求拦截器  1，可以在这里添加token
 
 http.interceptors.request.use(function (config) {
-
+    config.headers['Authorization'] = localStorage.getItem('access_token')
+    const user = JSON.parse(localStorage.getItem('user'))
+    if(user!==null&&user!==undefined) {
+        config.headers['AuthorId'] = user.userId;
+    }
     // 在发送请求之前做些什么
     return config;
 
@@ -53,7 +57,7 @@ http.interceptors.response.use(function (response) {
     //   // 超出 2xx 范围的状态码都会触发该函数。
 
     //   // 对响应错误做点什么
-    Message.error(error)
+    Message.error(error.message)
     return Promise.reject(error);
 
 });

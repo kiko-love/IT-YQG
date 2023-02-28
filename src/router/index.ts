@@ -41,6 +41,12 @@ const routes = [
     ],
   },
   {
+    path: '/editor/drafts',
+    name: 'drafts',
+    component: () => import('@/view/editor/index.vue'),
+    meta: { title: 'loginScan' },
+  },
+  {
     path: '/login/scan',
     name: 'loginScan',
     component: () => import('@/view/mockScan/index.vue'),
