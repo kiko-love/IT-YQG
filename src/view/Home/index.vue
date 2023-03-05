@@ -1,6 +1,6 @@
 !<template>
   <div id="ac" class="container">
-    <a-layout style="height: 100%;">
+    <a-layout style="height: 100%">
       <a-layout-header class="header">
         <div class="top-container">
           <a-row class="grid-top">
@@ -23,15 +23,21 @@
                 <div class="breakPoint">
                   <a-dropdown @select="handleSelect" :popup-max-height="false">
                     <a-button type="text">
-                      {{dropDownTitle?dropDownTitle:'首页'}}
+                      {{ dropDownTitle ? dropDownTitle : "首页" }}
                       <icon-down />
                     </a-button>
                     <template #content>
-                      <a-doption v-for="(i,index) in homeMeun" :value="i.v" :key="index">
+                      <a-doption
+                        v-for="(i, index) in homeMeun"
+                        :value="i.v"
+                        :key="index"
+                      >
                         <div
                           class="dropdown-meun"
-                          :class="{'dropdwon-active':i.v === currentPath[0]}"
-                        >{{i.name}}</div>
+                          :class="{ 'dropdwon-active': i.v === currentPath[0] }"
+                        >
+                          {{ i.name }}
+                        </div>
                       </a-doption>
                     </template>
                     <template #footer>
@@ -68,7 +74,15 @@
             </a-col>
             <a-col :xs="14" :sm="16" :md="18" :lg="10" :xl="10" :xxl="11">
               <a-row class="grid-top">
-                <a-col class="home-tool" :xs="24" :sm="18" :md="20" :lg="16" :xl="16" :xxl="16">
+                <a-col
+                  class="home-tool"
+                  :xs="24"
+                  :sm="18"
+                  :md="20"
+                  :lg="16"
+                  :xl="16"
+                  :xxl="16"
+                >
                   <div class="home-search">
                     <a-trigger
                       trigger="focus"
@@ -79,10 +93,14 @@
                       <a-input-search
                         v-model:model-value="searchContent"
                         class="home-search-input"
-                        :class="{'search-active':searchFoucs}"
+                        :class="{ 'search-active': searchFoucs }"
                         placeholder="搜索猿趣阁"
                         search-button
-                        @focus="()=>{searchFoucs = true}"
+                        @focus="
+                          () => {
+                            searchFoucs = true;
+                          }
+                        "
                         @blur="handleSearchBlur"
                       />
                       <!-- 输入框下方触发器内容 -->
@@ -100,7 +118,9 @@
                         </div>
                       </template>
                     </a-trigger>
-                    <a-button-group :class="[{'hide':searchFoucs},'search-release']">
+                    <a-button-group
+                      :class="[{ hide: searchFoucs }, 'search-release']"
+                    >
                       <a-button type="primary">发布文章</a-button>
                     </a-button-group>
                   </div>
@@ -116,7 +136,10 @@
                         popup-container=".popc"
                       >
                         <a-badge class="badge" :count="2" :max-count="10">
-                          <icon-email class="message" :style="{fontSize:'32px',cursor:'pointer'}" />
+                          <icon-email
+                            class="message"
+                            :style="{ fontSize: '32px', cursor: 'pointer' }"
+                          />
                         </a-badge>
                         <template #title>
                           <div class="message-tool">
@@ -145,25 +168,32 @@
                         </template>
                         <template #content>
                           <div class="notification-container">
-                            <div v-if="this.notificationLoading" class="notification-spin">
+                            <div
+                              v-if="this.notificationLoading"
+                              class="notification-spin"
+                            >
                               <a-spin />
                             </div>
                             <div
                               v-else
-                              v-for="(i,index) in 2"
+                              v-for="(i, index) in 2"
                               class="notification-entry"
                               :key="index"
                             >
                               <div class="n-closeBtn">
                                 <a-button type="text" size="mini" shape="round">
                                   <template #icon>
-                                    <icon-close :style="{color:'#020300'}" />
+                                    <icon-close :style="{ color: '#020300' }" />
                                   </template>
                                 </a-button>
                               </div>
                               <div class="n-avatar">
                                 <a-avatar
-                                  :style="{ backgroundColor: '#3370ff',cursor:'pointer','user-select':'none'}"
+                                  :style="{
+                                    backgroundColor: '#3370ff',
+                                    cursor: 'pointer',
+                                    'user-select': 'none',
+                                  }"
                                 >
                                   <IconUser />
                                 </a-avatar>
@@ -183,12 +213,20 @@
                       </a-popover>
                     </div>
                     <div class="myAvatar">
-                      <a-popover position="br" trigger="click" popup-container=".myAvatar">
+                      <a-popover
+                        position="br"
+                        trigger="click"
+                        popup-container=".myAvatar"
+                      >
                         <a-avatar
-                          :style="{ backgroundColor: '#3370ff',cursor:'pointer','user-select':'none'}"
+                          :style="{
+                            backgroundColor: '#3370ff',
+                            cursor: 'pointer',
+                            'user-select': 'none',
+                          }"
                           :imageUrl="user.userAvatarUrl"
                         >
-                          <IconUser v-if="user.userAvatarUrl===''" />
+                          <IconUser v-if="user.userAvatarUrl === ''" />
                           <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                         </a-avatar>
                         <template #content>
@@ -200,20 +238,29 @@
                                   <icon-home />
                                 </template>
                               </a-button>
-                              <a-button size="mini" @click="logOut">退出登陆</a-button>
+                              <a-button size="mini" @click="logOut"
+                                >退出登陆</a-button
+                              >
                             </template>
                             <div class="user-info">
                               <div class="user-avatar">
                                 <a-avatar
-                                  :style="{ backgroundColor: '#3370ff',cursor:'pointer' }"
+                                  :style="{
+                                    backgroundColor: '#3370ff',
+                                    cursor: 'pointer',
+                                  }"
                                   :imageUrl="user.userAvatarUrl"
                                 >
                                   <IconUser />
                                 </a-avatar>
                               </div>
                               <div class="user-detail">
-                                <div class="user-name">{{this.user.username}}</div>
-                                <div class="user-coin">猿石:{{this.user.usercoin}}</div>
+                                <div class="user-name">
+                                  {{ this.user.username }}
+                                </div>
+                                <div class="user-coin">
+                                  猿石:{{ this.user.usercoin }}
+                                </div>
                               </div>
                             </div>
                             <div class="user-level">
@@ -226,8 +273,12 @@
                               </div>
                               <a-progress
                                 :show-text="false"
-                                :percent="(this.user.uservalue ? this.user.uservalue : 0) / 500.0"
-                                :style="{width:'100%'}"
+                                :percent="
+                                  (this.user.uservalue
+                                    ? this.user.uservalue
+                                    : 0) / 500.0
+                                "
+                                :style="{ width: '100%' }"
                               />
                             </div>
                           </a-card>
@@ -237,7 +288,11 @@
                   </div>
                   <!-- 未登录区域 -->
                   <div v-else class="login-register">
-                    <a-popover position="br" trigger="hover" popup-container=".login-register">
+                    <a-popover
+                      position="br"
+                      trigger="hover"
+                      popup-container=".login-register"
+                    >
                       <a-button-group type="primary">
                         <a-button @click="handleLoginVisible">登录</a-button>
                         <a-button @click="handleRegisterVisible">注册</a-button>
@@ -273,11 +328,18 @@
                             </div>
                           </div>
                           <div>
-                            <a-button type="primary" long @click="handleLoginVisible">立即登录</a-button>
+                            <a-button
+                              type="primary"
+                              long
+                              @click="handleLoginVisible"
+                              >立即登录</a-button
+                            >
                           </div>
                           <div class="lr-guide-register">
                             <span>还没有账号？</span>
-                            <a-button type="text" @click="handleRegisterVisible">立即注册</a-button>
+                            <a-button type="text" @click="handleRegisterVisible"
+                              >立即注册</a-button
+                            >
                           </div>
                         </div>
                       </template>
@@ -330,12 +392,17 @@
             <span>登录猿趣阁</span>
           </div>-->
         </div>
-        <div v-if="loginMode==='1'" class="login-qr">
+        <div v-if="loginMode === '1'" class="login-qr">
           <span class="img-loading" v-if="QrLoading">
             <a-spin tip="二维码加载中..." />
           </span>
           <span v-else-if="!QrLoading" class="img-qr">
-            <img style="object-fit:scale-down" :src="loginQrData" alt width="220" />
+            <img
+              style="object-fit: scale-down"
+              :src="loginQrData"
+              alt
+              width="220"
+            />
             <div v-if="QrExpire">
               <span class="img-mark"></span>
               <span class="img-expireTip">二维码已失效，请重新获取</span>
@@ -347,10 +414,12 @@
               <icon-check-circle class="img-check" stroke-linejoin="arcs" />
             </div>
           </span>
-          <div v-if="!QrLoading" class="login-qr-tip">打开手机客户端扫一扫进行登录（mock）</div>
+          <div v-if="!QrLoading" class="login-qr-tip">
+            打开手机客户端扫一扫进行登录（mock）
+          </div>
           <!-- <a-image width="220" :src="loginQrData" :preview="false"/> -->
         </div>
-        <div class="login-account" v-if="loginMode==='2'">
+        <div class="login-account" v-if="loginMode === '2'">
           <a-form :model="loginForm" @submit="handleSubmit" auto-label-width>
             <a-form-item field="account" label="账号">
               <a-input v-model="loginForm.account" placeholder="用户名/邮箱" />
@@ -359,12 +428,18 @@
               </template>
             </a-form-item>
             <a-form-item field="password" label="密码">
-              <a-input-password v-model="loginForm.password" placeholder="请输入密码" allow-clear />
+              <a-input-password
+                v-model="loginForm.password"
+                placeholder="请输入密码"
+                allow-clear
+              />
             </a-form-item>
             <div class="login-findpwdTip">
               <a href>忘记密码</a>
             </div>
-            <a-button html-type="submit" type="primary" long @click="pwdLogin">登录</a-button>
+            <a-button html-type="submit" type="primary" long @click="pwdLogin"
+              >登录</a-button
+            >
           </a-form>
         </div>
       </div>
@@ -392,14 +467,15 @@
             class="tags-list"
             @change="checkChange(value)"
           >
-            <template v-for="(item,index) in recommendTags" :key="item">
+            <template v-for="(item, index) in recommendTags" :key="item">
               <a-checkbox :value="item">
-                <template #checkbox="{ checked,disabled }">
+                <template #checkbox="{ checked, disabled }">
                   <a-space
                     align="start"
                     class="custom-checkbox-card"
-                    :class="[{ 'custom-checkbox-card-checked': checked },
-                    {'custom-checkbox-card-disabled':disabled}
+                    :class="[
+                      { 'custom-checkbox-card-checked': checked },
+                      { 'custom-checkbox-card-disabled': disabled },
                     ]"
                   >
                     <div class="custom-checkbox-card-mask">
@@ -408,8 +484,12 @@
                     <div>
                       <div
                         class="custom-checkbox-card-title"
-                        :class="{'custom-checkbox-card-title-disabled':disabled}"
-                      >{{ item }}</div>
+                        :class="{
+                          'custom-checkbox-card-title-disabled': disabled,
+                        }"
+                      >
+                        {{ item }}
+                      </div>
                       <!-- <a-typography-text type="secondary">标签描述</a-typography-text> -->
                     </div>
                   </a-space>
@@ -424,7 +504,8 @@
             <a-button
               type="primary"
               :disabled="!(Array.isArray(tagsCheck) && tagsCheck.length)"
-            >{{tagsBtnTip}}</a-button>
+              >{{ tagsBtnTip }}</a-button
+            >
           </a-space>
         </div>
       </div>
@@ -455,7 +536,7 @@
         <div class="register-container">
           <a-form
             :model="registerForm"
-            :style="{width:'100%'}"
+            :style="{ width: '100%' }"
             @submit="handleSubmitRegister"
             auto-label-width
           >
@@ -473,9 +554,11 @@
               />
               <template #help>
                 <div
-                  style="color:#f53f3f"
-                  v-if="registerStatus.accountStatus=='error'"
-                >用户名长度介于4-10位，由数字字母和下划线组成</div>
+                  style="color: #f53f3f"
+                  v-if="registerStatus.accountStatus == 'error'"
+                >
+                  用户名长度介于4-10位，由数字字母和下划线组成
+                </div>
               </template>
             </a-form-item>
             <a-form-item field="password" label="密码" feedback>
@@ -487,9 +570,11 @@
               />
               <template #help>
                 <div
-                  style="color:#f53f3f"
-                  v-if="registerStatus.pwd1Status=='error'"
-                >密码至少长度介于6-16位且至少包含数字和字母</div>
+                  style="color: #f53f3f"
+                  v-if="registerStatus.pwd1Status == 'error'"
+                >
+                  密码至少长度介于6-16位且至少包含数字和字母
+                </div>
               </template>
             </a-form-item>
 
@@ -501,18 +586,33 @@
                 allow-clear
               />
               <template #help>
-                <div style="color:#f53f3f" v-if="registerStatus.pwd2Status=='error'">两次输入密码不一致</div>
+                <div
+                  style="color: #f53f3f"
+                  v-if="registerStatus.pwd2Status == 'error'"
+                >
+                  两次输入密码不一致
+                </div>
               </template>
             </a-form-item>
 
-            <a-form-item style="margin-bottom:1rem" field="name" label="邮箱" feedback>
+            <a-form-item
+              style="margin-bottom: 1rem"
+              field="name"
+              label="邮箱"
+              feedback
+            >
               <a-input
                 @blur="checkEmail(registerForm.email)"
                 v-model="registerForm.email"
                 placeholder="请输入邮箱"
               />
               <template #help>
-                <div style="color:#f53f3f" v-if="registerStatus.emailStatus=='error'">请检查您的邮箱格式是否正确</div>
+                <div
+                  style="color: #f53f3f"
+                  v-if="registerStatus.emailStatus == 'error'"
+                >
+                  请检查您的邮箱格式是否正确
+                </div>
               </template>
             </a-form-item>
             <a-button type="primary" long @click="regAccount">注册</a-button>
@@ -536,7 +636,9 @@
 
           <template #extra>
             <a-space>
-              <a-button type="primary" @click="changeRegisterView('1')">返回</a-button>
+              <a-button type="primary" @click="changeRegisterView('1')"
+                >返回</a-button
+              >
             </a-space>
           </template>
         </a-result>
@@ -561,7 +663,7 @@ import {
   IconMenuUnfold,
   IconApps,
   IconPen,
-  IconDelete
+  IconDelete,
 } from "@arco-design/web-vue/es/icon";
 import { userStore } from "@/store/userStore";
 import { login } from "@/api/login";
@@ -589,26 +691,26 @@ export default {
     IconMenuUnfold,
     IconApps,
     IconPen,
-    IconDelete
+    IconDelete,
   },
   setup(props) {
     const homeMeun = reactive([
       {
         name: "首页",
-        v: "home"
+        v: "home",
       },
       {
         name: "资源库",
-        v: "resource"
+        v: "resource",
       },
       {
         name: "交流广场",
-        v: "communication"
+        v: "communication",
       },
       {
         name: "建议",
-        v: "suggestion"
-      }
+        v: "suggestion",
+      },
     ]);
     const recommendTags = reactive([
       "后端",
@@ -619,36 +721,36 @@ export default {
       "开发工具",
       "区块链",
       "人工智能",
-      "大数据"
+      "大数据",
     ]);
     const loginForm = reactive({
       account: "",
-      password: ""
+      password: "",
     });
     const registerForm = reactive({
       account: "",
       pwd1: "",
       pwd2: "",
       email: "",
-      verCode: ""
+      verCode: "",
     });
     const registerStatus = reactive({
       accountStatus: "",
       pwd1Status: "",
       pwd2Status: "",
-      emailStatus: ""
+      emailStatus: "",
     });
     const router = useRouter();
     const currentPath = ref([router.currentRoute.value.name]);
     // console.log(currentPath.value[0])
     const dropDownTitle = ref(
-      homeMeun.find(item => item.v === currentPath.value[0])?.name
+      homeMeun.find((item) => item.v === currentPath.value[0])?.name
     );
     const dropDownValue = ref("home");
-    const handleSubmit = data => {
+    const handleSubmit = (data) => {
       console.log(data);
     };
-    const handleSubmitRegister = data => {
+    const handleSubmitRegister = (data) => {
       console.log(data);
     };
     const userInfo = userStore();
@@ -681,7 +783,7 @@ export default {
       searchFoucs: ref(false),
       searchContent: ref(""),
       registerStatus,
-      registerView: ref("1")
+      registerView: ref("1"),
     };
   },
   created() {
@@ -698,11 +800,11 @@ export default {
       const that = this;
       let v = {
         userId: this.user.userId,
-        userName: this.user.usernam
+        userName: this.user.usernam,
       };
       const res = logout(v);
       res
-        .then(response => {
+        .then((response) => {
           const r = response.data;
           if (r.code === 100) {
             Message.success("退出登录成功");
@@ -712,7 +814,7 @@ export default {
             Message.warning(r.msg);
           }
         })
-        .catch(error => {});
+        .catch((error) => {});
     },
     getUserInfo() {
       const access_token = localStorage.getItem("access_token");
@@ -745,12 +847,12 @@ export default {
         let v = {
           account: registerForm.account,
           password: sha256(registerForm.pwd1),
-          email: registerForm.email
+          email: registerForm.email,
         };
         const res = register(v);
         let that = this;
         res
-          .then(response => {
+          .then((response) => {
             //这里是请求成功后的操作
             const result = response.data;
             console.log(result);
@@ -761,7 +863,7 @@ export default {
               Message.warning("账号注册失败");
             }
           })
-          .catch(error => {});
+          .catch((error) => {});
       } else {
         Message.warning("请检查您的输入是否合法");
       }
@@ -769,12 +871,12 @@ export default {
     pwdLogin() {
       let v = {
         account: this.loginForm.account,
-        password: sha256(this.loginForm.password)
+        password: sha256(this.loginForm.password),
       };
       const res = loginAccount(v);
       const that = this;
       res
-        .then(response => {
+        .then((response) => {
           //这里是请求成功后的操作
           console.log(response);
           const result = response.data;
@@ -805,7 +907,7 @@ export default {
               Message.warning(result.msg);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           // Message.error(
           //   error.code === "ECONNABORTED" ? "请求超时" : "请求错误，请重新尝试"
           // );
@@ -871,13 +973,13 @@ export default {
       }
     },
     handleMenuItem(v) {
-      let drop = this.homeMeun.find(item => item.v === v);
+      let drop = this.homeMeun.find((item) => item.v === v);
       this.dropDownValue = drop.v;
       this.dropDownTitle = drop.name;
       this.router.push("/" + v);
     },
     handleSelect(v) {
-      let drop = this.homeMeun.find(item => item.v === v);
+      let drop = this.homeMeun.find((item) => item.v === v);
       this.dropDownValue = drop.v;
       this.dropDownTitle = drop.name;
       this.currentPath[0] = this.dropDownValue;
@@ -926,7 +1028,7 @@ export default {
         //socket.send("这是来自客户端的消息" + location.href + new Date());
       };
       //获得消息事件
-      this.loginSocket.onmessage = msg => {
+      this.loginSocket.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
         console.log(data);
         if (data.code == 100) {
@@ -967,10 +1069,10 @@ export default {
       const that = this;
       const res = login({
         userId: "10001",
-        password: this.loginForm.password
+        password: this.loginForm.password,
       });
       res
-        .then(response => {
+        .then((response) => {
           //这里是请求成功后的操作
           console.log("二维码uid：", response.headers.token);
 
@@ -979,7 +1081,7 @@ export default {
           that.loginQrData = window.URL.createObjectURL(new Blob(binary));
           that.initWebSocket(response.headers.token);
         })
-        .catch(error => {});
+        .catch((error) => {});
     },
     closeRegister() {
       this.rVisible = false;
@@ -999,8 +1101,8 @@ export default {
       setTimeout(() => {
         this.notificationLoading = !this.notificationLoading;
       }, 500);
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
@@ -1203,15 +1305,6 @@ div::-webkit-scrollbar-track {
 }
 .login-close:hover {
   opacity: 1;
-}
-input[type="password"]::-ms-reveal {
-  display: none;
-}
-input[type="password"]::-ms-clear {
-  display: none;
-}
-input[type="password"]::-o-clear {
-  display: none;
 }
 .register-container {
   display: flex;
@@ -1638,6 +1731,7 @@ input[type="password"]::-o-clear {
 .content {
   margin-top: 75px;
   background-color: #f4f5f5;
+  overflow: hidden;
 }
 .header {
   height: 75px;

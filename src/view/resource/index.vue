@@ -81,7 +81,7 @@
             <a-row class="r-grid">
               <a-col
                 class="r-card-col"
-                v-for="i in 5"
+                v-for="i in 10"
                 :xs="24"
                 :sm="12"
                 :md="8"
@@ -240,7 +240,8 @@ export default {
   display: flex;
 }
 .resource-container {
-
+  height: 100%;
+  overflow: auto;
 }
 .rank-title {
   display: -webkit-box;

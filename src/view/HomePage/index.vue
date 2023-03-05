@@ -1,17 +1,20 @@
 !<template>
-  <div style="text-align:center;margin:15px auto">
-    HomePage开发测试
-    这里是首页内容区域
+  <div style="text-align: center; margin: 15px auto">
+    HomePage开发测试 这里是首页内容区域
     文章推送（实现思路：懒加载or分页-内容协同过滤CF）
   </div>
-  <div class="content-container">
+  <div
+    ref="scrollContainer"
+    class="content-container"
+    v-on:scroll="handleListScroll"
+  >
     <a-row class="col-list">
       <a-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16" :xxl="16">
         <div class="list-container">
           <a-card :style="{ width: '100%' }">
             <template #title>
               <div>
-                <a-tabs class="list-tab" default-active-key="1" type="rounded">
+                <a-tabs @change="changeHomeResourceTab(key)" class="list-tab" default-active-key="1" type="rounded">
                   <a-tab-pane key="1" title="推荐"></a-tab-pane>
                   <a-tab-pane key="2" title="最热"></a-tab-pane>
                   <a-tab-pane key="3">
@@ -23,52 +26,70 @@
             <div>
               <div v-if="listLoading" class="skelenton">
                 <a-skeleton :animation="true">
-                  <a-space direction="vertical" :style="{width:'100%'}" size="large">
-                    <a-skeleton-line :rows="4" :widths="['30%',[],'80%','60%']" />
+                  <a-space
+                    direction="vertical"
+                    :style="{ width: '100%' }"
+                    size="large"
+                  >
+                    <a-skeleton-line
+                      :rows="4"
+                      :widths="['30%', [], '80%', '60%']"
+                    />
                   </a-space>
                 </a-skeleton>
               </div>
-              <div class="entry-list-container" v-else>
-                <li class="list-item" v-for="idx in 10" :key="idx">
-                  <div @click="handleItem(idx)" class="item-container">
+              <div ref="content" class="entry-list-container" v-else>
+                <li class="list-item" v-for="(i, k) in articleList" :key="k">
+                  <div @click="handleItem(k)" class="item-container">
                     <div class="item-header">
-                      <div>ZYY</div>
+                      <div>{{ i.userInfo.user_name }}</div>
                       <a-divider direction="vertical" />
-                      <div class="item-time">1天前</div>
+                      <div class="item-time">{{ i.create_time }}</div>
                       <a-divider direction="vertical" />
-                      <div class="item-tag">后端</div>
-                      <div class="item-tag">Java</div>
-                      <div class="item-tag">SpringBoot</div>
+                      <div class="item-tags">
+                        <div
+                          v-for="(tag, tk) in i.article_tags"
+                          class="item-tag"
+                          key="tag"
+                        >
+                          {{ tag }}
+                        </div>
+                      </div>
                     </div>
                     <div class="item-body">
                       <div>
-                        <a-avatar :style="{ backgroundColor: '#3370ff'}">
-                          <IconUser />
+                        <a-avatar :style="{ backgroundColor: '#3370ff' }">
+                          <IconUser v-if="i.userInfo.user_avatar_url === ''" />
+                          <img :src="i.userInfo.user_avatar_url" alt="" />
                         </a-avatar>
                       </div>
                       <div>
-                        <div class="item-title">Mybaitis讲解</div>
+                        <div class="item-title">{{ i.article_title }}</div>
                         <div class="item-description">
-                          MyBatis 是一款优秀的持久层框架
-                          它支持自定义 SQL、存储过程以及高级映射。
-                          MyBatis 免除了几乎所有的 JDBC 代码以及设置参数和获取结果集的工作。
+                          {{ i.article_abstract }}
                         </div>
                       </div>
                     </div>
                     <div class="item-header">
                       <span>
                         <icon-eye />
-                        <span class="bottom-number">999</span>
+                        <span class="bottom-number">{{
+                          i.article_read_count
+                        }}</span>
                       </span>
                       <a-divider direction="vertical" />
                       <span>
                         <icon-heart />
-                        <span class="bottom-number">99</span>
+                        <span class="bottom-number">{{
+                          i.article_like_count
+                        }}</span>
                       </span>
                       <a-divider direction="vertical" />
                       <span>
                         <icon-message />
-                        <span class="bottom-number">9</span>
+                        <span class="bottom-number">{{
+                          i.article_comment_count
+                        }}</span>
                       </span>
                     </div>
                   </div>
@@ -76,7 +97,10 @@
               </div>
             </div>
           </a-card>
-          <a-back-top target-container="list-container" :style="{position:'absolute'}" />
+          <a-back-top
+            target-container="list-container"
+            :style="{ position: 'absolute' }"
+          />
         </div>
       </a-col>
       <a-col class="col-right" :xs="0" :sm="0" :md="0" :lg="8" :xl="8" :xxl="8">
@@ -84,7 +108,7 @@
           <div>
             <div class="sign">
               <div class="first-line">
-                <div class="sign-title">{{signTitle}}</div>
+                <div class="sign-title">{{ signTitle }}</div>
                 <div class="sign-tip">记录在社区的美好时刻</div>
               </div>
               <div class="sign-btn">
@@ -94,7 +118,8 @@
                   type="primary"
                   :disabled="signDisabled"
                   :loading="signBtnLoading"
-                >{{signBtnTitle}}</a-button>
+                  >{{ signBtnTitle }}</a-button
+                >
               </div>
             </div>
           </div>
@@ -103,22 +128,24 @@
               <template #title>
                 <div>
                   <icon-bar-chart />
-                  <span style="margin-left:5px">社区作者排行榜</span>
+                  <span style="margin-left: 5px">社区作者排行榜</span>
                 </div>
               </template>
-              <div class="rank-container">
-                <div class="rank-item" v-for="(i,index) in 3">
-                  <div class="rank-number">{{i}}</div>
+              <div class="rank-container" v-on:scroll="handleListScroll">
+                <div class="rank-item" v-for="(i, index) in 3">
+                  <div class="rank-number">{{ i }}</div>
                   <div class="rank-avatar">
-                    <a-avatar :style="{ backgroundColor: '#3370ff'}">
+                    <a-avatar :style="{ backgroundColor: '#3370ff' }">
                       <IconUser />
                     </a-avatar>
                   </div>
                   <div class="rank-username">
                     <div class="rank-user">
-                      <div>JackSon {{i}} 号</div>
+                      <div>JackSon {{ i }} 号</div>
                       <div class="rank-lv">
-                        <a-tag bordered color="arcoblue" size="small">Lv.4</a-tag>
+                        <a-tag bordered color="arcoblue" size="small"
+                          >Lv.4</a-tag
+                        >
                       </div>
                     </div>
 
@@ -154,7 +181,11 @@
         </a-tooltip>
       </div>
       <div class="div-suggestion">
-        <a-tooltip popup-container=".div-suggestion" content="建议反馈" position="left">
+        <a-tooltip
+          popup-container=".div-suggestion"
+          content="建议反馈"
+          position="left"
+        >
           <a-button class="advise btn" type="primary" :shape="btnMsgShape">
             <template #icon>
               <icon-message />
@@ -174,9 +205,9 @@ import {
   IconBarChart,
   IconUser,
   IconFaceSmileFill,
-  IconToTop
+  IconToTop,
 } from "@arco-design/web-vue/es/icon";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { userStore } from "@/store/userStore";
 export default {
   components: {
@@ -186,24 +217,143 @@ export default {
     IconBarChart,
     IconUser,
     IconFaceSmileFill,
-    IconToTop
+    IconToTop,
   },
   setup(props) {
     const userInfo = userStore();
+    const articleList = reactive([
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+      {
+        article_id: 1,
+        article_title: "SpringBoot整合MyBatis",
+        article_abstract:
+          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
+        article_like_count: 999,
+        article_read_count: 999,
+        article_comment_count: 999,
+        article_tags: ["Java", "SpringBoot", "后端"],
+        create_time: "一天前",
+        userInfo: {
+          user_id: 1,
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_description: "后端工程师，热爱软件工程",
+          user_exp: 999,
+          user_level: 4,
+        },
+      },
+    ]);
     return {
       signTitle: "Hello",
-      listLoading: ref(false),
+      listLoading: ref(true),
       signBtnLoading: ref(false),
       signDisabled: ref(false),
       btnFlag: ref(false),
       btnMsgShape: ref("circle"),
       signBtnTitle: ref("签到"),
       userInfo,
-      backtoTopTip: ref(false)
+      backtoTopTip: ref(false),
+      articleList,
     };
   },
   data() {
-    return {};
+    return {
+      q: document.querySelector(".content-container"),
+    };
   },
 
   created() {
@@ -211,9 +361,73 @@ export default {
   },
 
   mounted() {
-    window.addEventListener("scroll", this.scrollToTop);
+    // // 在数据加载完成后计算滚动容器的高度和内容高度
+    // this.$nextTick(() => {
+    //   this.calculateHeight();
+    // });
+    setTimeout(() => {
+      this.listLoading = false;
+    }, 1000);
   },
   methods: {
+    changeHomeResourceTab(tab) {
+      this.listLoading = true;
+      setTimeout(() => {
+        this.listLoading = false;
+      }, 1000);
+    },
+    // 在数据加载完成后计算滚动容器的高度和内容高度
+    calculateHeight() {
+      this.$nextTick(() => {
+        const scrollContainer = this.$refs.scrollContainer;
+        const content = this.$refs.content;
+        const { offsetHeight } = scrollContainer;
+
+        // 设置滚动容器和内容的高度
+        scrollContainer.style.height = offsetHeight + "px";
+        // content.style.height = this.articleList.length * 145 + "px";
+      });
+    },
+    loadMoreData() {
+      console.log("加载更多数据");
+      const moreList = [
+        {
+          article_id: 1,
+          article_title: "Vue框架使用教程",
+          article_abstract: "测试数据",
+          article_like_count: 999,
+          article_read_count: 999,
+          article_comment_count: 999,
+          article_tags: ["JavaScript", "vue", "前端"],
+          create_time: "刚刚",
+          userInfo: {
+            user_id: 1,
+            user_name: "ZYY",
+            user_avatar_url:
+              "https://p3-passport.byteimg.com/img/user-avatar/c10530e222982081bc1863f3e6c8ebf3~180x180.awebp",
+            user_description: "后端工程师，热爱软件工程",
+            user_exp: 999,
+            user_level: 4,
+          },
+        },
+      ];
+      this.articleList.push(...moreList);
+    },
+    handleListScroll() {
+      // 获取滚动容器的高度、滚动高度和内容高度
+      const scrollContainer = this.$refs.scrollContainer;
+      const { scrollTop, offsetHeight, scrollHeight } = scrollContainer;
+      if (scrollTop > 60 * 4) {
+        this.btnFlag = true;
+      } else {
+        this.btnFlag = false;
+        this.backtoTopTip = false;
+      }
+      // 如果滚动到了底部，执行加载更多数据的操作
+      if (scrollTop + offsetHeight >= scrollHeight - 0.5) {
+        this.loadMoreData();
+      }
+    },
     handleItem(idx) {
       this.$message.success("handleItem：" + idx);
     },
@@ -248,38 +462,28 @@ export default {
     },
     // 点击图片回到顶部方法，加计时器是为了过渡顺滑
     backTop() {
-      const that = this;
+      const scrollContainer = this.$refs.scrollContainer;
+      const { scrollTop } = scrollContainer;
       let timer = setInterval(() => {
-        let ispeed = Math.floor(-that.scrollTop / 5);
-        document.documentElement.scrollTop = document.body.scrollTop =
-          that.scrollTop + ispeed;
-        if (that.scrollTop === 0) {
+        let ispeed = Math.floor(-scrollTop / 5);
+        scrollContainer.scrollTop = scrollContainer.scrollTop + ispeed;
+
+        if (scrollContainer.scrollTop === 0) {
           clearInterval(timer);
         }
       }, 5);
     },
-    // 为了计算距离顶部的高度，当高度大于60显示回顶部图标，小于60则隐藏
-    scrollToTop() {
-      const that = this;
-      let scrollTop =
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop;
-      that.scrollTop = scrollTop;
-      if (that.scrollTop > 60 * 8) {
-        that.btnFlag = true;
-      } else {
-        that.btnFlag = false;
-        that.backtoTopTip = false;
-      }
-    }
-  }
+  },
 };
 </script>
 
 <style lang="less" scoped>
 /deep/.arco-card-size-medium .arco-card-body {
   padding: 0;
+}
+.col-list {
+  width: 100%;
+  margin: 0 1rem;
 }
 .div-suggestion {
   position: relative;
@@ -321,6 +525,7 @@ export default {
   }
 }
 .entry-list-container {
+  width: 100%;
 }
 .rank-user {
   display: flex;
@@ -364,6 +569,7 @@ export default {
   display: flex;
 }
 .skelenton {
+  padding: 0 1rem;
   margin: 1rem 1rem;
 }
 .col-right {
@@ -402,6 +608,8 @@ export default {
   justify-content: center;
   width: 100%;
   margin: 1rem 0;
+  overflow: auto;
+  height: 100%;
 }
 .bottom-number {
   margin-left: 3px;
@@ -411,6 +619,7 @@ export default {
   padding: 12px 20px 0;
 }
 .list-item {
+  height: 150px;
   border-bottom: 1px solid var(--color-neutral-3);
 }
 .list-item:hover {
@@ -438,7 +647,9 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 }
-.list-item {
+
+.item-tags {
+  display: flex;
 }
 .item-tag {
   position: relative;
@@ -476,6 +687,6 @@ export default {
   justify-content: space-around;
   list-style: none;
   padding: 0 1rem;
-  // width: 660px;
+  margin: 0 1rem;
 }
 </style>
