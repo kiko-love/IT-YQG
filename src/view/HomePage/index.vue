@@ -104,7 +104,9 @@
         </div>
       </a-col>
       <a-col class="col-right" :xs="0" :sm="0" :md="0" :lg="8" :xl="8" :xxl="8">
+        <a-affix :offsetTop="80">
         <div class="right-container">
+          <div class="right-affix">
           <div>
             <div class="sign">
               <div class="first-line">
@@ -155,7 +157,9 @@
               </div>
             </a-card>
           </div>
+          </div>
         </div>
+      </a-affix>
       </a-col>
     </a-row>
     <!-- 右下角悬浮组件 -->
@@ -404,7 +408,7 @@ export default {
             user_id: 1,
             user_name: "ZYY",
             user_avatar_url:
-              "https://p3-passport.byteimg.com/img/user-avatar/c10530e222982081bc1863f3e6c8ebf3~180x180.awebp",
+              "https://pic3.zhimg.com/80/v2-1f47522b4230d5c5917f46fab71d004a_720w.webp",
             user_description: "后端工程师，热爱软件工程",
             user_exp: 999,
             user_level: 4,
@@ -433,7 +437,7 @@ export default {
     },
     handleSign() {
       if (!this.userInfo.loginStatus) {
-        this.$message.warning("您还没有登录猿趣阁哦~");
+        this.$message.warning("请您先登录猿趣阁");
         return false;
       }
       this.signBtnLoading = true;
@@ -465,7 +469,7 @@ export default {
       const scrollContainer = this.$refs.scrollContainer;
       const { scrollTop } = scrollContainer;
       let timer = setInterval(() => {
-        let ispeed = Math.floor(-scrollTop / 5);
+        let ispeed = Math.floor(-scrollTop / 20);
         scrollContainer.scrollTop = scrollContainer.scrollTop + ispeed;
 
         if (scrollContainer.scrollTop === 0) {
@@ -602,6 +606,12 @@ export default {
 }
 .right-container {
   // width: 18rem;
+  position: relative;
+}
+.right-affix {
+  position: fixed;
+  top: 120px;
+  right: 50px;
 }
 .content-container {
   display: flex;

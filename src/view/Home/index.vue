@@ -85,7 +85,8 @@
                 >
                   <div class="home-search">
                     <a-trigger
-                      trigger="focus"
+                      :popup-visible="searchPopVisible"
+                      trigger="click"
                       auto-fit-popup-width
                       popup-container=".home-search"
                       update-at-scroll
@@ -94,11 +95,15 @@
                         v-model:model-value="searchContent"
                         class="home-search-input"
                         :class="{ 'search-active': searchFoucs }"
+                        :max-length="20"
                         placeholder="搜索猿趣阁"
                         search-button
+                        @press-enter="handleSearchHistory(searchContent)"
+                        @search="handleSearchHistory(searchContent)"
                         @focus="
                           () => {
                             searchFoucs = true;
+                            searchPopVisible = true;
                           }
                         "
                         @blur="handleSearchBlur"
@@ -110,11 +115,26 @@
                             <div class="search-trigger-top-tip">
                               <span>搜索历史</span>
                             </div>
-                            <div class="search-trigger-top-del">
+                            <div
+                              class="search-trigger-top-del"
+                              @click="clearSearchHistory"
+                            >
                               <icon-delete />
                             </div>
                           </div>
-                          <a-empty>暂无历史记录</a-empty>
+                          <div class="history-container">
+                            <div
+                              v-for="(i, k) in searchHistory"
+                              class="history-key"
+                              :key="k"
+                              @click="handleSearchKey(i)"
+                            >
+                              <span>{{ i }}</span>
+                            </div>
+                          </div>
+                          <a-empty v-if="searchHistory === []"
+                            >暂无历史记录</a-empty
+                          >
                         </div>
                       </template>
                     </a-trigger>
@@ -674,6 +694,7 @@ import { ref, reactive } from "vue";
 import { sha256 } from "js-sha256";
 import { useRouter } from "vue-router";
 import { Message } from "@arco-design/web-vue";
+import { moveElementToFront } from "@/utils/sHistoryUtils";
 export default {
   name: "ItYqgIndex",
   components: {
@@ -784,10 +805,13 @@ export default {
       searchContent: ref(""),
       registerStatus,
       registerView: ref("1"),
+      searchHistory: ref([]),
+      searchPopVisible: ref(false),
     };
   },
   created() {
     this.getUserInfo();
+    this.searchHistory = this.getSearchHistory();
   },
   data() {
     return {};
@@ -796,6 +820,50 @@ export default {
   mounted() {},
 
   methods: {
+    handleSearchKey(k) {
+      this.searchContent = k;
+      console.log("搜索关键词", k);
+      // this.handleSearch();
+    },
+    //清空搜索历史
+    clearSearchHistory() {
+      console.log("清空搜索历史");
+      localStorage.setItem("searchHistory", JSON.stringify([]));
+      this.searchHistory = [];
+      this.searchPopVisible = false;
+    },
+    //获取searchHistory
+    getSearchHistory() {
+      const arr = localStorage.getItem("searchHistory");
+      if (arr === null || arr === undefined || arr === "") {
+        return [];
+      } else {
+        return JSON.parse(arr);
+      }
+    },
+    handleSearchHistory(k) {
+      //判断k是否为所有可能的空值
+      if (k === null || k === undefined || k === "") {
+        return;
+      }
+      const arr = localStorage.getItem("searchHistory");
+      if (arr === null || arr === undefined || arr === "") {
+        localStorage.setItem("searchHistory", JSON.stringify([k]));
+      } else {
+        //moveElementToFront(arr,k)
+        let newArr = JSON.parse(arr);
+        if (newArr.length >= 10) {
+          newArr.pop();
+        }
+        if (newArr.includes(k)) {
+          newArr = moveElementToFront(newArr, k);
+        } else {
+          newArr.unshift(k);
+        }
+        localStorage.setItem("searchHistory", JSON.stringify(newArr));
+        this.searchHistory = newArr;
+      }
+    },
     logOut() {
       const that = this;
       let v = {
@@ -969,8 +1037,13 @@ export default {
     },
     handleSearchBlur() {
       if (this.searchContent === "") {
-        this.searchFoucs = false;
+        setTimeout(() => {
+          this.searchFoucs = false;
+        }, 300);
       }
+      setTimeout(() => {
+        this.searchPopVisible = false;
+      }, 300);
     },
     handleMenuItem(v) {
       let drop = this.homeMeun.find((item) => item.v === v);
@@ -1146,6 +1219,24 @@ div::-webkit-scrollbar-track {
 }
 </style>
 <style lang="less" scoped>
+.history-container {
+  display: flex;
+  flex-direction: column;
+  .history-key {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-height: 36px;
+    padding: 5px 1rem;
+    height: 2.5rem;
+    cursor: pointer;
+  }
+  .history-key:hover {
+    background-color: #f5f5f5;
+  }
+}
 /deep/.arco-card-body {
   padding: 12px 5px;
 }
