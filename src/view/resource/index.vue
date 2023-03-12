@@ -6,43 +6,43 @@
           <a-menu :default-selected-keys="['1']">
             <a-menu-item key="1">
               <template #icon>
-                <icon-font type="icon-qianduankaifa" :size="24" />
+                <icon-font type="icon-qianduankaifa" :size="20" />
               </template>
               前端
             </a-menu-item>
             <a-menu-item key="2">
               <template #icon>
-                <icon-font type="icon-houduankaifa" :size="24" />
+                <icon-font type="icon-houduankaifa" :size="20" />
               </template>
               后端
             </a-menu-item>
             <a-menu-item key="3">
               <template #icon>
-                <icon-font type="icon-mianshiyaoqing" :size="24" />
+                <icon-font type="icon-mianshiyaoqing" :size="20" />
               </template>
               面试
             </a-menu-item>
             <a-menu-item key="4">
               <template #icon>
-                <icon-font type="icon-zhinengsuanfa" :size="24" />
+                <icon-font type="icon-zhinengsuanfa" :size="20" />
               </template>
               算法
             </a-menu-item>
             <a-menu-item key="5">
               <template #icon>
-                <icon-font type="icon-shujushujudian" :size="24" />
+                <icon-font type="icon-shujushujudian" :size="20" />
               </template>
               数据结构
             </a-menu-item>
             <a-menu-item key="6">
               <template #icon>
-                <icon-font type="icon-gongju" :size="24" />
+                <icon-font type="icon-gongju" :size="20" />
               </template>
               开发工具
             </a-menu-item>
             <a-menu-item key="7">
               <template #icon>
-                <icon-font type="icon-rengongzhinengdanao" :size="24" />
+                <icon-font type="icon-rengongzhinengdanao" :size="20" />
               </template>
               人工智能
             </a-menu-item>
@@ -65,7 +65,7 @@
           <template #extra>
             <div>
               <a-input-search
-                :style="{width:'220px'}"
+                :style="{ width: '220px' }"
                 placeholder="搜索资源"
                 allow-clear
                 search-button
@@ -78,7 +78,19 @@
             </div>
           </template>
           <div class="r-container">
-            <a-row class="r-grid">
+            <div v-if="listLoading" class="sk-container">
+              <a-skeleton class="skeleton" animation v-for="i in 3">
+                <a-space
+                  direction="vertical"
+                  :style="{ width: '100%' }"
+                  size="large"
+                >
+                  <a-skeleton-shape size="large" />
+                  <a-skeleton-line :rows="3" :widths="[120, 180, 90]" />
+                </a-space>
+              </a-skeleton>
+            </div>
+            <a-row v-if="!listLoading" class="r-grid">
               <a-col
                 class="r-card-col"
                 v-for="i in 10"
@@ -95,9 +107,9 @@
                     <div
                       class="r-cover"
                       :style="{
-          height: '110px',
-          overflow: 'hidden',
-        }"
+                        height: '110px',
+                        overflow: 'hidden',
+                      }"
                     >
                       <img
                         class="r-cover-img"
@@ -111,10 +123,18 @@
                       <div class="r-card-title">C语言排序算法代码</div>
                     </template>
                     <template #description>
-                      <div class="r-card-description">经典排序算法的C语言实现源码</div>
+                      <div class="r-card-description">
+                        经典排序算法的C语言实现源码
+                      </div>
                       <div class="r-card-a-a">
                         <div class="r-card-avatar">
-                          <a-avatar :size="32" :style="{ marginRight: '8px',background:'#3370ff' }">
+                          <a-avatar
+                            :size="32"
+                            :style="{
+                              marginRight: '8px',
+                              background: '#3370ff',
+                            }"
+                          >
                             <IconUser />
                           </a-avatar>
                           <div class="r-card-info">
@@ -132,7 +152,11 @@
                             <span class="icon-hover-text">1w+</span>
                           </span>
                           <span class="icon-hover">
-                            <a-rate :style="{fontSize: '16px'}" :count="1" allow-clear/>
+                            <a-rate
+                              :style="{ fontSize: '16px' }"
+                              :count="1"
+                              allow-clear
+                            />
                             <span class="icon-hover-text">1w+</span>
                           </span>
                         </div>
@@ -147,16 +171,16 @@
       </a-col>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="6" :xxl="6">
         <div class="r-extra-container">
-          <a-card :style="{ width: '100%'}">
+          <a-card :style="{ width: '100%' }">
             <template #title>
               <div>
                 <icon-bar-chart />
-                <span style="margin-left:5px">资源排行榜</span>
+                <span style="margin-left: 5px">资源排行榜</span>
               </div>
             </template>
             <div class="rank-container">
-              <div class="rank-item" v-for="(i,index) in 3">
-                <div class="rank-number">{{i}}</div>
+              <div class="rank-item" v-for="(i, index) in 3">
+                <div class="rank-number">{{ i }}</div>
                 <div class="rank-avatar"></div>
                 <div class="rank-username">
                   <div class="rank-user">
@@ -167,9 +191,7 @@
                   </div>
 
                   <div class="description">
-                    <div>
-                      <icon-eye />1w+浏览
-                    </div>
+                    <div><icon-eye />1w+浏览</div>
                   </div>
                 </div>
               </div>
@@ -191,15 +213,19 @@ import {
   IconBarChart,
   IconSearch,
   IconEye,
-  IconStar
+  IconStar,
 } from "@arco-design/web-vue/es/icon";
+import { ref } from "vue";
 
 const IconFont = Icon.addFromIconFontCn({
-  src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js"
+  src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
 
 export default {
-  setup(props) {},
+  setup(props) {
+    const listLoading = ref(true);
+    return { listLoading };
+  },
   components: {
     IconFont,
     IconThumbUp,
@@ -209,19 +235,38 @@ export default {
     IconBarChart,
     IconSearch,
     IconEye,
-    IconStar
+    IconStar,
   },
   data() {
-    return {};
+    return { };
+  },
+
+  created() {
+    setTimeout(() => {
+      this.listLoading = false;
+    }, 1000);
   },
 
   mounted() {},
 
-  methods: {}
+  methods: {},
 };
 </script>
 
 <style lang="less" scoped>
+/deep/.arco-menu-icon {
+  margin-right: 12px;
+}
+/deep/.arco-space {
+  align-items: center;
+}
+.sk-container {
+  display: flex;
+  margin-bottom: 2rem;
+}
+.skeleton {
+  width: 33.33%;
+}
 .icon-hover {
   .icon-hover-text {
     font-size: 12px;
@@ -292,7 +337,7 @@ export default {
   padding: 10px 8px;
   margin: 0 2rem;
   box-sizing: border-box;
-  border-radius: 5px;
+  border-radius: 4px;
   z-index: 99;
   position: fixed;
   top: 91px;
@@ -305,6 +350,7 @@ export default {
   width: 100%;
 }
 .r-extra-container {
+  position: fixed;
   width: 250px;
   padding: 1rem;
   display: flex;

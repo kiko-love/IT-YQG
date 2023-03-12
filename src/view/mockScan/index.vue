@@ -23,7 +23,7 @@
     <div class="mockInfo">
       <div>
         <icon-location />
-        <span class="infoText">四川</span>
+        <span class="infoText">四川成都</span>
       </div>
       <div>
         <icon-desktop />

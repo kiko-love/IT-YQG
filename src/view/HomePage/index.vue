@@ -398,7 +398,7 @@ export default {
         {
           article_id: 1,
           article_title: "Vue框架使用教程",
-          article_abstract: "测试数据",
+          article_abstract: "Vue (发音为 /vjuː/，类似 view) 是一款用于构建用户界面的 JavaScript 框架。它基于标准 HTML、CSS 和 JavaScript 构建，并提供了一套声明式的、组件化的编程模型，帮助你高效地开发用户界面。无论是简单还是复杂的界面，Vue 都可以胜任。",
           article_like_count: 999,
           article_read_count: 999,
           article_comment_count: 999,
@@ -428,7 +428,7 @@ export default {
         this.backtoTopTip = false;
       }
       // 如果滚动到了底部，执行加载更多数据的操作
-      if (scrollTop + offsetHeight >= scrollHeight - 0.5) {
+      if (scrollTop + offsetHeight >= scrollHeight - 1) {
         this.loadMoreData();
       }
     },
@@ -508,7 +508,7 @@ export default {
   position: fixed;
   right: 3rem;
   bottom: 4rem;
-  z-index: 1000;
+  z-index: 999;
   .advise {
     color: #333333;
   }
@@ -517,7 +517,7 @@ export default {
   }
   .btn {
     margin: 1rem 0 0;
-    z-index: 1000;
+    z-index: 999;
     background-color: #fff;
     border: 1px solid #f1f1f1;
     box-shadow: 0 2px 8px rgb(50 50 50 / 4%);
@@ -611,7 +611,7 @@ export default {
 .right-affix {
   position: fixed;
   top: 120px;
-  right: 50px;
+  right: 70px;
 }
 .content-container {
   display: flex;

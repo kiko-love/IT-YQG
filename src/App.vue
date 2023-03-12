@@ -34,4 +34,16 @@ body {
 html {
   height: 100%;
 }
+/* 定义滚动条的宽度和颜色 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #b9b9b9;
+}
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #eeeeee;
+}
 </style>

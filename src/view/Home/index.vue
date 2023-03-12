@@ -132,7 +132,7 @@
                               <span>{{ i }}</span>
                             </div>
                           </div>
-                          <a-empty v-if="searchHistory === []"
+                          <a-empty v-if="searchHistory.length === 0||searchHistory === null||searchHistory === undefined"
                             >暂无历史记录</a-empty
                           >
                         </div>
@@ -141,7 +141,25 @@
                     <a-button-group
                       :class="[{ hide: searchFoucs }, 'search-release']"
                     >
-                      <a-button type="primary">发布文章</a-button>
+                      <a-button type="primary">创作中心</a-button>
+                      <a-trigger
+                        trigger="click"
+                        :unmount-on-close="false"
+                        :popup-translate="[-40, 5]"
+                      >
+                        <a-button type="primary" class="select-btn">
+                          <template #icon>
+                            <icon-down />
+                          </template>
+                        </a-button>
+                        <template #content>
+                          <div class="create-menu">
+                            <div class="create-menu-item" @click="toEdit"><icon-edit /><span>发布文章</span></div>
+                            <div class="create-menu-item"><icon-common /><span>上传资源</span></div>
+                            <div class="create-menu-item" @click="toConmmunication"><icon-bulb /><span>发表想法</span></div>
+                          </div>
+                        </template>
+                      </a-trigger>
                     </a-button-group>
                   </div>
                 </a-col>
@@ -684,6 +702,9 @@ import {
   IconApps,
   IconPen,
   IconDelete,
+  IconEdit,
+  IconCommon,
+  IconBulb,
 } from "@arco-design/web-vue/es/icon";
 import { userStore } from "@/store/userStore";
 import { login } from "@/api/login";
@@ -713,6 +734,9 @@ export default {
     IconApps,
     IconPen,
     IconDelete,
+    IconEdit,
+    IconCommon,
+    IconBulb,
   },
   setup(props) {
     const homeMeun = reactive([
@@ -767,6 +791,12 @@ export default {
     const dropDownTitle = ref(
       homeMeun.find((item) => item.v === currentPath.value[0])?.name
     );
+    const toEdit = () => {
+      router.push("/editor/drafts");
+    };
+    const toConmmunication = () => {
+      router.push("/communication");
+    };
     const dropDownValue = ref("home");
     const handleSubmit = (data) => {
       console.log(data);
@@ -807,6 +837,8 @@ export default {
       registerView: ref("1"),
       searchHistory: ref([]),
       searchPopVisible: ref(false),
+      toEdit,
+      toConmmunication
     };
   },
   created() {
@@ -1219,9 +1251,33 @@ div::-webkit-scrollbar-track {
 }
 </style>
 <style lang="less" scoped>
+.select-btn{
+  padding: 0 5px;
+}
+.create-menu {
+  background-color: #fff;
+  width: 8rem;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  color: #515767;
+  .create-menu-item {
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    margin: 5px auto;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+  .create-menu-item span {
+    margin-left: 0.5rem;
+  }
+}
 .history-container {
   display: flex;
   flex-direction: column;
+  z-index: 1000;
   .history-key {
     display: inline-block;
     overflow: hidden;
