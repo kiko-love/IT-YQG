@@ -239,7 +239,7 @@ export default {
         statusbar: false,
         // toolbar_sticky: true,
         toolbar_sticky_offset: 145,
-        min_height: 350,
+        min_height: 400,
         autoresize_bottom_margin: 50,
         toolbar:
           "bold italic underline h1 h2 h3 hr aligncenter alignjustify alignleft indent forecolor backcolor | blockquote codesample numlist bullist link image | removeformat pastetext",
@@ -364,16 +364,19 @@ export default {
       }
     },
     backTop() {
-      
       const q = document.querySelector(".content-container");
-      if (q.scrollTop === 0) return;
-      let timer = setInterval(() => {
-        let ispeed = Math.floor(-q.scrollTop / 20);
-        q.scrollTop = q.scrollTop + ispeed;
-        if (q.scrollTop === 0) {
-          clearInterval(timer);
-        }
-      }, 5);
+      // if (q.scrollTop === 0) return;
+      // let timer = setInterval(() => {
+      //   let ispeed = Math.floor(-q.scrollTop / 20);
+      //   q.scrollTop = q.scrollTop + ispeed;
+      //   if (q.scrollTop === 0) {
+      //     clearInterval(timer);
+      //   }
+      // }, 5);
+      q.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
     },
   },
 };
@@ -391,17 +394,18 @@ export default {
 }
 /deep/.tox:not(.tox-tinymce-inline) .tox-editor-header {
   box-shadow: none;
-  border-bottom: 1px solid rgb(243, 243, 243);
+  // border-bottom: 1px solid rgb(243, 243, 243);
   position: fixed;
-  top: 75px;
+  top: 85px;
 }
 /deep/.tox-tinymce {
   border: none;
   border-bottom: 1px solid #d0d0d0;
+  border-radius: 0;
 }
 /deep/.arco-textarea {
   background: #ffffff;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 600;
   min-height: 80px;
   border-bottom: 1px solid e8e8e8;
@@ -501,13 +505,14 @@ export default {
 }
 .content-container {
   overflow: auto;
-  margin-bottom: 4rem;
+  background: #f6f6f6;
 }
 .container {
   overflow: auto;
   padding-left: calc(50% - 27.834rem);
   padding-right: calc(50% - 27.834rem);
-  margin-top: 10rem;
+  margin-top: 8rem;
+  background: #f6f6f6;
 }
 .user {
   display: flex;
@@ -529,7 +534,8 @@ export default {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border-bottom: 1px solid #e8e8e8;
 }
 .title {
   margin: 0;

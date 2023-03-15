@@ -95,6 +95,20 @@
                   </div>
                 </li>
               </div>
+              <div v-if="moreLoading" class="skelenton">
+                <a-skeleton :animation="true">
+                  <a-space
+                    direction="vertical"
+                    :style="{ width: '100%' }"
+                    size="large"
+                  >
+                    <a-skeleton-line
+                      :rows="4"
+                      :widths="['30%', [], '80%', '60%']"
+                    />
+                  </a-space>
+                </a-skeleton>
+              </div>
             </div>
           </a-card>
           <a-back-top
@@ -302,44 +316,7 @@ export default {
           user_level: 4,
         },
       },
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        userInfo: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        userInfo: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
+
     ]);
     return {
       signTitle: "Hello",
@@ -352,6 +329,7 @@ export default {
       userInfo,
       backtoTopTip: ref(false),
       articleList,
+      moreLoading: ref(false),
     };
   },
   data() {
@@ -392,7 +370,7 @@ export default {
         // content.style.height = this.articleList.length * 145 + "px";
       });
     },
-    loadMoreData() {
+    loadMoreData(delay) {
       console.log("加载更多数据");
       const moreList = [
         {
@@ -415,7 +393,11 @@ export default {
           },
         },
       ];
-      this.articleList.push(...moreList);
+      setTimeout(() => {
+        this.articleList.push(...moreList);
+        this.moreLoading = false;
+      }, delay);
+      // this.moreLoading = false;
     },
     handleListScroll() {
       // 获取滚动容器的高度、滚动高度和内容高度
@@ -428,8 +410,9 @@ export default {
         this.backtoTopTip = false;
       }
       // 如果滚动到了底部，执行加载更多数据的操作
-      if (scrollTop + offsetHeight >= scrollHeight - 1) {
-        this.loadMoreData();
+      if (scrollTop + offsetHeight >= scrollHeight - 1 && this.moreLoading === false) {
+        this.moreLoading = true;
+        this.loadMoreData(500);
       }
     },
     handleItem(idx) {
@@ -467,15 +450,19 @@ export default {
     // 点击图片回到顶部方法，加计时器是为了过渡顺滑
     backTop() {
       const scrollContainer = this.$refs.scrollContainer;
-      const { scrollTop } = scrollContainer;
-      let timer = setInterval(() => {
-        let ispeed = Math.floor(-scrollTop / 20);
-        scrollContainer.scrollTop = scrollContainer.scrollTop + ispeed;
+      // const { scrollTop } = scrollContainer;
+      // let timer = setInterval(() => {
+      //   let ispeed = Math.floor(-scrollTop / 30);
+      //   scrollContainer.scrollTop = scrollContainer.scrollTop + ispeed;
 
-        if (scrollContainer.scrollTop === 0) {
-          clearInterval(timer);
-        }
-      }, 5);
+      //   if (scrollContainer.scrollTop === 0) {
+      //     clearInterval(timer);
+      //   }
+      // }, 5);
+      scrollContainer.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
     },
   },
 };
@@ -698,5 +685,6 @@ export default {
   list-style: none;
   padding: 0 1rem;
   margin: 0 1rem;
+  margin-bottom: 5rem;
 }
 </style>

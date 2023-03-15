@@ -130,15 +130,24 @@
                               @click="handleSearchKey(i)"
                             >
                               <span>{{ i }}</span>
+                              <span @click.stop="deleteHistoryItem(i)"
+                                ><icon-close class="close"
+                              /></span>
                             </div>
                           </div>
-                          <a-empty v-if="searchHistory.length === 0||searchHistory === null||searchHistory === undefined"
+                          <a-empty
+                            v-if="
+                              searchHistory.length === 0 ||
+                              searchHistory === null ||
+                              searchHistory === undefined
+                            "
                             >暂无历史记录</a-empty
                           >
                         </div>
                       </template>
                     </a-trigger>
                     <a-button-group
+                      class="home-btn-group"
                       :class="[{ hide: searchFoucs }, 'search-release']"
                     >
                       <a-button type="primary">创作中心</a-button>
@@ -154,9 +163,18 @@
                         </a-button>
                         <template #content>
                           <div class="create-menu">
-                            <div class="create-menu-item" @click="toEdit"><icon-edit /><span>发布文章</span></div>
-                            <div class="create-menu-item"><icon-common /><span>上传资源</span></div>
-                            <div class="create-menu-item" @click="toConmmunication"><icon-bulb /><span>发表想法</span></div>
+                            <div class="create-menu-item" @click="toEdit">
+                              <icon-edit /><span>发布文章</span>
+                            </div>
+                            <div class="create-menu-item">
+                              <icon-common /><span>上传资源</span>
+                            </div>
+                            <div
+                              class="create-menu-item"
+                              @click="toConmmunication"
+                            >
+                              <icon-bulb /><span>发表想法</span>
+                            </div>
                           </div>
                         </template>
                       </a-trigger>
@@ -813,7 +831,7 @@ export default {
       notificationLoading: ref(false),
       notificationKey: ref("1"),
       loginVisible: ref(false),
-      tagsVisible: ref(false),
+      tagsVisible: ref(true), //界面首次加载弹出标签选择
       rVisible: ref(false),
       QrExpire: ref(false),
       QrScan: ref(false),
@@ -838,7 +856,7 @@ export default {
       searchHistory: ref([]),
       searchPopVisible: ref(false),
       toEdit,
-      toConmmunication
+      toConmmunication,
     };
   },
   created() {
@@ -852,8 +870,29 @@ export default {
   mounted() {},
 
   methods: {
+    //删除历史记录项
+    deleteHistoryItem(item) {
+      const arr = this.searchHistory.filter((i) => i !== item);
+      localStorage.setItem("searchHistory", JSON.stringify(arr));
+      this.searchHistory = arr;
+    },
+    //搜索框失去焦点自动收缩
+    handleSearchBlur() {
+      if (this.searchContent === "") {
+        setTimeout(() => {
+          this.searchFoucs = false;
+          this.searchPopVisible = false;
+        }, 200);
+      } else {
+        setTimeout(() => {
+          this.searchPopVisible = false;
+        }, 200);
+      }
+    },
     handleSearchKey(k) {
-      this.searchContent = k;
+      if (k) {
+        this.searchContent = k;
+      }
       console.log("搜索关键词", k);
       // this.handleSearch();
     },
@@ -1067,16 +1106,7 @@ export default {
     handleRegisterVisible() {
       this.rVisible = true;
     },
-    handleSearchBlur() {
-      if (this.searchContent === "") {
-        setTimeout(() => {
-          this.searchFoucs = false;
-        }, 300);
-      }
-      setTimeout(() => {
-        this.searchPopVisible = false;
-      }, 300);
-    },
+    // If the search box is empty, set the search box to be out of focus after 300 milliseconds
     handleMenuItem(v) {
       let drop = this.homeMeun.find((item) => item.v === v);
       this.dropDownValue = drop.v;
@@ -1251,7 +1281,7 @@ div::-webkit-scrollbar-track {
 }
 </style>
 <style lang="less" scoped>
-.select-btn{
+.select-btn {
   padding: 0 5px;
 }
 .create-menu {
@@ -1279,15 +1309,27 @@ div::-webkit-scrollbar-track {
   flex-direction: column;
   z-index: 1000;
   .history-key {
-    display: inline-block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
-    line-height: 36px;
+    line-height: 30px;
     padding: 5px 1rem;
-    height: 2.5rem;
+    height: 2rem;
     cursor: pointer;
+    .close {
+      color: #8a8a8a;
+      font-size: 12px;
+      border-radius: 50%;
+      padding: 2px;
+      &:hover {
+        background-color: #5b5b5b;
+        color: #fff;
+      }
+    }
   }
   .history-key:hover {
     background-color: #f5f5f5;
@@ -1794,7 +1836,7 @@ div::-webkit-scrollbar-track {
 .login-register {
   position: relative;
   height: 100%;
-  padding: 0 2rem;
+  padding: 0 2rem 0 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1811,10 +1853,14 @@ div::-webkit-scrollbar-track {
 .hide {
   overflow: hidden;
   width: 0 !important;
-  padding: 0;
+  padding: 0!important;
+}
+.home-btn-group {
+  // padding-right: 15px;
 }
 .search-release {
   width: 5rem;
+  margin-right: 40px;
   transition: width 0.05s;
 }
 .home-search {

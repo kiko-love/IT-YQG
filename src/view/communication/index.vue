@@ -27,90 +27,175 @@
         </div>
       </a-col>
       <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="13" :xxl="13">
-        <a-card class="r-list" :bordered="false">
-          <div class="con-body">
-            <a-textarea
-              v-model:model-value="editor_content"
-              placeholder="在这里和大家分享你的心得吧~"
-              class="r-textarea"
-              :max-length="1000"
-              show-word-limit
-              :auto-size="{
-                minRows: 5,
-                maxRows: 7,
-              }"
-            />
-          </div>
-          <div class="toolbar">
-            <div class="tools">
-              <div class="tool-item"><icon-link />链接</div>
-              <div class="tool-item"><icon-tags />标签</div>
+        <div class="c-container">
+          <a-card class="r-list" :bordered="false">
+            <div class="con-body">
+              <a-textarea
+                v-model:model-value="editor_content"
+                placeholder="在这里和大家分享你的心得吧~"
+                class="r-textarea"
+                :max-length="1000"
+                show-word-limit
+                :auto-size="{
+                  minRows: 5,
+                  maxRows: 7,
+                }"
+              />
             </div>
-            <div>
-              <a-button type="primary" :disabled="editor_content === ''"
-                >发布</a-button
-              >
-            </div>
-          </div>
-
-          <div class="r-container"></div>
-        </a-card>
-        <a-card v-if="cListLoading">
-          <a-skeleton class="c-skeleton" :animation="true">
-                  <a-space
-                    direction="vertical"
-                    :style="{ width: '100%' }"
-                    size="large"
-                  >
-                  <a-skeleton-shape shape="circle" size="large" />
-                    <a-skeleton-line
-                      :rows="3"
-                      :widths="['30%', [], '80%']"
-                    />
-                  </a-space>
-                </a-skeleton>
-        </a-card>
-        <a-card v-if="!cListLoading" v-for="i in 3" class="c-item">
-          <div class="c-header-row">
-            <div class="user-group">
-              <a-avatar class="user-avatar">
-                <IconUser />
-                <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
-              </a-avatar>
+            <div class="toolbar">
+              <div class="tools">
+                <div class="tool-item"><icon-link />链接</div>
+                <div class="tool-item"><icon-tags />标签</div>
+              </div>
               <div>
-                <div class="user-title">ZYY</div>
-                <div class="user-meta">1天前</div>
+                <a-button type="primary" :disabled="editor_content === ''"
+                  >发表心得</a-button
+                >
               </div>
             </div>
-            <div class="user-action">action</div>
-          </div>
-          <div class="c-content-row">
-            <a-typography-paragraph
-              class="content-box"
-              tooltip=""
-              :ellipsis="{
-                rows: 4,
-                expandable: true,
-                showTooltip: false,
-              }"
-            >
-              欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊
-            </a-typography-paragraph>
-            <!-- <div class="content-box">
+
+            <div class="r-container"></div>
+          </a-card>
+          <a-card v-if="cListLoading">
+            <a-skeleton class="c-skeleton" :animation="true">
+              <a-space
+                direction="vertical"
+                :style="{ width: '100%' }"
+                size="large"
+              >
+                <a-skeleton-shape shape="circle" size="large" />
+                <a-skeleton-line :rows="3" :widths="['30%', [], '80%']" />
+              </a-space>
+            </a-skeleton>
+          </a-card>
+          <a-card v-if="!cListLoading" v-for="(i, k) in cList" class="c-item">
+            <div class="c-header-row">
+              <div class="user-group">
+                <a-avatar class="user-avatar">
+                  <IconUser />
+                  <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                </a-avatar>
+                <div>
+                  <div class="user-title">{{ i.user_info.user_name }}</div>
+                  <div class="user-meta">1天前</div>
+                </div>
+              </div>
+              <div class="user-action">
+                <a-button type="text">
+                  <template #icon>
+                    <icon-more-vertical :style="{ color: '#000' }" :size="18" />
+                  </template>
+                </a-button>
+              </div>
+            </div>
+            <div class="c-content-row">
+              <a-typography-paragraph
+                class="content-box"
+                tooltip=""
+                :ellipsis="{
+                  rows: 4,
+                  expandable: true,
+                  showTooltip: false,
+                }"
+              >
+                {{ i.content }}
+              </a-typography-paragraph>
+              <!-- <div class="content-box">
               欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
               欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
               欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
               欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
             </div> -->
-          </div>
-          <div class="c-action-row">
-            <div class="action-box">
-              <div class="action"><icon-thumb-up />9</div>
-              <div class="action"><icon-message />9</div>
-              <div class="action"><icon-star />9</div>
             </div>
-          </div>
-        </a-card>
+            <div class="c-topic-row">
+              <div class="topic-box">
+                <a-tag class="topic-tag" color="arcoblue">
+                  <template #icon>
+                    <icon-bookmark />
+                  </template>
+                  {{i.topic.title}}</a-tag
+                >
+              </div>
+            </div>
+            <div class="c-action-row">
+              <div class="action-box">
+                <div class="action"><icon-thumb-up />{{ i.like_count }}</div>
+                <div
+                  class="action"
+                  :class="{ 'action-active': cList[k].isOpen }"
+                  @click="cList[k].isOpen = !cList[k].isOpen"
+                >
+                  <icon-message />{{ i.comment_count }}
+                </div>
+                <div class="action"><icon-star />{{ i.star_count }}</div>
+              </div>
+            </div>
+            <div v-if="cList[k].isOpen" class="c-reply-row">
+              <span class="c-replay-triangle">
+                <em class="triangle"> </em>
+              </span>
+              <div class="reply-box">
+                <div class="reply-content">
+                  <a-avatar
+                    :style="{ backgroundColor: '#3370ff' }"
+                    class="reply-avatar"
+                    :size="36"
+                    shape="square"
+                  >
+                    <IconUser />
+                    <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                  </a-avatar>
+                  <a-textarea
+                    v-model:model-value="editor_reply"
+                    placeholder="输入评论回复（Enter换行）"
+                    :auto-size="{
+                      minRows: 1,
+                      maxRows: 7,
+                    }"
+                  />
+                </div>
+                <div class="reply-action">
+                  <a-button type="primary" :disabled="editor_reply === ''"
+                    >回复</a-button
+                  >
+                </div>
+              </div>
+              <div class="reply-list-wrapper">
+                <div class="reply-list-title">全部回复（99）</div>
+                <div class="reply-list">
+                  <div class="r-list-item">
+                    <a-avatar style="background: #3370ff" class="user-avatar">
+                      <IconUser />
+                      <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                    </a-avatar>
+                    <div class="item-content-box">
+                      <div class="user-box">
+                        <div>Jack</div>
+                        <a-divider direction="vertical" />
+                        <div class="user-time">5分钟前</div>
+                      </div>
+                      <div class="r-content">这是评论回复内容</div>
+                    </div>
+                  </div>
+                  <div class="r-list-item">
+                    <a-avatar style="background: #3370ff" class="user-avatar">
+                      <IconUser />
+                      <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                    </a-avatar>
+                    <div class="item-content-box">
+                      <div class="user-box">
+                        <div>Jack</div>
+                        <a-divider direction="vertical" />
+                        <div class="user-time">5分钟前</div>
+                      </div>
+                      <div class="r-content">这是评论回复内容</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a-card>
+        </div>
       </a-col>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="6" :xxl="6">
         <div class="r-extra-container">
@@ -166,6 +251,7 @@ import {
   IconMessage,
   IconBookmark,
   IconSchedule,
+  IconMoreVertical,
   IconFire,
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
@@ -176,34 +262,111 @@ const IconFont = Icon.addFromIconFontCn({
 
 export default {
   setup(props) {
+    const cList = reactive([
+      {
+        id: 1,
+        isOpen: true,
+        content:
+          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
+        parent_id: 0,
+        like_count: 9,
+        comment_count: 9,
+        star_count: 9,
+        user_id: "10001",
+        user_info: {
+          user_id: "10001",
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_tags: [],
+        },
+        topic: {
+          title: "技术交流",
+          topic_id: "100",
+          id: 1,
+        },
+        status: 1,
+        create_time: 1678705012000,
+      },
+      {
+        id: 2,
+        isOpen: false,
+        content:
+          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
+        parent_id: 0,
+        like_count: 9,
+        comment_count: 9,
+        star_count: 9,
+        user_id: "10001",
+        user_info: {
+          user_id: "10001",
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_tags: [],
+        },
+        topic: {
+          title: "面试交流",
+          topic_id: "101",
+          id: 2,
+        },
+        status: 1,
+        create_time: 1678705012000,
+      },
+      {
+        id: 3,
+        isOpen: false,
+        content:
+          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
+        parent_id: 0,
+        like_count: 9,
+        comment_count: 9,
+        star_count: 9,
+        user_id: "10001",
+        user_info: {
+          user_id: "10001",
+          user_name: "ZYY",
+          user_avatar_url: "",
+          user_tags: [],
+        },
+        topic: {
+          title: "技术交流",
+          topic_id: "100",
+          id: 1,
+        },
+        status: 1,
+        create_time: 1678705012000,
+      },
+    ]);
     const recommedTopic = reactive([
       {
         title: "技术交流",
-        topic: "001",
+        topic_id: "100",
         id: 1,
       },
       {
         title: "面试交流",
-        topic: "002",
+        topic_id: "101",
         id: 2,
       },
       {
         title: "闲聊一下",
-        topic: "003",
+        topic_id: "102",
         id: 3,
       },
       {
         title: "今日趣闻",
-        topic: "004",
+        topic_id: "103",
         id: 4,
       },
     ]);
     const editor_content = ref("");
+    const editor_reply = ref("");
     const cListLoading = ref(true);
     return {
       editor_content,
+      editor_reply,
       recommedTopic,
       cListLoading,
+      cList,
     };
   },
   components: {
@@ -221,11 +384,14 @@ export default {
     IconBookmark,
     IconSchedule,
     IconFire,
+    IconMoreVertical,
   },
   created() {
     setTimeout(() => {
-      this.cListLoading = false;
-    }, 2000);
+      if (this.cListLoading) {
+        this.cListLoading = false;
+      }
+    }, 1000);
   },
   data() {
     return {};
@@ -237,12 +403,115 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.reply-list {
+  position: relative;
+  .r-list-item:not(:last-child) {
+    border-bottom: 1px solid #f0f1f5;
+  }
+  .r-list-item {
+    display: flex;
+    padding: 10px 15px;
+    .item-content-box {
+      margin-left: 16px;
+      max-width: calc(100% - 48px);
+      .user-box {
+        display: flex;
+        .user-time {
+          color: #a3a6b4;
+        }
+      }
+      .r-content {
+        padding: 15px 0;
+        border-radius: 4px;
+        white-space: pre-line;
+      }
+    }
+  }
+}
+.reply-list-wrapper {
+  padding-top: 24px;
+  padding-bottom: 5px;
+  .reply-list-title {
+    display: flex;
+    align-items: center;
+    position: relative;
+    line-height: 24px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #1d2129;
+    width: 100%;
+    padding-bottom: 5px;
+  }
+}
+.c-reply-row {
+  padding-top: 15px;
+  margin-top: 10px;
+  padding-left: 14px;
+  padding-right: 0;
+  border-top: 1px solid #e4e6eb;
+  position: relative;
+  .reply-box {
+    border-bottom: 1px solid #e4e6eb;
+    padding-bottom: 10px;
+  }
+  .reply-action {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 0 0 0;
+  }
+  .reply-content {
+    display: flex;
+    .reply-avatar {
+      margin-right: 15px;
+      width: 40px;
+      height: 40px;
+    }
+  }
+  .c-replay-triangle {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    margin: -7px 0 0 -7px;
+    pointer-events: none;
+    .triangle {
+      position: absolute;
+      margin: auto;
+      border: none;
+      top: -6px;
+      left: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      transform: rotate(-135deg);
+      border-right: 1px solid #dcdcdc;
+      border-bottom: 1px solid #dcdcdc;
+      background: #fff;
+    }
+  }
+}
+.c-container {
+  margin-bottom: 4rem;
+}
+.topic-tag {
+  cursor: pointer;
+  border-radius: 50px;
+  &:hover {
+    background: rgba(30, 128, 255, 0.16);
+  }
+}
+.c-topic-row {
+  display: flex;
+  .topic-box {
+    margin-left: 52px;
+  }
+}
 .c-skeleton {
   padding: 10px 20px 0;
 }
 .c-item {
   padding: 10px 20px 0;
-  margin-top: 20px;
+  margin-top: 25px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   .c-action-row {
     margin-top: 10px;
     .action-box {
@@ -267,6 +536,9 @@ export default {
           color: #3370ff;
           // background: #f5f5f5;
         }
+      }
+      .action-active {
+        color: #3370ff;
       }
       .action svg {
         margin-right: 5px;
@@ -310,7 +582,7 @@ export default {
 .toolbar {
   display: flex;
   justify-content: space-between;
-  margin: 2rem 2rem 0.5rem 2rem;
+  margin: 1rem 2rem 0 2rem;
   .tools {
     display: flex;
     .tool-item svg {
