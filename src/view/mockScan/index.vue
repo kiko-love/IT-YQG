@@ -1,21 +1,11 @@
-!<template>
+<template>
   <div class="container">
     <div class="mockIcon">
-      <svg
-        t="1673438216820"
-        class="icon"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="3145"
-        width="200"
-        height="200"
-      >
+      <svg t="1673438216820" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+        p-id="3145" width="200" height="200">
         <path
           d="M967.301 71.653H56.699C25.388 71.653 0.006 97.035 0.006 128.346v623.623c0 31.311 25.382 56.692 56.693 56.692H308.76v107.473H170.508c-23.482 0-42.52 19.037-42.52 42.52 0 23.483 19.037 42.52 42.52 42.52h682.984c23.482 0 42.52-19.036 42.52-42.52 0-23.482-19.037-42.52-42.52-42.52H715.24V808.661h252.061c31.311 0 56.693-25.382 56.693-56.692V128.346c0-31.31-25.383-56.693-56.693-56.693z m-3.307 677.008H60.006V131.653h903.988v617.008z"
-          fill="#515151"
-          p-id="3146"
-        />
+          fill="#515151" p-id="3146" />
         <path d="M157.669 227.559h708.662v425.197H157.669z" fill="#515151" p-id="3147" />
       </svg>
     </div>
@@ -49,12 +39,22 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { Message } from "@arco-design/web-vue";
 import { confirmScan } from "@/api/confirmScan";
+import { loginAccount } from "@/api/loginAccount";
+import { userStore } from "@/store/userStore";
+import { sha256 } from "js-sha256";
 export default {
   name: "ItYqgIndex",
   components: {
     IconDesktop,
     IconLocation,
     IconCompass
+  },
+  setup() {
+    const user = userStore();
+    
+    return {
+      user,
+    };
   },
   data() {
     return {};
@@ -63,11 +63,55 @@ export default {
     this._confirmScan();
   },
 
-  mounted() {},
+  mounted() { },
 
   methods: {
-    handleLogin(){
-      
+    handleLogin() {
+      let v = {
+        account: '10001',
+        password: sha256('123456'),
+      };
+      const res = loginAccount(v);
+      const that = this;
+      res
+        .then((response) => {
+          //这里是请求成功后的操作
+          console.log(response);
+          const result = response.data;
+          if (result === null || result === undefined || result === "") {
+            Message.error("请求发生错误，请重新尝试");
+            return false;
+          }
+          //账号未激活
+          switch (result.code) {
+            case 310:
+              Message.warning("账号状态异常，暂时无法登录");
+              break;
+            case 320:
+              Message.warning("您的账号还未激活");
+              break;
+            case 220:
+              that.user.username = result.data.userName;
+              that.user.usercoin = result.data.integral;
+              that.user.userId = result.data.userId;
+              that.user.userAvatarUrl = result.data.userAvatarUrl;
+              that.user.loginStatus = true;
+              localStorage.setItem("login_token", result.data.token);
+              localStorage.setItem("user", JSON.stringify(that.user));
+              Message.success("登录成功，欢迎回来：" + result.data.userName);
+              that.$router.push({
+                path: "/home"
+              });
+              break;
+            default:
+              Message.warning(result.msg);
+          }
+        })
+        .catch((error) => {
+          // Message.error(
+          //   error.code === "ECONNABORTED" ? "请求超时" : "请求错误，请重新尝试"
+          // );
+        });
     },
     _confirmScan() {
       console.log(this.$route.query.uid);
@@ -120,22 +164,27 @@ body {
   justify-content: center;
   flex-direction: column;
   align-items: center;
+
   .mockInfo {
     display: flex;
     gap: 2rem;
     justify-content: space-between;
+
     .infoText {
       font-size: 12px;
     }
   }
+
   .mockTip {
     color: rgb(94, 94, 94);
     font-size: 16px;
     margin: 0 0 2rem 0;
   }
+
   .mockIcon {
     margin: 10rem 0 1rem 0;
   }
+
   .mockLogin {
     width: 220px;
     display: flex;

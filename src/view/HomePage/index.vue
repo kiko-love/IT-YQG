@@ -1,7 +1,7 @@
 !<template>
-  <div style="text-align: center; margin: 15px auto">
+  <div style="text-align: center; margin: 10px auto;">
     HomePage开发测试 这里是首页内容区域
-    文章推送（实现思路：懒加载or分页-内容协同过滤CF）
+    文章推送（实现思路：懒加载or分页-基于用户行为的协同过滤CF）
   </div>
   <div
     ref="scrollContainer"
@@ -127,8 +127,7 @@
                 <div class="sign-title">{{ signTitle }}</div>
                 <div class="sign-tip">记录在社区的美好时刻</div>
               </div>
-              <div class="sign-btn">
-                <!-- <icon-face-smile-fill  :size="48"/> -->
+              <!-- <div class="sign-btn">
                 <a-button
                   @click="handleSign"
                   type="primary"
@@ -136,7 +135,7 @@
                   :loading="signBtnLoading"
                   >{{ signBtnTitle }}</a-button
                 >
-              </div>
+              </div> -->
             </div>
           </div>
           <div>
@@ -685,6 +684,6 @@ export default {
   list-style: none;
   padding: 0 1rem;
   margin: 0 1rem;
-  margin-bottom: 5rem;
+  margin-bottom: 7rem;
 }
 </style>

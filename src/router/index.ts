@@ -32,10 +32,21 @@ const routes = [
         component: () => import('@/view/activatedRegister/index.vue'),
       },
       {
+        path: '/uploadResource',
+        name: 'uploadResource',
+        component: () => import('@/view/uploadResource/index.vue'),
+      },
+      {
         path: '/:pathMatch(.*)',
         name: 'error',
         component: () => import('@/view/404/index.vue'),
         meta: { title: '404' },
+      },
+      {
+        path: '/noPermission',
+        name: 'noPermission',
+        component: () => import('@/view/403/index.vue'),
+        meta: { title: '403' },
       },
 
     ],
@@ -52,12 +63,6 @@ const routes = [
     component: () => import('@/view/mockScan/index.vue'),
     meta: { title: 'loginScan' },
   },
-  {
-    path: '/noPermission',
-    name: 'noPermission',
-    component: () => import('@/view/403/index.vue'),
-    meta: { title: '403' },
-  },
   // {
   //   path: '/:pathMatch(.*)',
   //   name: 'error',
@@ -73,17 +78,18 @@ const router = createRouter({
 });
 
 const isLogin = function () {
-  let login = sessionStorage.getItem("access_token");
+  let login = localStorage.getItem("login_token");
   return !!login;
 };
 
 
 router.beforeEach((to, from, next) => {
-  let exPath = ['/home', '/index', '/noPermission']
-  if (exPath.includes(to.path) || to.name === 'error') return next();
+  const excludedPaths = ['/home', '/index', '/noPermission', '/resource', 
+  '/communication', '/suggestion', '/activate','/login/scan']
+  if (excludedPaths.includes(to.path) || to.name === 'error') return next();
   //获取token
-  const tokenStr = window.sessionStorage.getItem('access_token')
-  // if (!tokenStr) return next('/noPermission')
+  const tokenStr = localStorage.getItem('login_token')
+  if (!tokenStr) return next('/noPermission')
   next()
 })
 

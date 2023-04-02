@@ -7,13 +7,13 @@ export const userStore = defineStore({
             userId:'',
             username: "ZYY",
             usercoin: 9999,
-            uservalue:400,//500最大值
+            userexp:400,//500最大值
             userAvatarUrl:'',
             loginStatus:false,
         }
     },
     actions: {
-        setUserName(name:any) {
+        setUserName(name:string) {
             // 可直接通过this访问state属性
             this.username = name;
         },
@@ -21,7 +21,7 @@ export const userStore = defineStore({
             this.usercoin = coin
         },
         setUserValue(value:number) {
-            this.uservalue = value
+            this.userexp = value
         },
     }
 })

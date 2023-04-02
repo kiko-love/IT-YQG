@@ -11,8 +11,21 @@
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "./",// 解析非相对模块的基础地址，默认是当前目录
+    "paths": {
+    // 路径映射，相对于baseUrl
+      "@/*":["src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/api/http.js", "src/api/login.js", "src/utils/encryptUtils.js"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/api/http.js",
+    "src/api/login.js",
+    "src/utils/encryptUtils.js"
+, "src/api/logout.js"  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

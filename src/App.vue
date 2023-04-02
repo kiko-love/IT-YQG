@@ -20,6 +20,10 @@
 </style>
 
 <style>
+.iconpark-icon {
+  width: 2em;
+  height: 2em;
+}
 * {
   margin: 0;
   padding: 0;
