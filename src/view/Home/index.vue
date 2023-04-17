@@ -155,7 +155,7 @@
                             <div v-if="this.notificationLoading" class="notification-spin">
                               <a-spin />
                             </div>
-                            <div v-else v-for="(i, index) in 3" class="notification-entry" :key="index">
+                            <div v-else v-for="(i, index) in 2" class="notification-entry" :key="index">
                               <div class="n-closeBtn">
                                 <a-button type="text" size="mini" shape="round">
                                   <template #icon>
@@ -166,16 +166,16 @@
                               <div class="n-avatar">
                                 <a-avatar :style="{
                                   backgroundColor: '#3370ff',
-                                  cursor: 'pointer',
                                   'user-select': 'none',
                                 }">
                                   <IconUser />
                                 </a-avatar>
                               </div>
                               <div class="n-content">
-                                <div class="n-title">猿趣阁</div>
+                                <div class="n-title">猿趣阁管理员</div>
                                 <div class="n-text">
-                                  消息测试消息测试消息测试消息测试消息测试
+                                  这是来自猿趣阁管理员的测试广播消息<br />
+                                  文本😃😃😃
                                 </div>
                                 <div class="n-time">2023年1月21日 23点59分</div>
                               </div>
@@ -187,7 +187,7 @@
                     <div class="myAvatar">
                       <a-popover position="br" trigger="click" popup-container=".myAvatar">
                         <a-avatar :style="{
-                          backgroundColor: '#3370ff',
+                          backgroundColor: '#fff',
                           cursor: 'pointer',
                           'user-select': 'none',
                         }" :imageUrl="user.userAvatarUrl">
@@ -208,7 +208,7 @@
                             <div class="user-info">
                               <div class="user-avatar">
                                 <a-avatar :style="{
-                                  backgroundColor: '#3370ff',
+                                  backgroundColor: '#fff',
                                   cursor: 'pointer',
                                 }" :imageUrl="user.userAvatarUrl">
                                   <IconUser />
@@ -253,8 +253,8 @@
                   <div v-else class="login-register">
                     <a-popover position="br" trigger="hover" popup-container=".login-register">
                       <a-button-group type="primary">
-                        <a-button @click="handleLoginVisible">登录</a-button>
-                        <a-button @click="handleRegisterVisible">注册</a-button>
+                        <a-button @click="handleLoginVisible">登录<a-divider direction="vertical" />注册</a-button>
+                        <!-- <a-button @click="handleRegisterVisible">注册</a-button> -->
                       </a-button-group>
                       <template #content>
                         <div class="lr">
@@ -521,6 +521,7 @@ import {
   IconBulb,
 } from "@arco-design/web-vue/es/icon";
 import { userStore } from "@/store/userStore";
+import { useRouter } from "vue-router";
 import { login } from "@/api/login";
 import { logout } from "@/api/logout";
 import { loginAccount } from "@/api/loginAccount";
@@ -528,9 +529,9 @@ import { getMsgUid } from "@/api/getMsgUid";
 import { register } from "@/api/register";
 import { ref, reactive } from "vue";
 import { sha256 } from "js-sha256";
-import { useRouter } from "vue-router";
 import { Message } from "@arco-design/web-vue";
 import { moveElementToFront } from "@/utils/sHistoryUtils";
+import { vertifyToken } from "@/utils/vertifyToken";
 export default {
   name: "ItYqgIndex",
   components: {
@@ -662,6 +663,9 @@ export default {
     };
   },
   created() {
+    vertifyToken().catch((err) => {
+      this.user.loginStatus = false;
+    });
     this.getUserInfo();
     this.searchHistory = this.getSearchHistory();
   },
@@ -801,7 +805,6 @@ export default {
           const r = response.data;
           if (r.code === 100) {
             localStorage.removeItem("login_token");
-            localStorage.setItem("user", JSON.stringify({}));
             that.user.loginStatus = false;
             Message.success("退出登录成功");
             router.go(0);
@@ -812,14 +815,13 @@ export default {
         .catch((error) => { });
     },
     getUserInfo() {
-      const access_token = localStorage.getItem("login_token");
+      const login_token = localStorage.getItem("login_token");
       const user = JSON.parse(localStorage.getItem("user"));
       if (user !== null && user !== undefined) {
         this.user.userAvatarUrl = user.userAvatarUrl;
         this.user.usercoin = user.usercoin;
         this.user.username = user.username;
         this.user.userId = user.username;
-        this.user.loginStatus = user.loginStatus;
       }
     },
     confirmRegister() {
@@ -854,11 +856,17 @@ export default {
             if (result.code === 300) {
               that.registerView = "2";
               Message.success("账号注册成功，请前往您的注册邮箱进行激活操作");
+            } else if (result.code === 302) {
+              Message.warning("该账号已被注册");
+            } else if (result.code === 303) {
+              Message.warning("该邮箱已被注册");
             } else {
               Message.warning("账号注册失败");
             }
           })
-          .catch((error) => { });
+          .catch((error) => {
+            Message.error(error);
+           });
       } else {
         Message.warning("请检查您的输入是否合法");
       }
@@ -874,7 +882,7 @@ export default {
       res
         .then((response) => {
           //这里是请求成功后的操作
-          console.log(response);
+          console.log(response.data);
           const result = response.data;
           if (result === null || result === undefined || result === "") {
             Message.error("请求发生错误，请重新尝试");
@@ -1127,20 +1135,6 @@ export default {
 
 .popc {
   position: relative;
-}
-
-div::-webkit-scrollbar {
-  width: 6px;
-}
-
-div::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  background: #b9b9b9;
-}
-
-div::-webkit-scrollbar-track {
-  border-radius: 10px;
-  background: #eeeeee;
 }
 
 .arco-modal-simple {
@@ -1627,14 +1621,14 @@ div::-webkit-scrollbar-track {
 .notification-container {
   position: relative;
   max-height: 350px;
-  height: 350px;
-  padding-right: 12px;
+  min-width: 336px;
   overflow-y: auto;
   overflow-x: hidden;
 
   .notification-entry:not(:last-child) {
     padding-bottom: 1rem;
     border-bottom: 1px solid #e4e3e3da;
+    margin-right: 4px;
   }
 
   .notification-entry:hover {

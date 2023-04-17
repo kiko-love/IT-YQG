@@ -5,7 +5,7 @@
     </div>
     <div class="error-desc">您暂无权限访问该页面（No permissions）</div>
     <div class="error-handle">
-      <a-button type="primary" size="large" shape="round" @click="goHome">返回登录</a-button>
+      <a-button type="primary" size="large" shape="round" @click="goHome">返回首页</a-button>
     </div>
   </div>
 </template>

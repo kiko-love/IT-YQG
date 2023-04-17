@@ -33,7 +33,7 @@
 
                 <a-popover v-if="userInfo.loginStatus" content-class="img-pop" position="bottom" trigger="click"
                   popup-container=".user-tip">
-                  <a-avatar :style="{ backgroundColor: '#3370ff', cursor: 'pointer' }">
+                  <a-avatar :style="{ backgroundColor: '#fff', cursor: 'pointer' }">
                     <img :src="userInfo.userAvatarUrl" />
                   </a-avatar>
                   <template #content>
@@ -54,7 +54,7 @@
                     </a-space>
                   </template>
                 </a-popover>
-                <a-avatar v-else :style="{ backgroundColor: '#3370ff', cursor: 'pointer' }">
+                <a-avatar v-else :style="{ backgroundColor: '#fff', cursor: 'pointer' }">
                   <IconUser />
                 </a-avatar>
               </div>

@@ -36,14 +36,43 @@
                   maxRows: 7,
                 }" />
             </div>
+            <div class="link-container" v-if="linkInfo.title !== '' || getLinkLoading">
+              <div class="link-warpper">
+                <icon-close-circle-fill :size="20" class="link-clear" @click="clearLinkInfo" />
+                <a-avatar class="link-favicon" :size="40"
+                  :class="[{ 'blue-bg': !linkInfo.favicon }, { 'white-bg': linkInfo.favicon }]" shape="square"
+                  :imageUrl="linkInfo.favicon">
+                  <icon-link v-if="isEmpty(linkInfo.favico)" />
+                </a-avatar>
+
+                <div class="link-loading" v-if="getLinkLoading">
+                  <div>
+                    加载中...
+                  </div>
+                </div>
+                <div v-else class="link-title">
+                  <div class="main-title">{{ linkInfo.title }}</div>
+                  <div class="sub-title">{{ linkInfo.subtitle }}</div>
+                </div>
+              </div>
+            </div>
             <div class="toolbar">
               <div class="tools">
                 <div class="tool-item"><icon-tags />标签</div>
-                <a-popover trigger="click" position="tl">
+                <a-popover trigger="click" position="bl">
                   <div class="tool-item"><icon-link />链接</div>
                   <template #content>
-                    <a-input :style="{width:'260px'}" placeholder="输入链接" allow-clear />
-                    <div class="link-get-tip">自动获取链接标题和图标</div>
+                    <a-input v-model="linkInfo.url" :style="{ width: '260px', margin: '8px 0' }" placeholder="请输入链接"
+                      allow-clear />
+                    <div class="link-get-tip">
+                      <div>自动获取链接标题和图标</div>
+                      <a-button type="primary" size="mini" @click="getLinkInfo" :disabled="getLinkLoading">
+                        <template #icon>
+                          <icon-plus />
+                        </template>
+                      </a-button>
+                    </div>
+
                   </template>
                 </a-popover>
               </div>
@@ -207,7 +236,7 @@
 </template>
 
 <script>
-import { Icon } from "@arco-design/web-vue";
+import { Icon, Message } from "@arco-design/web-vue";
 import {
   IconThumbUp,
   IconShareInternal,
@@ -224,6 +253,8 @@ import {
   IconMoreVertical,
   IconFire,
   IconReply,
+  IconPlus,
+  IconCloseCircleFill
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 
@@ -249,8 +280,16 @@ export default {
     IconFire,
     IconMoreVertical,
     IconReply,
+    IconPlus,
+    IconCloseCircleFill
   },
   setup(props) {
+    const linkInfo = reactive({
+      url: '',
+      title: '',
+      subtitle: '',
+      favicon: '',
+    });
     const cList = reactive([
       {
         id: 1,
@@ -347,15 +386,24 @@ export default {
         id: 4,
       },
     ]);
+    const clearLinkInfo = () => {
+      Object.keys(linkInfo).forEach(key => {
+        linkInfo[key] = '';
+      });
+    }
     const editor_content = ref("");
     const editor_reply = ref("");
     const cListLoading = ref(true);
+    const getLinkLoading = ref(false);
     return {
       editor_content,
       editor_reply,
       recommedTopic,
       cListLoading,
       cList,
+      linkInfo,
+      clearLinkInfo,
+      getLinkLoading,
     };
   },
   created() {
@@ -371,15 +419,134 @@ export default {
 
   mounted() { },
 
-  methods: {},
+  methods: {
+    isEmpty: (obj) => {
+      if (obj === null) return true;
+      if (obj === undefined || obj === '') return true;
+      if (obj.length && obj.length > 0) return false;
+      if (obj.length === 0) return true;
+      for (var key in obj) {
+        if (hasOwnProperty.call(obj, key)) return false;
+      }
+      return true;
+    },
+    getLinkInfo() {
+      const link = this.linkInfo;
+      link.favicon = '';
+      const that = this
+      const urlRegex = /^(((ht|f)tps?):\/\/)?([^!@#$%^&*?.\s-]([^!@#$%^&*?.\s]{0,63}[^!@#$%^&*?.\s])?\.)+[a-z]{2,6}\/?/;
+      if (urlRegex.test(link.url)) {
+        Message.success("正在获取链接信息");
+        that.getLinkLoading = true;
+        this.scrapeLink(link.url)
+          .then(result => {
+            link.title = result.title;
+            link.favicon = result.favicon;
+            link.subtitle = result.domain;
+            that.getLinkLoading = false;
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      } else {
+        Message.warning("请输入正确的链接");
+      }
+
+    },
+    async scrapeLink(url) {
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+      const data = await response.json();
+
+      const parser = new DOMParser();
+      const htmlDoc = parser.parseFromString(data.contents, 'text/html');
+      const title = htmlDoc.querySelector('title').textContent;
+      let domain;
+      try {
+        domain = new URL(url).hostname;
+      } catch (error) {
+        console.error(error);
+      }
+
+      let favicon;
+      const linkTags = htmlDoc.getElementsByTagName('link');
+      for (let i = 0; i < linkTags.length; i++) {
+        if (linkTags[i].getAttribute('rel') === 'shortcut icon' || linkTags[i].getAttribute('rel') === 'icon') {
+          favicon = linkTags[i].getAttribute('href');
+          break;
+        }
+      }
+
+      return {
+        title: title,
+        domain: domain,
+        favicon: favicon
+      };
+    }
+  },
 };
 </script>
 <style lang="less" scoped>
+.blue-bg {
+  background: #3370ff;
+}
+
+.white-bg {
+  background: #fff;
+}
+
+.link-container {
+  .link-warpper {
+    position: relative;
+    display: flex;
+    margin: 1rem 1.5rem;
+    padding: 1rem;
+    border-radius: 5px;
+    background-color: var(--color-neutral-2);
+    .link-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .link-clear {
+      position: absolute;
+      cursor: pointer;
+      right: -3px;
+      top: -5px;
+
+    }
+
+    .link-favicon {
+      margin-right: 1rem;
+      cursor: default;
+    }
+
+    .link-title {
+      display: flex;
+      flex-direction: column;
+
+      .main-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+        color: var(--color-neutral-10);
+      }
+
+      .sub-title {
+        font-size: 13px;
+        color: var(--color-neutral-6);
+      }
+    }
+  }
+
+}
+
 .link-get-tip {
-  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
   color: var(--color-neutral-8);
   padding: 6px;
 }
+
 .reply-list {
   position: relative;
 
