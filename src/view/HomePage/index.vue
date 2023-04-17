@@ -31,27 +31,27 @@
                 <li class="list-item" v-for="(i, k) in articleList" :key="k">
                   <div @click="handleItem(k)" class="item-container">
                     <div class="item-header">
-                      <div>{{ i.userInfo.user_name }}</div>
+                      <div>{{ i.user.userName }}</div>
                       <a-divider direction="vertical" />
-                      <div class="item-time">{{ i.create_time }}</div>
+                      <div class="item-time">{{getTimeAgoStr(i.updateTime) }}</div>
                       <a-divider direction="vertical" />
                       <div class="item-tags">
-                        <div v-for="(tag, tk) in i.article_tags" class="item-tag" key="tag">
+                        <div v-for="(tag, tk) in i.tagsArray" class="item-tag" key="tag">
                           {{ tag }}
                         </div>
                       </div>
                     </div>
                     <div class="item-body">
                       <div>
-                        <a-avatar :style="{ backgroundColor: '#3370ff' }">
-                          <IconUser v-if="i.userInfo.user_avatar_url === ''" />
-                          <img :src="i.userInfo.user_avatar_url" alt="" />
+                        <a-avatar :style="{ backgroundColor: '#fff' }">
+                          <IconUser v-if="i.user.user_avatar_url === ''" />
+                          <img :src="i.user.userAvatarUrl" alt="" />
                         </a-avatar>
                       </div>
                       <div>
-                        <div class="item-title">{{ i.article_title }}</div>
+                        <div class="item-title">{{ i.title }}</div>
                         <div class="item-description">
-                          {{ i.article_abstract }}
+                          {{ i.content }}
                         </div>
                       </div>
                     </div>
@@ -59,21 +59,14 @@
                       <span>
                         <icon-eye />
                         <span class="bottom-number">{{
-                          i.article_read_count
-                        }}</span>
-                      </span>
-                      <a-divider direction="vertical" />
-                      <span>
-                        <icon-heart />
-                        <span class="bottom-number">{{
-                          i.article_like_count
+                          i.readCount
                         }}</span>
                       </span>
                       <a-divider direction="vertical" />
                       <span>
                         <icon-message />
                         <span class="bottom-number">{{
-                          i.article_comment_count
+                          i.commentCount
                         }}</span>
                       </span>
                     </div>
@@ -123,9 +116,9 @@
                   </template>
                   <div class="rank-container" v-on:scroll="handleListScroll">
                     <div v-if="rankLoading" class="rank-skeleton">
-                      <a-skeleton :animation="true" :style="{width:'277px'}">
+                      <a-skeleton :animation="true" :style="{ width: '277px' }">
                         <div>
-                        <a-skeleton-line :rows="2" :widths="['100%','100%']"/>
+                          <a-skeleton-line :rows="2" :widths="['100%', '100%']" />
                         </div>
                       </a-skeleton>
                     </div>
@@ -160,11 +153,11 @@
     <!-- 右下角悬浮组件 -->
     <div class="side-suspension">
       <div class="div-backtoTop">
-          <a-button v-if="btnFlag" class="backTop btn" type="primary" shape="circle" @click="backTop">
-            <template #icon>
-              <icon-to-top />
-            </template>
-          </a-button>
+        <a-button v-if="btnFlag" class="backTop btn" type="primary" shape="circle" @click="backTop">
+          <template #icon>
+            <icon-to-top />
+          </template>
+        </a-button>
       </div>
       <div class="div-suggestion">
         <a-tooltip popup-container=".div-suggestion" content="建议反馈" position="left">
@@ -191,6 +184,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { ref, reactive } from "vue";
 import { userStore } from "@/store/userStore";
+import { getRecommendArticle } from "@/api/getRecommendArticle";
 export default {
   components: {
     IconHeart,
@@ -214,64 +208,7 @@ export default {
         article_comment_count: 999,
         article_tags: ["Java", "SpringBoot", "后端"],
         create_time: "一天前",
-        userInfo: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        userInfo: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        userInfo: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        userInfo: {
+        user: {
           user_id: 1,
           user_name: "ZYY",
           user_avatar_url: "",
@@ -305,6 +242,7 @@ export default {
 
   created() {
     this.getSignTitle();
+    this.recommendList();
   },
 
   mounted() {
@@ -318,6 +256,35 @@ export default {
     }, 1000);
   },
   methods: {
+    getTimeAgoStr(timestamp) {
+      const now = Date.now();
+      const diff = now - timestamp;
+      if (diff < 60 * 1000) { // 一分钟以内
+        return '刚刚';
+      } else if (diff < 60 * 60 * 1000) { // 一小时以内
+        const minutesAgo = Math.floor(diff / (60 * 1000));
+        return `${minutesAgo}分钟前`;
+      } else if (diff < 24 * 60 * 60 * 1000) { // 一天以内
+        const hoursAgo = Math.floor(diff / (60 * 60 * 1000));
+        return `${hoursAgo}小时前`;
+      } else if (diff < 30 * 24 * 60 * 60 * 1000) { // 一个月以内
+        const daysAgo = Math.floor(diff / (24 * 60 * 60 * 1000));
+        return `${daysAgo}天前`;
+      } else if (diff < 12 * 30 * 24 * 60 * 60 * 1000) { // 一年以内
+        const monthsAgo = Math.floor(diff / (30 * 24 * 60 * 60 * 1000));
+        return `${monthsAgo}个月前`;
+      } else { // 一年以上
+        const yearsAgo = Math.floor(diff / (12 * 30 * 24 * 60 * 60 * 1000));
+        return `${yearsAgo}年前`;
+      }
+    },
+    recommendList() {
+      getRecommendArticle(this.userInfo.userId).then(res => {
+        console.log(res.data)
+        this.articleList = res.data.data;
+        console.log(this.articleList)
+      })
+    },
     changeHomeResourceTab(tab) {
       this.listLoading = true;
       setTimeout(() => {
@@ -438,6 +405,7 @@ export default {
 /deep/.arco-card-size-medium .arco-card-body {
   padding: 0;
 }
+
 .rank-skeleton {
   display: flex;
   justify-content: center;
