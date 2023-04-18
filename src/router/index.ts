@@ -71,13 +71,23 @@ const routes = [
   {
     path: '/adminHome',
     name: 'adminHome',
-    // redirect: '/adminHome/info',
+    redirect: '/adminHome/info',
     component: () => import('@/admin/view/Home/index.vue'),
     children: [
       {
         path: 'info',
         name: 'info',
         component: () => import('@/admin/view/Info/index.vue'),
+      },
+      {
+        path: 'user',
+        name: 'user',
+        component: () => import('@/admin/view/User/index.vue'),
+      },
+      {
+        path: 'resource',
+        name: 'resource',
+        component: () => import('@/admin/view/Resource/index.vue'),
       }
     ]
   }

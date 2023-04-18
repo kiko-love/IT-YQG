@@ -22,16 +22,16 @@
         </a-layout-header>
         <a-layout>
             <a-layout-sider collapsible>
-                <a-menu :defaultSelectedKeys="['0_1']" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
-                    <a-menu-item key="0_1">
+                <a-menu :defaultSelectedKeys="['info']" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
+                    <a-menu-item key="info">
                         <icon-idcard />
                         管理员信息
                     </a-menu-item>
-                    <a-menu-item key="0_2">
+                    <a-menu-item key="user">
                         <icon-user-group />
                         用户管理
                     </a-menu-item>
-                    <a-menu-item key="0_3">
+                    <a-menu-item key="comment">
                         <icon-message />
                         评论管理
                     </a-menu-item>
@@ -41,8 +41,8 @@
                                 <icon-book />文章
                             </span>
                         </template>
-                        <a-menu-item key="1_1">文章管理</a-menu-item>
-                        <a-menu-item key="1_2">文章审核</a-menu-item>
+                        <a-menu-item key="articleManager">文章管理</a-menu-item>
+                        <a-menu-item key="articleAudit">文章审核</a-menu-item>
                     </a-sub-menu>
                     <a-sub-menu key="4">
                         <template #title>
@@ -50,8 +50,8 @@
                                 <icon-apps />资源
                             </span>
                         </template>
-                        <a-menu-item key="4_1">资源管理</a-menu-item>
-                        <a-menu-item key="4_2">资源审核</a-menu-item>
+                        <a-menu-item key="resourceManager">资源管理</a-menu-item>
+                        <a-menu-item key="resourceAudit">资源审核</a-menu-item>
                     </a-sub-menu>
                 </a-menu>
             </a-layout-sider>
@@ -63,6 +63,7 @@
 </template>
 <script>
 import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import {
     IconCaretRight,
     IconCaretLeft,
@@ -85,6 +86,7 @@ export default {
         IconApps
     },
     setup() {
+        const router = useRouter();
         const collapsed = ref(false);
         const onClickMenuItem = (e) => {
             console.log(e);
