@@ -1,9 +1,9 @@
 import http from './http'
 
-export const getRecommendArticle = (v) => {     //data是参数，里面传入登录信息
+export const getRecommendArticle = (v,t) => {     //data是参数，里面传入登录信息
     return http({
         method: 'get', //请求方法
-        url: '/api/article/list/'+v,
+        url: '/api/article/list/'+v+'/'+t,
         responseType: "json",
         headers: {
             'Content-Type': 'application/json',

@@ -866,9 +866,9 @@ export default {
           })
           .catch((error) => {
             Message.error(error);
-           });
+          });
       } else {
-        Message.warning("请检查您的输入是否合法");
+        Message.warning("请检查您的输入是否完整或合法");
       }
     },
     //密码登录
@@ -1082,7 +1082,7 @@ export default {
           that.loginQrData = window.URL.createObjectURL(new Blob(binary));
           that.initWebSocket(response.headers.token);
         })
-        .catch((error) => { });
+        .catch((error) => { this.QrLoading = false; this.loginQrData = "src/assets/img-error.png"; });
     },
     closeRegister() {
       this.rVisible = false;

@@ -10,10 +10,10 @@
           <a-card :style="{ width: '100%' }">
             <template #title>
               <div>
-                <a-tabs @change="changeHomeResourceTab(key)" class="list-tab" default-active-key="1" type="rounded">
-                  <a-tab-pane key="1" title="推荐"></a-tab-pane>
-                  <a-tab-pane key="2" title="最热"></a-tab-pane>
-                  <a-tab-pane key="3">
+                <a-tabs @change="changeHomeResourceTab" class="list-tab" default-active-key="0" type="rounded">
+                  <a-tab-pane key="0" title="推荐"></a-tab-pane>
+                  <a-tab-pane key="1" title="最热"></a-tab-pane>
+                  <a-tab-pane key="2">
                     <template #title>最新</template>
                   </a-tab-pane>
                 </a-tabs>
@@ -28,12 +28,13 @@
                 </a-skeleton>
               </div>
               <div ref="content" class="entry-list-container" v-else>
+                <a-empty class="empty-tip" v-if="articleList.length === 0" />
                 <li class="list-item" v-for="(i, k) in articleList" :key="k">
                   <div @click="handleItem(k)" class="item-container">
                     <div class="item-header">
                       <div>{{ i.user.userName }}</div>
                       <a-divider direction="vertical" />
-                      <div class="item-time">{{getTimeAgoStr(i.updateTime) }}</div>
+                      <div class="item-time">{{ getTimeAgoStr(i.updateTime) }}</div>
                       <a-divider direction="vertical" />
                       <div class="item-tags">
                         <div v-for="(tag, tk) in i.tagsArray" class="item-tag" key="tag">
@@ -278,16 +279,28 @@ export default {
         return `${yearsAgo}年前`;
       }
     },
-    recommendList() {
-      getRecommendArticle(this.userInfo.userId).then(res => {
-        console.log(res.data)
-        this.articleList = res.data.data;
-        console.log(this.articleList)
-      })
+    //判断值是否为空，es6写法
+    isEmpty(value) {
+      return value === undefined || value === null || value === "";
+    },
+    recommendList(type) {
+      type = this.isEmpty(type) ? 0 : type
+      //判断userId是否存在，存在则获取推荐文章，不存在则获取热门文章
+      this.userInfo.userId = this.isEmpty(this.userInfo.userId) ? 0 : this.userInfo.userId
+      getRecommendArticle(this.userInfo.userId, type)
+        .then(res => {
+          console.log(res.data)
+          this.articleList = res.data.data;
+          console.log(this.articleList)
+        })
+        .catch(err => {
+          this.articleList = []
+        })
     },
     changeHomeResourceTab(tab) {
       this.listLoading = true;
       setTimeout(() => {
+        this.recommendList(tab)
         this.listLoading = false;
       }, 1000);
     },
@@ -404,6 +417,13 @@ export default {
 <style lang="less" scoped>
 /deep/.arco-card-size-medium .arco-card-body {
   padding: 0;
+}
+
+.empty-tip {
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .rank-skeleton {
