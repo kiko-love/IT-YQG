@@ -63,6 +63,24 @@ const routes = [
     component: () => import('@/view/mockScan/index.vue'),
     meta: { title: 'loginScan' },
   },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: () => import('@/admin/view/Login/index.vue'),
+  },
+  {
+    path: '/adminHome',
+    name: 'adminHome',
+    // redirect: '/adminHome/info',
+    component: () => import('@/admin/view/Home/index.vue'),
+    children: [
+      {
+        path: 'info',
+        name: 'info',
+        component: () => import('@/admin/view/Info/index.vue'),
+      }
+    ]
+  }
   // {
   //   path: '/:pathMatch(.*)',
   //   name: 'error',
@@ -89,7 +107,7 @@ router.beforeEach((to, from, next) => {
   if (excludedPaths.includes(to.path) || to.name === 'error') return next();
   //获取token
   const tokenStr = localStorage.getItem('login_token')
-  if (!tokenStr) return next('/noPermission')
+  // if (!tokenStr) return next('/noPermission')
   next()
 })
 

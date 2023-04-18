@@ -456,7 +456,6 @@ export default {
     async scrapeLink(url) {
       const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
       const data = await response.json();
-
       const parser = new DOMParser();
       const htmlDoc = parser.parseFromString(data.contents, 'text/html');
       const title = htmlDoc.querySelector('title').textContent;
