@@ -395,9 +395,11 @@ export default {
       let v = {
         title: textaeraTitle.value,
         content: tinyMCE.activeEditor.getContent(),
+        summary: (tinyMCE.activeEditor.getContent({ format: 'text' })).replaceAll(/[\r\n]/g, ""),
         tags: uploadTags.value.join(','),
         userId: user.userId,
       }
+      console.log(v);
       if (v.tags === '') {
         Message.error({
           content: '请选择文章标签',
