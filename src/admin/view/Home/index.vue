@@ -17,12 +17,24 @@
                         <IconUser />
                         <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                     </a-avatar>
+                    <template #content>
+                        <a-space direction="vertical" fill>
+                            <!-- <a-button size="small" long>
+                        <template #icon>
+                          <icon-archive />
+                        </template>
+                        草稿箱</a-button
+                      > -->
+                            <a-button size="small" long>
+                                <template #icon> <icon-poweroff /> </template>退出登录</a-button>
+                        </a-space>
+                    </template>
                 </a-popover>
             </div>
         </a-layout-header>
         <a-layout>
             <a-layout-sider collapsible>
-                <a-menu :defaultSelectedKeys="['info']" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
+                <a-menu :defaultSelectedKeys="[$route.name]" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
                     <a-menu-item key="info">
                         <icon-idcard />
                         管理员信息
@@ -33,26 +45,10 @@
                     </a-menu-item>
                     <a-menu-item key="comment">
                         <icon-message />
-                        评论管理
+                        标签管理
                     </a-menu-item>
-                    <a-sub-menu key="1">
-                        <template #title>
-                            <span>
-                                <icon-book />文章
-                            </span>
-                        </template>
-                        <a-menu-item key="articleManager">文章管理</a-menu-item>
-                        <a-menu-item key="articleAudit">文章审核</a-menu-item>
-                    </a-sub-menu>
-                    <a-sub-menu key="4">
-                        <template #title>
-                            <span>
-                                <icon-apps />资源
-                            </span>
-                        </template>
-                        <a-menu-item key="resourceManager">资源管理</a-menu-item>
-                        <a-menu-item key="resourceAudit">资源审核</a-menu-item>
-                    </a-sub-menu>
+                    <a-menu-item key="article"><icon-book />文章管理</a-menu-item>
+                    <a-menu-item key="resource"><icon-apps />资源管理</a-menu-item>
                 </a-menu>
             </a-layout-sider>
             <a-layout-content>
@@ -72,7 +68,8 @@ import {
     IconUser,
     IconUserGroup,
     IconBook,
-    IconApps
+    IconApps,
+    IconPoweroff,
 } from '@arco-design/web-vue/es/icon';
 export default {
     components: {
@@ -83,13 +80,17 @@ export default {
         IconUser,
         IconUserGroup,
         IconBook,
-        IconApps
+        IconApps,
+        IconPoweroff,
+    },
+    created() {
     },
     setup() {
         const router = useRouter();
         const collapsed = ref(false);
         const onClickMenuItem = (e) => {
             console.log(e);
+            router.push({ path: e });
         };
         return {
             collapsed,

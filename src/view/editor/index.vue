@@ -63,15 +63,16 @@
         </div>
       </a-layout-header>
       <a-layout-content @scroll="listenScroll" class="content-container">
-        <div class="container">
-          <div class="text-container">
-            <a-textarea v-model:model-value="textaeraTitle" class="top-title" :max-length="100" placeholder="请输入标题"
-              :auto-size="{ minRows: 1, maxRows: 3 }" @input="textareaKeydown" @keydown="changeTitle" show-word-limit />
-          </div>
-          <vue3-tinymce v-model="state.content" :setting="state.setting" script-src="/public/tinymce/tinymce.min.js" />
-          <div class="editor-setting-row">
-            <div class="setting-title">文章设置</div>
-            <div class="setting-cover">
+        <div v-if="!uploadResultShow">
+          <div class="container">
+            <div class="text-container">
+              <a-textarea v-model:model-value="textaeraTitle" class="top-title" :max-length="100" placeholder="请输入标题"
+                :auto-size="{ minRows: 1, maxRows: 3 }" @input="textareaKeydown" @keydown="changeTitle" show-word-limit />
+            </div>
+            <vue3-tinymce v-model="state.content" :setting="state.setting" script-src="/public/tinymce/tinymce.min.js" />
+            <div class="editor-setting-row">
+              <div class="setting-title">文章设置</div>
+              <!-- <div class="setting-cover">
               <div class="label">添加封面</div>
               <div>
                 <a-upload action="/" list-type="picture-card" draggable image-preview :fileList="file ? [file] : []"
@@ -86,8 +87,8 @@
                   </template>
                   <template #upload-button>
                     <div :class="`arco-upload-list-item${file && file.status === 'error'
-                      ? ' arco-upload-list-item-error'
-                      : ''
+                        ? ' arco-upload-list-item-error'
+                        : ''
                       }`">
                       <div class="arco-upload-list-picture custom-upload-avatar" v-if="file && file.url">
                         <img :src="file.url" />
@@ -97,14 +98,13 @@
                             <icon-delete @click.stop="delCover" />
                           </a-space>
                         </div>
-                        <a-progress v-if="
-                          file.status === 'uploading' && file.percent < 100
-                        " :percent="file.percent" type="circle" size="mini" :style="{
-  position: 'absolute',
-  left: '50%',
-  top: '50%',
-  transform: 'translateX(-50%) translateY(-50%)',
-}" />
+                        <a-progress v-if="file.status === 'uploading' && file.percent < 100
+                          " :percent="file.percent" type="circle" size="mini" :style="{
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: 'translateX(-50%) translateY(-50%)',
+    }" />
                       </div>
                       <div class="arco-upload-picture-card" v-else>
                         <div class="arco-upload-picture-card-text">
@@ -122,46 +122,51 @@
                   </template>
                 </a-upload>
               </div>
+            </div> -->
+              <div class="setting-tags">
+                <div class="label">文章标签</div>
+                <div>
+                  <a-select v-model="uploadTags" :style="{ width: '300px' }" placeholder="搜索标签" allow-create multiple
+                    :max-tag-count="3" :limit="3" scrollbar @change="handleChange">
+                    <a-option v-for="item of tagsList" :value="item.tagName" :label="item.tagName" />
+                  </a-select>
+                </div>
+              </div>
             </div>
-            <div class="setting-tags">
-              <div class="label">文章标签</div>
+          </div>
+          <div class="editor-footer">
+            <div class="footer-container">
+              <div class="footer-left">
+                <div class="back-top">
+                  <span v-if="!backTopVisible" style="margin-right: 5px" @click="backTop">回到顶部<icon-up /></span>
+                  <span v-else style="margin-right: 5px" @click="backEnd">文章设置<icon-down /></span>
+                </div>
+                <div>字数：{{ eDataNumber }}</div>
+              </div>
               <div>
-                <a-select :default-value="['Vue', 'JavaScript']" :style="{ width: '300px' }" placeholder="搜索标签"
-                  allow-create multiple :max-tag-count="3" :limit="3" scrollbar @change="handleChange">
-                  <a-optgroup label="前端">
-                    <a-option>Vue</a-option>
-                    <a-option>JavaScript</a-option>
-                  </a-optgroup>
-                  <a-optgroup label="后端">
-                    <a-option>Java</a-option>
-                    <a-option disabled>Go</a-option>
-                    <a-option>Springboot</a-option>
-                  </a-optgroup>
-                  <a-optgroup label="人工智能">
-                    <a-option>chatGPT</a-option>
-                    <a-option>深度学习</a-option>
-                  </a-optgroup>
-                </a-select>
+                <a-button class="user-actions" @click="previewText" :disabled="state.content === ''">
+                  预览
+                </a-button>
+                <a-button class="user-actions" type="primary" @click="articleUpload"> 发布 </a-button>
               </div>
             </div>
           </div>
         </div>
-        <div class="editor-footer">
-          <div class="footer-container">
-            <div class="footer-left">
-              <div class="back-top">
-                <span v-if="!backTopVisible" style="margin-right: 5px" @click="backTop">回到顶部<icon-up /></span>
-                <span v-else style="margin-right: 5px" @click="backEnd">文章设置<icon-down /></span>
-              </div>
-              <div>字数：{{ eDataNumber }}</div>
-            </div>
-            <div>
-              <a-button class="user-actions" @click="previewText" :disabled="state.content === ''">
-                预览
-              </a-button>
-              <a-button class="user-actions" type="primary"> 发布 </a-button>
-            </div>
-          </div>
+        <div v-else>
+          <a-card class="result-card">
+            <a-result status="success" title="文章发布成功">
+              <template #subtitle>
+                <div class="result-subtitle">
+                  请等待后台管理员进行审核，通过后系统自动为您推送
+                </div>
+              </template>
+              <template #extra>
+                <a-space>
+                  <a-button type='primary' status="success">返回</a-button>
+                </a-space>
+              </template>
+            </a-result>
+          </a-card>
         </div>
       </a-layout-content>
     </a-layout>
@@ -180,6 +185,8 @@
 import { ref, reactive } from "vue";
 import { userStore } from "@/store/userStore";
 import { Decrypt, Encrypt } from "@/utils/encryptUtils";
+import { getTagsList } from "@/api/getTagsList";
+import { updateArticle } from "@/api/articleApi";
 import {
   IconUser,
   IconPoweroff,
@@ -194,6 +201,7 @@ import {
   IconDelete,
 } from "@arco-design/web-vue/es/icon";
 import Vue3Tinymce from "@jsdawn/vue3-tinymce";
+import { Message } from '@arco-design/web-vue';
 export default {
   name: "editor",
   components: {
@@ -224,6 +232,12 @@ export default {
     };
     const onProgress = (currentFile) => {
       file.value = currentFile;
+    };
+    const tagsList = ref([]);
+    const uploadTags = ref([]);
+    const getTags = async () => {
+      const res = await getTagsList();
+      tagsList.value = res.data.data;
     };
     const delCover = () => {
       console.log("删除封面");
@@ -373,15 +387,64 @@ export default {
         },
       },
     });
+    const textaeraTitle = ref("");
+    const eDataHTML = ref("");
+    const uploadResultShow = ref(false);
+    const articleUpload = () => {
+      const user = JSON.parse(localStorage.getItem("user"))
+      let v = {
+        title: textaeraTitle.value,
+        content: tinyMCE.activeEditor.getContent(),
+        tags: uploadTags.value.join(','),
+        userId: user.userId,
+      }
+      if (v.tags === '') {
+        Message.error({
+          content: '请选择文章标签',
+        });
+        return
+      } else if (v.title === '') {
+        Message.error({
+          content: '请输入文章标题',
+        });
+        return
+      } else if (v.content === '') {
+        Message.error({
+          content: '请输入文章内容',
+        });
+        return
+      }
+      updateArticle(v).then((res) => {
+        if (res.data.code === 100) {
+          Message.success({
+            content: '文章上传成功，请等待后台审核',
+          });
+          uploadResultShow.value = true;
 
+        } else if (res.data.code === 110) {
+          Message.error({
+            content: '文章上传失败',
+          });
+        }
+      }).catch((err) => {
+        if (err) {
+          Message.error({
+            content: '上传失败',
+            duration: 2,
+          });
+        }
+      })
+    }
     return {
+      uploadResultShow,
+      articleUpload,
       userInfo,
       state,
       eData: ref(""),
-      eDataHTML: ref(""),
+      eDataHTML,
       eDataNumber,
       backTopVisible: ref(true),
-      textaeraTitle: ref(""), // 标题
+      textaeraTitle, // 标题
       saveTime, // 保存时间
       draft_key,
       timer,
@@ -392,9 +455,14 @@ export default {
       onChange,
       onProgress,
       delCover,
+      tagsList,
+      uploadTags,
+      getTags,
     };
   },
-  created() { },
+  created() {
+    this.getTags();
+  },
   data() {
     return {};
   },
@@ -493,6 +561,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.result-card {
+  margin: 10rem 3rem 0 3rem;
+
+  .result-subtitle {
+    font-size: 20px;
+    margin: 1rem;
+  }
+}
+
 .back-top {
   user-select: none;
 }
@@ -571,7 +648,7 @@ export default {
   border-bottom: 1px solid rgb(237, 237, 237);
   position: fixed;
   top: 75px;
-  width:891px;
+  width: 891px;
   height: 60px;
 }
 

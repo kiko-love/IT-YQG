@@ -45,14 +45,14 @@
                     <div class="item-body">
                       <div>
                         <a-avatar :style="{ backgroundColor: '#fff' }">
-                          <IconUser v-if="i.user.user_avatar_url === ''" />
+                          <IconUser v-if="i.user.userAvatarUrl === ''" />
                           <img :src="i.user.userAvatarUrl" alt="" />
                         </a-avatar>
                       </div>
                       <div>
                         <div class="item-title">{{ i.title }}</div>
                         <div class="item-description">
-                          {{ i.content }}
+                          {{ i.summary }}
                         </div>
                       </div>
                     </div>
@@ -186,6 +186,7 @@ import {
 import { ref, reactive } from "vue";
 import { userStore } from "@/store/userStore";
 import { getRecommendArticle } from "@/api/getRecommendArticle";
+import { Message } from '@arco-design/web-vue';
 export default {
   components: {
     IconHeart,
@@ -198,6 +199,7 @@ export default {
   },
   setup(props) {
     const userInfo = userStore();
+    
     const articleList = reactive([
       {
         article_id: 1,
@@ -320,18 +322,18 @@ export default {
       console.log("加载更多数据");
       const moreList = [
         {
-          article_id: 1,
-          article_title: "Vue框架使用教程",
-          article_abstract: "Vue (发音为 /vjuː/，类似 view) 是一款用于构建用户界面的 JavaScript 框架。它基于标准 HTML、CSS 和 JavaScript 构建，并提供了一套声明式的、组件化的编程模型，帮助你高效地开发用户界面。无论是简单还是复杂的界面，Vue 都可以胜任。",
+          articleId: 1,
+          title: "Vue框架使用教程",
+          summary: "Vue (发音为 /vjuː/，类似 view) 是一款用于构建用户界面的 JavaScript 框架。它基于标准 HTML、CSS 和 JavaScript 构建，并提供了一套声明式的、组件化的编程模型，帮助你高效地开发用户界面。无论是简单还是复杂的界面，Vue 都可以胜任。",
           article_like_count: 999,
-          article_read_count: 999,
-          article_comment_count: 999,
-          article_tags: ["JavaScript", "vue", "前端"],
-          create_time: "刚刚",
-          userInfo: {
-            user_id: 1,
-            user_name: "ZYY",
-            user_avatar_url:
+          readCount: 999,
+          commentCount: 999,
+          tagsArray: ["JavaScript", "vue", "前端"],
+          createTime: "刚刚",
+          user: {
+            userId: 1,
+            userName: "ZYY",
+            userAvatarUrl:
               "https://pic3.zhimg.com/80/v2-1f47522b4230d5c5917f46fab71d004a_720w.webp",
             user_description: "后端工程师，热爱软件工程",
             user_exp: 999,

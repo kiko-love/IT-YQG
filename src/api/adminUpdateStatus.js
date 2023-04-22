@@ -1,18 +1,16 @@
 import http from './http'
-
-export const register = (v) => {     //data是参数，里面传入登录信息
+import qs from 'qs'
+export const adminUpdateStatus = (v) => {     //data是参数，里面传入登录信息
     return http({
         method: 'post', //请求方法
-        url: '/api/register/new',
-        data: {
-            userName: v.account,
-            password:v.password,
-            email:v.email
-
+        url: '/api/admin/user/updateStatus',
+        data:{
+            userId: v.userId,
+            status: v.status ? 0 : -1
         },
         responseType: "json",
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
 
     })

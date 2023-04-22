@@ -1,15 +1,10 @@
+import { sha256 } from 'js-sha256'
 import http from './http'
 
-export const register = (v) => {     //data是参数，里面传入登录信息
+export const adminDelUser = (userId) => {     //data是参数，里面传入登录信息
     return http({
-        method: 'post', //请求方法
-        url: '/api/register/new',
-        data: {
-            userName: v.account,
-            password:v.password,
-            email:v.email
-
-        },
+        method: 'delete', //请求方法
+        url: '/api/admin/user/delete/'+userId,
         responseType: "json",
         headers: {
             'Content-Type': 'application/json',

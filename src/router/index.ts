@@ -85,18 +85,23 @@ const routes = [
         component: () => import('@/admin/view/User/index.vue'),
       },
       {
-        path: 'resource',
-        name: 'resource',
-        component: () => import('@/admin/view/Resource/index.vue'),
-      }
+        path: 'comment',
+        name: 'comment',
+        component: () => import('@/admin/view/Comment/index.vue'),
+      },
+      {
+        path: 'article',
+        name: 'article',
+        component: () => import('@/admin/view/Article/index.vue'),
+      },
     ]
-  }
-  // {
-  //   path: '/:pathMatch(.*)',
-  //   name: 'error',
-  //   component: () => import('@/view/404/index.vue'),
-  //   meta: { title: '404' },
-  // },
+  },
+  {
+    path: '/:pathMatch(.*)',
+    name: 'error',
+    component: () => import('@/view/404/index.vue'),
+    meta: { title: '404' },
+  },
 
 ]
 

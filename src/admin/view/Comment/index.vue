@@ -3,7 +3,7 @@
         <a-card class="top-card">
             <div class="user-top">
                 <div class="top-title">
-                    <IconUser />用户管理
+                    <icon-tags />标签管理
                 </div>
                 <div class="top-actions">
                     <a-button shape="round">
@@ -152,6 +152,7 @@ import {
     IconDelete,
     IconPlus,
     IconRefresh,
+    IconTags,
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 export default {
@@ -168,6 +169,7 @@ export default {
         IconDelete,
         IconPlus,
         IconRefresh,
+        IconTags,
     },
     methods: {
         handlePageChange(page) {
@@ -187,13 +189,7 @@ export default {
         },
     },
     created() {
-        adminUserlist().then(res => {
-            this.userList = res.data.data
-            this.userList.forEach(element => {
-                element.status = element.status === 0 ? true : false;
-            });
-            this.editForm = this.userList[this.currentIndex];
-        });
+
     },
     setup() {
         const currentIndex = ref(0);
