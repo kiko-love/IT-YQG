@@ -162,7 +162,7 @@
               </template>
               <template #extra>
                 <a-space>
-                  <a-button type='primary' status="success">返回</a-button>
+                  <a-button type='primary' status="success" @click="backRefresh">返回</a-button>
                 </a-space>
               </template>
             </a-result>
@@ -202,6 +202,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import Vue3Tinymce from "@jsdawn/vue3-tinymce";
 import { Message } from '@arco-design/web-vue';
+import { useRouter } from "vue-router";
 export default {
   name: "editor",
   components: {
@@ -219,6 +220,7 @@ export default {
     IconDelete,
   },
   setup(props) {
+    const router = useRouter();
     const draft_key =
       "U2FsdGVkX185BUw0zuGswh3bIZhVU2FFSeuW/mk0w3f4ZMCPvyy7CzYtt8OFkoSW";
     const userInfo = userStore();
@@ -437,6 +439,9 @@ export default {
         }
       })
     }
+    const backRefresh = ()=>{
+      uploadResultShow.value = false;
+      }
     return {
       uploadResultShow,
       articleUpload,
@@ -460,6 +465,7 @@ export default {
       tagsList,
       uploadTags,
       getTags,
+      backRefresh,
     };
   },
   created() {

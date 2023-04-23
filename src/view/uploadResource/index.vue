@@ -37,13 +37,7 @@
                                     :validate-trigger="['blur']" :rules="[{ required: true, message: '请选择资源的标签分类' }]">
                                     <a-select v-model:model-value="uploadForm.tags" placeholder="搜索标签" allow-create multiple
                                         :max-tag-count="3" :limit="3" scrollbar>
-                                        <a-option>Vue</a-option>
-                                        <a-option>JavaScript</a-option>
-                                        <a-option>Java</a-option>
-                                        <a-option disabled>Go</a-option>
-                                        <a-option>Springboot</a-option>
-                                        <a-option>chatGPT</a-option>
-                                        <a-option>深度学习</a-option>
+                                        <a-option v-for="item of tagsList" :value="item.tagName" :label="item.tagName" />
                                     </a-select>
                                 </a-form-item>
                                 <a-form-item field="fee" tooltip="目前仅开放免费资源上传" label="资源类型">
@@ -106,6 +100,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import { reactive, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
+import { getTagsList } from "@/api/getTagsList";
 export default {
     name: 'ITYQGIndex',
     components: {
@@ -121,6 +116,7 @@ export default {
         IconStar,
     },
     setup() {
+        const tagsList = ref([])
         const rtags = ref(['Vue', 'JavaScript']);
         const rfee = ref('0');
         const feeOptions = reactive(
@@ -148,6 +144,10 @@ export default {
         const delFile = () => {
             file.value = null;
         };
+        const getTags = async () => {
+            const res = await getTagsList();
+            tagsList.value = res.data.data;
+        };
         return {
             file,
             uploadChange,
@@ -156,6 +156,8 @@ export default {
             rfee,
             feeOptions,
             rtags,
+            tagsList,
+            getTags,
         }
     },
     data() {
@@ -165,7 +167,7 @@ export default {
     },
 
     mounted() {
-
+        this.getTags();
     },
 
     methods: {
@@ -186,6 +188,7 @@ export default {
 /deep/.arco-card-body {
     padding: 0 !important;
 }
+
 .submit-row {
     width: -webkit-fill-available;
     text-align: right;
@@ -197,17 +200,20 @@ export default {
     padding: 1rem;
     display: flex;
     justify-content: center;
+
     .rank-item {
         cursor: pointer;
         padding: 0.5rem 1rem;
         display: flex;
         align-items: center;
         border-bottom: 1px solid #f1f1f1;
+
         .rank-number {
             padding: 5px;
             font-size: 20px;
             margin-right: 10px;
         }
+
         .rank-username {
             font-size: 14px;
             margin-left: 10px;
@@ -219,7 +225,7 @@ export default {
                 display: flex;
                 align-items: center;
                 margin-bottom: 15px;
-                gap:1rem;
+                gap: 1rem;
             }
 
             .description {
@@ -233,6 +239,7 @@ export default {
                 height: 30px;
             }
         }
+
         &:hover {
             background-color: #fafafa;
         }
@@ -272,5 +279,4 @@ export default {
 
 .container {
     height: 100%;
-}
-</style>
+}</style>

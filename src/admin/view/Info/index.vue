@@ -25,7 +25,7 @@
         </a-card>
     </div>
 </template>
-<script>
+<script lang="ts">
 import {
     IconCaretRight,
     IconCaretLeft,
@@ -46,6 +46,10 @@ export default {
         IconUserGroup,
         IconBook,
         IconApps
+    },
+    setup(props, ctx) {
+        
+        return {};
     },
 
 }

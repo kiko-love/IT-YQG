@@ -174,6 +174,7 @@
 </template>
 
 <script>
+import { getMoreArticles } from "@/api/articleApi";
 import {
   IconHeart,
   IconMessage,
@@ -199,29 +200,7 @@ export default {
   },
   setup(props) {
     const userInfo = userStore();
-    
-    const articleList = reactive([
-      {
-        article_id: 1,
-        article_title: "SpringBoot整合MyBatis",
-        article_abstract:
-          "MyBatis 是一款优秀的持久层框架 它支持自定义SQL、存储过程以及高级映射。 MyBatis 免除了几乎所有的JDBC 代码以及设置参数和获取结果集的工作。",
-        article_like_count: 999,
-        article_read_count: 999,
-        article_comment_count: 999,
-        article_tags: ["Java", "SpringBoot", "后端"],
-        create_time: "一天前",
-        user: {
-          user_id: 1,
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_description: "后端工程师，热爱软件工程",
-          user_exp: 999,
-          user_level: 4,
-        },
-      },
-
-    ]);
+    const articleList = reactive([]);
     return {
       signTitle: "Hello",
       listLoading: ref(true),
@@ -288,7 +267,7 @@ export default {
     recommendList(type) {
       type = this.isEmpty(type) ? 0 : type
       //判断userId是否存在，存在则获取推荐文章，不存在则获取热门文章
-      this.userInfo.userId = this.isEmpty(this.userInfo.userId) ? 0 : this.userInfo.userId
+      this.userInfo.userId = this.isEmpty(this.userInfo.userId) || !this.userInfo.loginStatus ? 0 : this.userInfo.userId
       getRecommendArticle(this.userInfo.userId, type)
         .then(res => {
           console.log(res.data)
@@ -320,31 +299,15 @@ export default {
     },
     loadMoreData(delay) {
       console.log("加载更多数据");
-      const moreList = [
-        {
-          articleId: 1,
-          title: "Vue框架使用教程",
-          summary: "Vue (发音为 /vjuː/，类似 view) 是一款用于构建用户界面的 JavaScript 框架。它基于标准 HTML、CSS 和 JavaScript 构建，并提供了一套声明式的、组件化的编程模型，帮助你高效地开发用户界面。无论是简单还是复杂的界面，Vue 都可以胜任。",
-          article_like_count: 999,
-          readCount: 999,
-          commentCount: 999,
-          tagsArray: ["JavaScript", "vue", "前端"],
-          createTime: "刚刚",
-          user: {
-            userId: 1,
-            userName: "ZYY",
-            userAvatarUrl:
-              "https://pic3.zhimg.com/80/v2-1f47522b4230d5c5917f46fab71d004a_720w.webp",
-            user_description: "后端工程师，热爱软件工程",
-            user_exp: 999,
-            user_level: 4,
-          },
-        },
-      ];
-      setTimeout(() => {
+      let moreList = [];
+      getMoreArticles().then(res => {
+        console.log(res.data)
+        moreList = res.data.data;
         this.articleList.push(...moreList);
-        this.moreLoading = false;
-      }, delay);
+        setTimeout(() => {
+          this.moreLoading = false;
+        }, delay);
+      })
       // this.moreLoading = false;
     },
     handleListScroll() {
@@ -360,7 +323,7 @@ export default {
       // 如果滚动到了底部，执行加载更多数据的操作
       if (scrollTop + offsetHeight >= scrollHeight - 1 && this.moreLoading === false) {
         this.moreLoading = true;
-        this.loadMoreData(500);
+        this.loadMoreData(1500);
       }
     },
     handleItem(idx) {
@@ -398,15 +361,6 @@ export default {
     // 点击图片回到顶部方法，加计时器是为了过渡顺滑
     backTop() {
       const scrollContainer = this.$refs.scrollContainer;
-      // const { scrollTop } = scrollContainer;
-      // let timer = setInterval(() => {
-      //   let ispeed = Math.floor(-scrollTop / 30);
-      //   scrollContainer.scrollTop = scrollContainer.scrollTop + ispeed;
-
-      //   if (scrollContainer.scrollTop === 0) {
-      //     clearInterval(timer);
-      //   }
-      // }, 5);
       scrollContainer.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -686,6 +640,6 @@ export default {
   list-style: none;
   padding: 0 1rem;
   margin: 0 1rem;
-  margin-bottom: 7rem;
+  margin-bottom: 9rem;
 }
 </style>

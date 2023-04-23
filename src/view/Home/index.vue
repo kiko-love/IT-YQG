@@ -821,7 +821,8 @@ export default {
         this.user.userAvatarUrl = user.userAvatarUrl;
         this.user.usercoin = user.usercoin;
         this.user.username = user.username;
-        this.user.userId = user.username;
+        this.user.userId = user.userId;
+        this.user.loginStatus = user.loginStatus;
       }
     },
     confirmRegister() {

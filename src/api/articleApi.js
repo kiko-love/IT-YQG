@@ -1,19 +1,31 @@
-import http from './http'
+import http from "./http";
 
-const updateArticle = (v) => {     //data是参数，里面传入登录信息
-    return http({
-        method: 'post', //请求方法
-        url: '/api/article/add',
-        responseType: "json",
-        data: v,
-        headers: {
-            'Content-Type': 'application/json',
-        },
+const updateArticle = (v) => {
+  //data是参数，里面传入登录信息
+  return http({
+    method: "post", //请求方法
+    url: "/api/article/add",
+    responseType: "json",
+    data: v,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 
-    })
-}
+const getMoreArticles = () => {
+  //data是参数，里面传入登录信息
+  return http({
+    method: "get", //请求方法
+    url: "/api/article/list/more",
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 
-export { updateArticle }
+export { updateArticle, getMoreArticles };
 
 /*
 不会写es6，看传统es5写法
