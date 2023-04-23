@@ -3,7 +3,21 @@
         <a-row class="grid-demo">
             <a-col :span="15">
                 <div class="u-container">
-                    <a-card :bordered="false">
+                    <a-card v-if="resultShow" class="result-card">
+                        <a-result status="success" title="资源上传成功">
+                            <template #subtitle>
+                                <div class="result-subtitle">
+                                    请等待后台管理员进行审核，通过后系统自动为您推送
+                                </div>
+                            </template>
+                            <template #extra>
+                                <a-space>
+                                    <a-button type='primary' status="success" @click="backRefresh">返回</a-button>
+                                </a-space>
+                            </template>
+                        </a-result>
+                    </a-card>
+                    <a-card v-else :bordered="false">
                         <div class="u-upload-form">
                             <div class="u-title">上传资源</div>
                             <div v-if="file" class="file-list">
@@ -12,7 +26,11 @@
                                     <div class="file-name">{{ file?.file.name }}</div>
                                 </div>
                                 <div class="file-action">
-                                    <icon-delete @click="delFile"/>
+                                    <a-button @click="delFile" shape="circle">
+                                        <template #icon>
+                                            <icon-delete />
+                                        </template>
+                                    </a-button>
                                 </div>
                             </div>
                             <a-upload v-else :fileList="file ? [file] : []" :limit="1" :auto-upload="false" class="uploader"
@@ -38,9 +56,9 @@
                                 <a-form-item field="description" label="资源描述" :validate-trigger="['blur']"
                                     :rules="[{ maxLength: 500, message: '资源描述不超过500个字' }]">
                                     <a-textarea v-model="uploadForm.description" :auto-size="{
-                                        minRows: 2,
-                                        maxRows: 5
-                                    }" :max-length="500" show-word-limit placeholder="资源描述" />
+                                            minRows: 2,
+                                            maxRows: 5
+                                        }" :max-length="500" show-word-limit placeholder="资源描述" />
                                 </a-form-item>
                                 <a-form-item field="tags" tooltip="为你的资源选择标签分类，不超过3个" label="资源标签"
                                     :validate-trigger="['blur']" :rules="[{ required: true, message: '请选择资源的标签分类' }]">
@@ -129,6 +147,7 @@ export default {
         IconFile,
     },
     setup() {
+        const resultShow = ref(false)
         const userInfo = userStore()
         const tagsList = ref([])
         const rtags = ref(['Vue', 'JavaScript']);
@@ -174,8 +193,13 @@ export default {
             form.append("tags", v.tags.join(","));
             form.append("userId", userInfo.userId);
             console.log(form.getAll('userId'));
-            return
             uploadResource(form).then((res) => {
+                if (res.data.code === 100) {
+                    resultShow.value = true;
+                    Message.success("上传成功");
+                } else {
+                    Message.error("上传失败");
+                }
                 console.log(res);
             })
         }
@@ -190,6 +214,7 @@ export default {
             tagsList,
             getTags,
             uploadFile,
+            resultShow,
         }
     },
     data() {
@@ -203,13 +228,25 @@ export default {
     },
 
     methods: {
+        backRefresh() {
+            this.resultShow = false;
+            this.file = null;
+            this.uploadForm = {
+                title: '',
+                description: '',
+                tags: '',
+                fee: 0,
+                feeCost: 0,
+            };
+            this.rfee = '0';
+            this.rtags = [];
+        },
         handleSubmit({ values, errors }) {
             console.log('values:', values, '\nerrors:', errors)
             if (errors) {
                 Message.warning("请检查您的填写是否正确");
             } else {
                 this.uploadFile(values);
-                Message.success("提交成功");
             }
 
         },
@@ -230,10 +267,12 @@ export default {
     background: #f4f4f4;
     border-radius: 5px;
     margin-bottom: 1rem;
+    margin-left: 2rem;
 
     .file-info {
         display: flex;
         align-items: center;
+
         .file-icon {
             border-radius: 5px;
             font-size: 20px;
@@ -245,7 +284,8 @@ export default {
             font-size: 14px;
         }
     }
-    .file-action{
+
+    .file-action {
         cursor: pointer;
     }
 

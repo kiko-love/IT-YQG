@@ -3,44 +3,44 @@
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="4" :xxl="4">
         <div class="side-bar">
-          <a-menu :default-selected-keys="['1']">
-            <a-menu-item key="1">
+          <a-menu :default-selected-keys="['前端']">
+            <a-menu-item key="前端">
               <template #icon>
                 <icon-font type="icon-qianduankaifa" :size="20" />
               </template>
               前端
             </a-menu-item>
-            <a-menu-item key="2">
+            <a-menu-item key="后端">
               <template #icon>
                 <icon-font type="icon-houduankaifa" :size="20" />
               </template>
               后端
             </a-menu-item>
-            <a-menu-item key="3">
+            <a-menu-item key="大数据">
               <template #icon>
                 <icon-font type="icon-mianshiyaoqing" :size="20" />
               </template>
-              面试
+              大数据
             </a-menu-item>
-            <a-menu-item key="4">
+            <a-menu-item key="算法">
               <template #icon>
                 <icon-font type="icon-zhinengsuanfa" :size="20" />
               </template>
               算法
             </a-menu-item>
-            <a-menu-item key="5">
+            <a-menu-item key="数据结构">
               <template #icon>
                 <icon-font type="icon-shujushujudian" :size="20" />
               </template>
               数据结构
             </a-menu-item>
-            <a-menu-item key="6">
+            <a-menu-item key="开发工具">
               <template #icon>
                 <icon-font type="icon-gongju" :size="20" />
               </template>
               开发工具
             </a-menu-item>
-            <a-menu-item key="7">
+            <a-menu-item key="人工智能">
               <template #icon>
                 <icon-font type="icon-rengongzhinengdanao" :size="20" />
               </template>
@@ -82,7 +82,7 @@
               </a-skeleton>
             </div>
             <a-row v-if="!listLoading" class="r-grid">
-              <a-col class="r-card-col" v-for="i in 10" :xs="24" :sm="12" :md="8" :lg="8" :xl="8" :xxl="8">
+              <a-col class="r-card-col" v-for="i in 9" :xs="24" :sm="12" :md="8" :lg="8" :xl="8" :xxl="8">
                 <a-card class="r-card" hoverable>
                   <template #actions></template>
                   <template #cover>
@@ -91,7 +91,7 @@
                       overflow: 'hidden',
                     }">
                       <img class="r-cover-img" alt="dessert"
-                        src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/leancloud-assets/d83da9d012ddb7ae85f4.png~tplv-t2oaga2asx-no-mark:200:200:0:0.awebp" />
+                        src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
                     </div>
                   </template>
                   <a-card-meta>
@@ -125,7 +125,7 @@
                             <span class="icon-hover-text">1w+</span>
                           </span>
                           <span class="icon-hover">
-                            <a-rate :style="{ fontSize: '16px' }" :count="1" allow-clear />
+                            <icon-download />
                             <span class="icon-hover-text">1w+</span>
                           </span>
                         </div>
@@ -155,7 +155,7 @@
                   <div class="rank-user">
                     <div class="rank-title">C语言排序算法代码</div>
                     <div class="rank-lv">
-                      <a-rate :count="1" />
+                      <!-- <a-rate :count="1" /> -->
                     </div>
                   </div>
 
@@ -186,6 +186,7 @@ import {
   IconSearch,
   IconEye,
   IconStar,
+  IconDownload,
 } from "@arco-design/web-vue/es/icon";
 import { ref } from "vue";
 
@@ -208,6 +209,7 @@ export default {
     IconSearch,
     IconEye,
     IconStar,
+    IconDownload,
   },
   data() {
     return {};
@@ -330,6 +332,9 @@ export default {
   .rank-username {
     font-size: 14px;
     margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+
     .description {
       font-size: 12px;
       color: #909090;
@@ -339,6 +344,8 @@ export default {
       text-overflow: ellipsis;
       white-space: nowrap;
       width: 190px;
+      display: flex;
+    align-items: center;
     }
   }
 }
@@ -384,13 +391,13 @@ export default {
 
 .r-card-actions {
   display: flex;
-  padding: 4px 10px;
+  padding: 0 10px 10px 10px;
   gap: 8px;
   margin-bottom: -2rem;
 }
 
 .r-card-avatar {
-  padding: 0 8px;
+  padding: 0 8px 10px 8px;
   display: flex;
   align-items: center;
 }
