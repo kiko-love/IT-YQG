@@ -6,8 +6,17 @@
                     <a-card :bordered="false">
                         <div class="u-upload-form">
                             <div class="u-title">上传资源</div>
-                            <a-upload :fileList="file ? [file] : []" :limit="1" :auto-upload="false" class="uploader"
-                                draggable action="/" @change="uploadChange">
+                            <div v-if="file" class="file-list">
+                                <div class="file-info">
+                                    <div class="file-icon"><icon-file /></div>
+                                    <div class="file-name">{{ file?.file.name }}</div>
+                                </div>
+                                <div class="file-action">
+                                    <icon-delete @click="delFile"/>
+                                </div>
+                            </div>
+                            <a-upload v-else :fileList="file ? [file] : []" :limit="1" :auto-upload="false" class="uploader"
+                                draggable action="/" @change="uploadChange" :show-file-list="false">
                                 <template #upload-button>
                                     <div class="uploader-wrraper">
                                         <icon-folder-add />
@@ -97,10 +106,13 @@ import {
     IconSearch,
     IconEye,
     IconStar,
+    IconFile,
 } from '@arco-design/web-vue/es/icon';
 import { reactive, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { getTagsList } from "@/api/getTagsList";
+import { uploadResource, downloadResource } from "@/api/resourceApi";
+import { userStore } from "@/store/userStore";
 export default {
     name: 'ITYQGIndex',
     components: {
@@ -114,8 +126,10 @@ export default {
         IconSearch,
         IconEye,
         IconStar,
+        IconFile,
     },
     setup() {
+        const userInfo = userStore()
         const tagsList = ref([])
         const rtags = ref(['Vue', 'JavaScript']);
         const rfee = ref('0');
@@ -131,7 +145,7 @@ export default {
             description: '',
             tags: '',
             fee: 0,
-            feeCount: 0,
+            feeCost: 0,
         });
         const file = ref();
         const uploadChange = (_, currentFile) => {
@@ -148,6 +162,23 @@ export default {
             const res = await getTagsList();
             tagsList.value = res.data.data;
         };
+        const uploadFile = (v) => {
+            //上传form表单
+            v.tags = v.tags.filter((item) => {
+                return item !== "";
+            })
+            let form = new FormData();
+            form.append("file", file.value?.file);
+            form.append("title", v.title);
+            form.append("description", v.description);
+            form.append("tags", v.tags.join(","));
+            form.append("userId", userInfo.userId);
+            console.log(form.getAll('userId'));
+            return
+            uploadResource(form).then((res) => {
+                console.log(res);
+            })
+        }
         return {
             file,
             uploadChange,
@@ -158,6 +189,7 @@ export default {
             rtags,
             tagsList,
             getTags,
+            uploadFile,
         }
     },
     data() {
@@ -176,6 +208,7 @@ export default {
             if (errors) {
                 Message.warning("请检查您的填写是否正确");
             } else {
+                this.uploadFile(values);
                 Message.success("提交成功");
             }
 
@@ -187,6 +220,36 @@ export default {
 <style lang="less" scoped>
 /deep/.arco-card-body {
     padding: 0 !important;
+}
+
+.file-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f4f4f4;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        .file-icon {
+            border-radius: 5px;
+            font-size: 20px;
+            background: #fff;
+            margin-right: 10px;
+        }
+
+        .file-name {
+            font-size: 14px;
+        }
+    }
+    .file-action{
+        cursor: pointer;
+    }
+
+
 }
 
 .submit-row {
@@ -279,4 +342,5 @@ export default {
 
 .container {
     height: 100%;
-}</style>
+}
+</style>
