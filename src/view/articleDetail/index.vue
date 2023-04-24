@@ -48,13 +48,13 @@
                     </a-card>
                 </div>
             </a-col>
-            <a-col :xs="0" :sm="0" :md="0" :lg="6" :xl="6" :xxl="6">
+            <a-col v-if="article" :xs="0" :sm="0" :md="0" :lg="6" :xl="6" :xxl="6">
                 <div v-if="toc.length" class="detail-right">
                     <a-card class="affix-outline">
                         <div id="toc">
                             <div class="tip">目录</div>
                             <a-divider />
-                            <div>
+                            <div class="outline">
                                 <Toc :nodes="toc"></Toc>
                             </div>
                         </div>
@@ -73,7 +73,7 @@
             </a-col>
         </a-row>
 
-        <a-card v-else-if="notFountShow&&!article
+        <a-card v-else-if="notFountShow && !article
         ">
             <a-result :status="null">
                 <template #icon>
@@ -146,7 +146,6 @@ export default {
         }
     },
     mounted() {
-
         setTimeout(() => {
             this.content = this.$refs.content;
             this.toc = this.generateToc();
@@ -203,9 +202,12 @@ export default {
 </script>
 <style lang="less">
 #toc {
-    overflow: auto;
-    max-height: 550px;
     min-width: 244px;
+
+    .outline {
+        max-height: 478px;
+        overflow: auto;
+    }
 
     .tip {
         font-weight: 500;
