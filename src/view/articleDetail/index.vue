@@ -189,6 +189,9 @@ export default {
 </script>
 <style lang="less">
 #toc {
+    overflow: auto;
+    max-height: 550px;
+    min-width: 244px;
     .tip {
         font-weight: 500;
         margin: 0 1.667rem;
@@ -199,7 +202,6 @@ export default {
 }
 
 .d-content {
-
     img {
         max-width: 100%;
         border-style: none;
@@ -259,10 +261,9 @@ export default {
     flex-direction: column;
     gap: 2rem;
     position: relative;
-
     .affix-outline {
         position: fixed;
-        min-width: 244px;
+        max-width: 330px;
     }
 }
 

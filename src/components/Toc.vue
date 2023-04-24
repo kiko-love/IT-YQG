@@ -26,6 +26,7 @@ export default {
 <style lang="less" scoped>
 .a-container{
     padding: 12px;
+    border-radius: 5px;
     &:hover{
         background: #f4f4f4;
     }
@@ -52,7 +53,8 @@ export default {
     color: var(--color-neutral-8);
     text-decoration: none;
     display: inline-block;
-    width: 90%;
+    width: 99%;
+    height: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -66,7 +68,9 @@ export default {
     color: #777;
 }
 .toc:not(.has-children){
-    padding-left: 26px;
+    padding-left: 15px;
+    margin-right: 5px;
+    
 }
 </style>
   
