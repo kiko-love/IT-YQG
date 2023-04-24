@@ -3,7 +3,7 @@
         <ul class="toc">
         <li v-for="node in nodes">
             <div class="a-container" :title="node.title">
-                <a :href="getLink(node)" :class="node.children ? 'has-children' : ''">{{ node.title }}</a>
+                <a :href="getLink(node)" :class="node.children ? 'has-children' : ''" >{{ node.title }}</a>
             </div>
             <Toc v-if="node.children" :nodes="node.children"></Toc>
         </li>

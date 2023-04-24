@@ -21,7 +21,7 @@
                                 </div>
                             </div>
                             <div class="d-tags">
-                                <a-tag v-for="(i, k) in article.tagsArray" color="blue" :key="k">{{ i }}</a-tag>
+                                <a-tag v-for="(i, k) in article.tagsArray" color="arcoblue" :key="k">{{ i }}</a-tag>
                             </div>
                             <div>
                                 <a-space>
@@ -146,8 +146,9 @@ export default {
             return '#' + node.title.toLowerCase().replace(/\s+/g, '-')
         },
         generateToc() {
-            let headings = this.content.querySelectorAll('h1,h2,h3');
-            console.log(this.buildTree(headings));
+            let headings = this.content.querySelectorAll('h1,h2,h3,h4,h5');
+            console.log(headings);
+            this.addAnchors(headings)
             return this.buildTree(headings);
 
         },
@@ -172,9 +173,16 @@ export default {
                 node.level = level;
                 stack.push(node);
             }
-
             return toc;
-        }
+        },
+        addAnchors(headings) {
+            // 在渲染后的 HTML 文本中，为每个标题添加带有 id 和 href 属性的锚点标签 a
+            headings.forEach((h) => {
+                const id = h.innerText.toLowerCase().replace(/\s+/g, '-')
+                h.id = id
+                h.insertAdjacentHTML('beforeend', `<a class="header-anchor" href="#${id}"></a>`)
+            })
+        },
     }
 }
 
@@ -252,7 +260,7 @@ export default {
     gap: 2rem;
     position: relative;
 
-    .affix-outline{
+    .affix-outline {
         position: fixed;
         min-width: 244px;
     }
