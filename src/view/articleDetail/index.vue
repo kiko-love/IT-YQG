@@ -1,10 +1,9 @@
 <template>
     <div class="detail-row">
-        <a-row v-if="!notFountShow">
-            <a-col :xs="0" :sm="2" :md="2" :lg="2" :xl="2" :xxl="2">
-
-            </a-col>
-            <a-col :xs="24" :sm="22" :md="22" :lg="16" :xl="16" :xxl="16">
+        <a-row v-if="!notFountShow && article">
+            <!-- <a-col :xs="0" :sm="2" :md="2" :lg="2" :xl="2" :xxl="2">
+            </a-col> -->
+            <a-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18" :xxl="18">
                 <div>
                     <a-card class="detail-card">
                         <div class="detail-top">
@@ -50,21 +49,32 @@
                 </div>
             </a-col>
             <a-col :xs="0" :sm="0" :md="0" :lg="6" :xl="6" :xxl="6">
-                <div class="detail-right">
+                <div v-if="toc.length" class="detail-right">
                     <a-card class="affix-outline">
                         <div id="toc">
                             <div class="tip">目录</div>
                             <a-divider />
-                            <div v-if="toc.length">
+                            <div>
                                 <Toc :nodes="toc"></Toc>
                             </div>
                         </div>
                     </a-card>
                 </div>
+                <div v-else class="detail-right">
+                    <a-card>
+                        <a-empty>
+                            <template #image>
+                                <icon-list />
+                            </template>
+                            暂无目录
+                        </a-empty>
+                    </a-card>
+                </div>
             </a-col>
         </a-row>
 
-        <a-card v-else>
+        <a-card v-else-if="notFountShow&&!article
+        ">
             <a-result :status="null">
                 <template #icon>
                     🐱‍🏍
@@ -92,7 +102,7 @@
     </div>
 </template>
 <script>
-import { IconUser, IconEye, IconThumbUp } from '@arco-design/web-vue/es/icon'
+import { IconUser, IconEye, IconThumbUp, IconList } from '@arco-design/web-vue/es/icon'
 import { useRouter } from 'vue-router'
 import { getArticleDetail } from '@/api/articleApi'
 import { reactive, ref } from 'vue'
@@ -104,13 +114,14 @@ export default {
         IconUser,
         IconEye,
         IconThumbUp,
+        IconList,
         Toc
     },
     setup() {
         const content = ref(null)
         const toc = ref([])
         const router = useRouter()
-        const article = ref({})
+        const article = ref(null)
         const notFountShow = ref(false)
         const aid = router.currentRoute.value.params.articleId
         const getDetail = (aid) => {
@@ -148,6 +159,9 @@ export default {
         generateToc() {
             let headings = this.content.querySelectorAll('h1,h2,h3,h4,h5');
             console.log(headings);
+            if (headings.length === 0) {
+                return [];
+            }
             this.addAnchors(headings)
             return this.buildTree(headings);
 
@@ -192,6 +206,7 @@ export default {
     overflow: auto;
     max-height: 550px;
     min-width: 244px;
+
     .tip {
         font-weight: 500;
         margin: 0 1.667rem;
@@ -231,6 +246,12 @@ export default {
         line-height: 1.5rem;
         margin-top: 22px;
         margin-bottom: 22px;
+        word-break: break-word;
+        line-height: 1.75;
+        font-weight: 400;
+        font-size: 16px;
+        overflow-x: hidden;
+        color: #252933;
     }
 
 }
@@ -252,6 +273,7 @@ export default {
 .detail-card {
     padding: 1.5rem;
     margin-bottom: 5rem;
+    margin-left: 1rem;
 }
 
 .detail-right {
@@ -261,6 +283,7 @@ export default {
     flex-direction: column;
     gap: 2rem;
     position: relative;
+
     .affix-outline {
         position: fixed;
         max-width: 330px;

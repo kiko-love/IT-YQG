@@ -30,7 +30,7 @@
               <div ref="content" class="entry-list-container" v-else>
                 <a-empty class="empty-tip" v-if="articleList.length === 0" />
                 <li class="list-item" v-for="(i, k) in articleList" :key="k">
-                  <div @click="handleItem(k)" class="item-container">
+                  <div @click="handleItem(i.articleId)" class="item-container">
                     <div class="item-header">
                       <div>{{ i.user.userName }}</div>
                       <a-divider direction="vertical" />
@@ -327,6 +327,7 @@ export default {
     },
     handleItem(idx) {
       this.$message.success("handleItem：" + idx);
+      this.$router.push('/articleDetail/' + idx)
     },
     handleSign() {
       if (!this.userInfo.loginStatus) {
