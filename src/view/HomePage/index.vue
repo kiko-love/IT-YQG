@@ -272,7 +272,6 @@ export default {
         .then(res => {
           console.log(res.data)
           this.articleList = res.data.data;
-          console.log(this.articleList)
         })
         .catch(err => {
           this.articleList = []

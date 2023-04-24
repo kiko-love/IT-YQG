@@ -23,7 +23,10 @@
                             <div v-if="file" class="file-list">
                                 <div class="file-info">
                                     <div class="file-icon"><icon-file /></div>
-                                    <div class="file-name">{{ file?.file.name }}</div>
+                                    <div>
+                                        <div class="file-name">{{ file?.file.name }}</div>
+                                        <div class="file-size">{{ calculateUploadFileSize(file?.file.size) }}</div>
+                                    </div>
                                 </div>
                                 <div class="file-action">
                                     <a-button @click="delFile" shape="circle">
@@ -56,14 +59,14 @@
                                 <a-form-item field="description" label="资源描述" :validate-trigger="['blur']"
                                     :rules="[{ maxLength: 500, message: '资源描述不超过500个字' }]">
                                     <a-textarea v-model="uploadForm.description" :auto-size="{
-                                            minRows: 2,
-                                            maxRows: 5
-                                        }" :max-length="500" show-word-limit placeholder="资源描述" />
+                                        minRows: 2,
+                                        maxRows: 5
+                                    }" :max-length="500" show-word-limit placeholder="资源描述" allow-clear />
                                 </a-form-item>
                                 <a-form-item field="tags" tooltip="为你的资源选择标签分类，不超过3个" label="资源标签"
                                     :validate-trigger="['blur']" :rules="[{ required: true, message: '请选择资源的标签分类' }]">
                                     <a-select v-model:model-value="uploadForm.tags" placeholder="搜索标签" allow-create multiple
-                                        :max-tag-count="3" :limit="3" scrollbar>
+                                        :max-tag-count="3" :limit="3" scrollbar allow-clear>
                                         <a-option v-for="item of tagsList" :value="item.tagName" :label="item.tagName" />
                                     </a-select>
                                 </a-form-item>
@@ -131,6 +134,7 @@ import { Message } from '@arco-design/web-vue';
 import { getTagsList } from "@/api/getTagsList";
 import { uploadResource, downloadResource } from "@/api/resourceApi";
 import { userStore } from "@/store/userStore";
+import { calculateFileSize } from "@/utils/fileUtils";
 export default {
     name: 'ITYQGIndex',
     components: {
@@ -162,7 +166,7 @@ export default {
         const uploadForm = reactive({
             title: '',
             description: '',
-            tags: '',
+            tags:[],
             fee: 0,
             feeCost: 0,
         });
@@ -203,6 +207,9 @@ export default {
                 console.log(res);
             })
         }
+        const calculateUploadFileSize = (size)=>{
+            return calculateFileSize(size)
+        }
         return {
             file,
             uploadChange,
@@ -215,6 +222,7 @@ export default {
             getTags,
             uploadFile,
             resultShow,
+            calculateUploadFileSize,
         }
     },
     data() {
@@ -263,10 +271,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
+    padding: 15px;
     background: #f4f4f4;
     border-radius: 5px;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     margin-left: 2rem;
 
     .file-info {
@@ -275,13 +283,19 @@ export default {
 
         .file-icon {
             border-radius: 5px;
-            font-size: 20px;
-            background: #fff;
+            font-size: 32px;
             margin-right: 10px;
         }
 
         .file-name {
-            font-size: 14px;
+            font-size: 16px;
+            color: rgb(var(--arcoblue-7));
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--color-neutral-6);
         }
     }
 

@@ -22,6 +22,18 @@ class TimeUtils {
         return `${years}年前`
       }
     }
+
+    //将时间戳转换成年月日时分秒
+    static formatTime(timestamp) {
+      const date = new Date(timestamp)
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const hour = date.getHours()
+      const minute = date.getMinutes()
+      const second = date.getSeconds()
+      return [year, month, day].map(this.formatNumber).join('/') + ' ' + [hour, minute, second].map(this.formatNumber).join(':')
+    }
   }
   
   export default TimeUtils  
