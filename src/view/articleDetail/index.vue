@@ -16,7 +16,7 @@
                                 </a-avatar>
                                 <div class="user-info">
                                     <div class="username">{{ article.user?.userName }}</div>
-                                    <div class="creatime">{{formatDate(article?.updateTime) }}</div>
+                                    <div class="creatime">{{ formatDate(article?.updateTime) }}</div>
                                 </div>
                             </div>
                             <div class="d-tags">
@@ -160,9 +160,8 @@ export default {
             return '#' + node.title.toLowerCase().replace(/\s+/g, '-')
         },
         generateToc() {
-            let headings = this.content.querySelectorAll('h1,h2,h3,h4,h5');
-            // console.log(headings);
-            if (headings.length === 0) {
+            let headings = this.content?.querySelectorAll('h1,h2,h3,h4,h5');
+            if (!headings || headings.length === 0) {
                 return [];
             }
             this.addAnchors(headings)
@@ -176,17 +175,14 @@ export default {
                 let title = headings[i].textContent;
                 let level = parseInt(headings[i].tagName.charAt(1));
                 let node = { title: title, children: [] };
-
                 while (stack.length > 0 && stack[stack.length - 1].level >= level) {
                     stack.pop();
                 }
-
                 if (stack.length > 0) {
                     stack[stack.length - 1].children.push(node);
                 } else {
                     toc.push(node);
                 }
-
                 node.level = level;
                 stack.push(node);
             }
@@ -195,10 +191,14 @@ export default {
         addAnchors(headings) {
             // 在渲染后的 HTML 文本中，为每个标题添加带有 id 和 href 属性的锚点标签 a
             headings.forEach((h) => {
-                const id = h.innerText.toLowerCase().replace(/\s+/g, '-')
+                const id = encodeURIComponent(h.innerText.toLowerCase().replace(/\s+/g, '-'))
                 h.id = id
-                h.insertAdjacentHTML('beforeend', `<a class="header-anchor" href="#${id}"></a>`)
+                const anchor = document.createElement('a')
+                anchor.classList.add('header-anchor')
+                anchor.setAttribute('href', `#${id}`)
+                h.appendChild(anchor)
             })
+
         },
     }
 }

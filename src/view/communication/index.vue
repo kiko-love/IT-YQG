@@ -44,7 +44,6 @@
                   :imageUrl="linkInfo.favicon">
                   <icon-link v-if="isEmpty(linkInfo.favico)" />
                 </a-avatar>
-
                 <div class="link-loading" v-if="getLinkLoading">
                   <div>
                     加载中...
@@ -135,16 +134,16 @@
                   {{ i.topic }}</a-tag>
               </div>
             </div>
-            <!-- <div class="c-action-row">
+            <div class="c-action-row">
               <div class="action-box">
-                <div class="action"><icon-thumb-up />{{ i.like_count }}</div>
+                <div class="action"><icon-thumb-up />{{ i.likeCount }}</div>
                 <div class="action" :class="{ 'action-active': cList[k].isOpen }"
                   @click="cList[k].isOpen = !cList[k].isOpen">
-                  <icon-message />{{ i.comment_count }}
+                  <icon-message />{{ i.commentCount }}
                 </div>
                 <div class="action"><icon-reply /></div>
               </div>
-            </div> -->
+            </div>
             <div v-if="cList[k].isOpen" class="c-reply-row">
               <span class="c-replay-triangle">
                 <em class="triangle"> </em>
@@ -428,6 +427,7 @@ export default {
           favicon = `https://${domain}/${favicon}`;
         }
       }
+      console.log(favicon);
       return {
         title: title,
         domain: domain,
