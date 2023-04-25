@@ -16,7 +16,7 @@
                                 </a-avatar>
                                 <div class="user-info">
                                     <div class="username">{{ article.user?.userName }}</div>
-                                    <div class="creatime">{{ article.createTime }}</div>
+                                    <div class="creatime">{{formatDate(article?.updateTime) }}</div>
                                 </div>
                             </div>
                             <div class="d-tags">
@@ -107,7 +107,7 @@ import { useRouter } from 'vue-router'
 import { getArticleDetail } from '@/api/articleApi'
 import { reactive, ref } from 'vue'
 import Toc from '@/components/Toc.vue';
-
+import TimeUtils from '@/utils/timeUtils'
 export default {
     name: 'articleDetail',
     components: {
@@ -134,6 +134,9 @@ export default {
                 }
             })
         }
+        const formatDate = (date) => {
+            return TimeUtils.formatTime(date)
+        }
         getDetail(aid)
         return {
             router,
@@ -143,6 +146,7 @@ export default {
             notFountShow,
             toc,
             content,
+            formatDate,
         }
     },
     mounted() {
@@ -157,7 +161,7 @@ export default {
         },
         generateToc() {
             let headings = this.content.querySelectorAll('h1,h2,h3,h4,h5');
-            console.log(headings);
+            // console.log(headings);
             if (headings.length === 0) {
                 return [];
             }
@@ -202,7 +206,7 @@ export default {
 </script>
 <style lang="less">
 #toc {
-    min-width: 244px;
+    min-width: 200px;
 
     .outline {
         max-height: 478px;

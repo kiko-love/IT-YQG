@@ -3,7 +3,13 @@
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="4" :xxl="4">
         <div class="side-bar">
-          <a-menu :default-selected-keys="['前端']">
+          <a-menu :default-selected-keys="['all']" @menu-item-click="handleMenu">
+            <a-menu-item key="all">
+              <template #icon>
+                <icon-font type="icon-yingyong-moren" :size="20" />
+              </template>
+              默认
+            </a-menu-item>
             <a-menu-item key="前端">
               <template #icon>
                 <icon-font type="icon-qianduankaifa" :size="20" />
@@ -82,7 +88,8 @@
               </a-skeleton>
             </div>
             <a-row v-if="!listLoading" class="r-grid">
-              <a-col class="r-card-col" v-for="i in 9" :xs="24" :sm="12" :md="8" :lg="8" :xl="8" :xxl="8">
+              <a-col class="r-card-col" v-for="(i, k) in pagedResList" :xs="24" :sm="12" :md="8" :lg="8" :xl="8" :xxl="8"
+                :key="k">
                 <a-card class="r-card" hoverable>
                   <template #actions></template>
                   <template #cover>
@@ -90,51 +97,63 @@
                       height: '110px',
                       overflow: 'hidden',
                     }">
-                      <img class="r-cover-img" alt="dessert"
-                        src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
+                      <img class="r-cover-img" alt="dessert" src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
                     </div>
                   </template>
                   <a-card-meta>
                     <template #title>
-                      <div class="r-card-title">C语言排序算法代码</div>
+                      <div class="r-card-title">{{ i.title }}</div>
                     </template>
                     <template #description>
                       <div class="r-card-description">
-                        经典排序算法的C语言实现源码
+                        {{ i.description }}
+                      </div>
+                      <div class="tagArr">
+                        <a-tag v-for="(tag, k) in i.tagsArray" :key="k" color="gray">{{ tag }}</a-tag>
                       </div>
                       <div class="r-card-a-a">
                         <div class="r-card-avatar">
                           <a-avatar :size="32" :style="{
                             marginRight: '8px',
                             background: '#3370ff',
-                          }">
+                          }" :image-url="i.user.userAvatarUrl">
                             <IconUser />
                           </a-avatar>
                           <div class="r-card-info">
-                            <span>ZYY</span>
-                            <span class="r-card-info-time">2023年2月1日</span>
+                            <span>{{ i.user.userName }}</span>
+                            <span class="r-card-info-time">{{ formatDate(i.createTime) }}</span>
                           </div>
                         </div>
                         <div class="r-card-actions">
-                          <span class="icon-hover">
-                            <IconThumbUp />
-                            <span class="icon-hover-text">1w+</span>
-                          </span>
-                          <span class="icon-hover">
-                            <icon-eye />
-                            <span class="icon-hover-text">1w+</span>
-                          </span>
-                          <span class="icon-hover">
-                            <icon-download />
-                            <span class="icon-hover-text">1w+</span>
-                          </span>
+                          <div class="icon-group">
+                            <span class="icon-hover">
+                              <IconThumbUp />
+                              <span class="icon-hover-text">{{ i.likeCount }}</span>
+                            </span>
+                            <span class="icon-hover">
+                              <icon-download />
+                              <span class="icon-hover-text">{{ i.downloadCount }}</span>
+                            </span>
+                          </div>
+                          <div class="res-tag">
+                            <a-tag v-if="i.fee === 0" color="green">免费</a-tag>
+                            <a-tag v-else color="orangered">付费</a-tag>
+                          </div>
                         </div>
                       </div>
                     </template>
                   </a-card-meta>
+                  <div class="footer-page">
+
+                  </div>
                 </a-card>
               </a-col>
+              <a-empty v-if="pagedResList.length === 0" />
             </a-row>
+          </div>
+          <div class="footer-page">
+            <a-pagination :current="currentPage" :total="resList.length" :page-size="pageSize" show-total
+              @change="handlePageChange" />
           </div>
         </a-card>
       </a-col>
@@ -148,19 +167,19 @@
               </div>
             </template>
             <div class="rank-container">
-              <div class="rank-item" v-for="(i, index) in 3">
-                <div class="rank-number">{{ i }}</div>
+              <div class="rank-item" v-for="(i, index) in hotList.slice(0, 5)">
+                <div class="rank-number">{{ index + 1 }}</div>
                 <div class="rank-avatar"></div>
                 <div class="rank-username">
                   <div class="rank-user">
-                    <div class="rank-title">C语言排序算法代码</div>
+                    <div class="rank-title">{{ i.title }}</div>
                     <div class="rank-lv">
                       <!-- <a-rate :count="1" /> -->
                     </div>
                   </div>
 
                   <div class="description">
-                    <div><icon-eye />1w+浏览</div>
+                    <div class="hot-info"><icon-fire />{{ calculateHot(i.viewCount, i.likeCount, i.downloadCount) }}</div>
                     <svg class="iconpark-icon">
                       <use href="#html-five"></use>
                     </svg>
@@ -187,17 +206,60 @@ import {
   IconEye,
   IconStar,
   IconDownload,
+  IconFire,
 } from "@arco-design/web-vue/es/icon";
-import { ref } from "vue";
-
+import { ref, computed } from "vue";
+import { getResourceList, getHotList, getResourceBytag } from '@/api/resourceApi'
+import TimeUtils from '@/utils/timeUtils'
+import { calculateHotness } from '@/utils/resourceUtils'
 const IconFont = Icon.addFromIconFontCn({
-  src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
+  src: "https://at.alicdn.com/t/c/font_3869138_qmfhbmthj4o.js",
 });
 
 export default {
   setup(props) {
+    const pageSize = ref(3);
+    const currentPage = ref(1);
+    const currentIndex = ref(0);
     const listLoading = ref(true);
-    return { listLoading };
+    const resList = ref([])
+    const hotList = ref([])
+    const pagedResList = computed(() => {
+      return resList.value.slice(currentIndex.value, currentIndex.value + pageSize.value);
+    });
+    const handlePageChange = (page) => {
+      currentPage.value = page;
+      currentIndex.value = (page - 1) * pageSize.value;
+    };
+    const getRlist = async () => {
+      const res = await getResourceList()
+      resList.value = res.data.data
+      console.log(resList.value)
+    }
+    const getHot = async () => {
+      const res = await getHotList()
+      hotList.value = res.data.data
+      console.log(res.data.data)
+    }
+    const formatDate = (date) => {
+      return TimeUtils.formatTime(date)
+    }
+    const calculateHot = (viewCount, likeCount, downloadCount) => {
+      return calculateHotness(viewCount, likeCount, downloadCount)
+    }
+    const handleMenu = async (key) => {
+      currentIndex.value = 0
+      console.log(key);
+      const res = await getResourceBytag(key)
+      console.log(res.data.data);
+      resList.value = res.data.data ? res.data.data : []
+    }
+    return {
+      listLoading, resList, getRlist, formatDate,
+      pageSize, currentPage, currentIndex,
+      handlePageChange, pagedResList, getHot, hotList,
+      calculateHot, handleMenu
+    };
   },
   components: {
     IconFont,
@@ -210,15 +272,17 @@ export default {
     IconEye,
     IconStar,
     IconDownload,
+    IconFire,
   },
   data() {
     return {};
   },
 
   created() {
+    Promise.all([this.getRlist(), this.getHot()])
     setTimeout(() => {
       this.listLoading = false;
-    }, 1000);
+    }, 500);
   },
 
   mounted() { },
@@ -236,6 +300,23 @@ export default {
   align-items: center;
 }
 
+.rank-container {
+  margin: -12px -5px;
+}
+
+.footer-page {
+  display: flex;
+  justify-content: flex-end;
+  margin: 2rem .5rem 0 0;
+}
+
+.tagArr {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 0 0 0;
+}
+
 .sk-container {
   display: flex;
   margin-bottom: 2rem;
@@ -245,18 +326,6 @@ export default {
   width: 33.33%;
 }
 
-.icon-hover {
-  .icon-hover-text {
-    font-size: 12px;
-    padding-left: 2px;
-  }
-
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  // border-radius: 50%;
-}
 
 .list-tab {
   display: flex;
@@ -294,7 +363,7 @@ export default {
 
 .r-list {
   margin: 1rem 0;
-  padding:1rem 0;
+  padding: 1rem 0;
   width: 100%;
 }
 
@@ -345,7 +414,13 @@ export default {
       white-space: nowrap;
       width: 190px;
       display: flex;
-    align-items: center;
+      align-items: center;
+
+      .hot-info {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
     }
   }
 }
@@ -394,6 +469,30 @@ export default {
   padding: 0 10px 10px 10px;
   gap: 8px;
   margin-bottom: -2rem;
+  justify-content: space-between;
+
+  .res-tag {
+    display: flex;
+    gap: .5rem;
+  }
+
+  .icon-group {
+    display: flex;
+
+    .icon-hover {
+      .icon-hover-text {
+        font-size: 12px;
+        padding-left: 2px;
+      }
+
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+      // border-radius: 50%;
+    }
+  }
 }
 
 .r-card-avatar {

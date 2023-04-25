@@ -223,15 +223,10 @@ export default {
   },
 
   created() {
-    this.getSignTitle();
-    this.recommendList();
+    Promise.all([this.getSignTitle(), this.recommendList()])
   },
 
   mounted() {
-    // // 在数据加载完成后计算滚动容器的高度和内容高度
-    // this.$nextTick(() => {
-    //   this.calculateHeight();
-    // });
     setTimeout(() => {
       this.listLoading = false;
       this.rankLoading = false;
@@ -270,7 +265,7 @@ export default {
       this.userInfo.userId = this.isEmpty(this.userInfo.userId) || !this.userInfo.loginStatus ? 0 : this.userInfo.userId
       getRecommendArticle(this.userInfo.userId, type)
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           this.articleList = res.data.data;
         })
         .catch(err => {
@@ -282,7 +277,7 @@ export default {
       setTimeout(() => {
         this.recommendList(tab)
         this.listLoading = false;
-      }, 1000);
+      }, 500);
     },
     // 在数据加载完成后计算滚动容器的高度和内容高度
     calculateHeight() {
@@ -297,10 +292,9 @@ export default {
       });
     },
     loadMoreData(delay) {
-      console.log("加载更多数据");
       let moreList = [];
       getMoreArticles().then(res => {
-        console.log(res.data)
+        // console.log(res.data)
         moreList = res.data.data;
         this.articleList.push(...moreList);
         setTimeout(() => {
@@ -326,7 +320,7 @@ export default {
       }
     },
     handleItem(idx) {
-      this.$message.success("handleItem：" + idx);
+      this.$message.success("文章编号：" + idx);
       this.$router.push('/articleDetail/' + idx)
     },
     handleSign() {

@@ -1,40 +1,93 @@
 <template>
     <div class="toc-list">
         <ul class="toc">
-        <li v-for="node in nodes">
-            <div class="a-container" :title="node.title">
-                <a :href="getLink(node)" :class="node.children ? 'has-children' : ''" >{{ node.title }}</a>
-            </div>
-            <Toc v-if="node.children" :nodes="node.children"></Toc>
-        </li>
-    </ul>
+            <li v-for="(node, k) in nodes">
+                <div class="a-container" :class="{ 'hash-active': nextHash === getLink(node) }"
+                    :title="node.title">
+                    <a :href="getLink(node)" :class="node.children ? 'has-children' : ''"
+                        @click="toActive(getLink(node))">{{ node.title
+                        }}</a>
+                </div>
+                <Toc v-if="node.children" :nodes="node.children"></Toc>
+            </li>
+        </ul>
     </div>
 </template>
   
 <script>
+import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 export default {
     name: 'Toc',
     props: ['nodes'],
+    setup() {
+        const router = useRouter()
+        const nextHash = ref('')
+        const firstLoad = ref(true)
+        const toActive = (hash) => {
+            router.beforeEach((to, from, next) => {
+                nextHash.value = to.hash;
+                next(); // 确保导航成功
+            });
+        }
+        toActive()
+        return {
+            toActive,
+            nextHash,
+            firstLoad,
+        }
+    },
+    created() {
+        // this.nextHash = this.getLink(this.$props.nodes[0])
+    },
     methods: {
         getLink(node) {
             return '#' + node.title.toLowerCase().replace(/\s+/g, '-')
-        }
+        },
+
     }
 }
 </script>
   
 <style lang="less" scoped>
-.a-container{
-    padding: 12px;
-    border-radius: 5px;
-    &:hover{
+.a-container {
+    padding: 10px 0 10px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+
+    &:hover {
         background: #f4f4f4;
+
     }
 }
-.toc-list{
+
+.hash-active {
+    background: #f4f4f4;
+    font-weight: bold;
+    position: relative;
+
+    a {
+        color: rgb(var(--arcoblue-6)) !important;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 1px;
+        left: 0;
+        margin-top: 7px;
+        width: 4px;
+        height: 24px;
+        background: rgb(var(--arcoblue-5));
+        border-radius: 0 2px 2px 0;
+    }
+}
+
+.toc-list {
     position: relative;
     line-height: 1rem;
 }
+
 /* 添加以下样式 */
 .toc {
     list-style: none;
@@ -56,21 +109,21 @@ export default {
     width: 99%;
     height: 100%;
     white-space: nowrap;
+    font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.toc a:hover {
-
-}
+.toc a:hover {}
 
 .toc .has-children::before {
     color: #777;
 }
-.toc:not(.has-children){
+
+.toc:not(.has-children) {
     padding-left: 15px;
     margin-right: 5px;
-    
+
 }
 </style>
   
