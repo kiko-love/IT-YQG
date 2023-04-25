@@ -149,6 +149,9 @@
                 </a-card>
               </a-col>
               <a-empty v-if="pagedResList.length === 0" />
+              <!-- <div v-if="resLoading" class="res-spin">
+                <a-spin tip="正在加载资源列表..." />
+              </div> -->
             </a-row>
           </div>
           <div class="footer-page">
@@ -224,6 +227,7 @@ export default {
     const listLoading = ref(true);
     const resList = ref([])
     const hotList = ref([])
+    const resLoading = ref(true)
     const pagedResList = computed(() => {
       return resList.value.slice(currentIndex.value, currentIndex.value + pageSize.value);
     });
@@ -249,16 +253,16 @@ export default {
     }
     const handleMenu = async (key) => {
       currentIndex.value = 0
-      console.log(key);
+      resLoading.value = true
       const res = await getResourceBytag(key)
-      console.log(res.data.data);
       resList.value = res.data.data ? res.data.data : []
+      resLoading.value = false
     }
     return {
       listLoading, resList, getRlist, formatDate,
       pageSize, currentPage, currentIndex,
       handlePageChange, pagedResList, getHot, hotList,
-      calculateHot, handleMenu
+      calculateHot, handleMenu, resLoading
     };
   },
   components: {
@@ -298,6 +302,13 @@ export default {
 
 /deep/.arco-space {
   align-items: center;
+}
+
+.res-spin {
+  margin: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .rank-container {

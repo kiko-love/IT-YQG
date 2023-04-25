@@ -18,7 +18,7 @@
             </a-menu-item>
             <a-sub-menu key="3">
               <template #icon><icon-bookmark :size="20" /></template>
-              <template #title>推荐主题</template>
+              <template #title>推荐话题</template>
               <a-menu-item v-for="(i, k) in recommedTopic" :key="3 + i.id">
                 {{ i.title }}
               </a-menu-item>
@@ -58,7 +58,7 @@
             </div>
             <div class="toolbar">
               <div class="tools">
-                <div class="tool-item"><icon-tags />标签</div>
+                <div class="tool-item"><icon-tags />话题</div>
                 <a-popover trigger="click" position="bl">
                   <div class="tool-item"><icon-link />链接</div>
                   <template #content>
@@ -94,13 +94,13 @@
           <a-card v-if="!cListLoading" v-for="(i, k) in cList" class="c-item">
             <div class="c-header-row">
               <div class="user-group">
-                <a-avatar class="user-avatar">
+                <a-avatar class="user-avatar" :image-url="i.user?.userAvatarUrl">
                   <IconUser />
                   <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                 </a-avatar>
                 <div>
-                  <div class="user-title">{{ i.user_info.user_name }}</div>
-                  <div class="user-meta">1天前</div>
+                  <div class="user-title">{{ i.user?.userName }}</div>
+                  <div class="user-meta">{{ getDiff(i.createTime) }}</div>
                 </div>
               </div>
               <div class="user-action">
@@ -132,10 +132,10 @@
                   <template #icon>
                     <icon-bookmark />
                   </template>
-                  {{ i.topic.title }}</a-tag>
+                  {{ i.topic }}</a-tag>
               </div>
             </div>
-            <div class="c-action-row">
+            <!-- <div class="c-action-row">
               <div class="action-box">
                 <div class="action"><icon-thumb-up />{{ i.like_count }}</div>
                 <div class="action" :class="{ 'action-active': cList[k].isOpen }"
@@ -144,7 +144,7 @@
                 </div>
                 <div class="action"><icon-reply /></div>
               </div>
-            </div>
+            </div> -->
             <div v-if="cList[k].isOpen" class="c-reply-row">
               <span class="c-replay-triangle">
                 <em class="triangle"> </em>
@@ -257,7 +257,8 @@ import {
   IconCloseCircleFill
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
-
+import TimeUtils from '@/utils/timeUtils'
+import { getCommentList } from '@/api/commentApi'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
@@ -290,80 +291,7 @@ export default {
       subtitle: '',
       favicon: '',
     });
-    const cList = reactive([
-      {
-        id: 1,
-        isOpen: false,
-        content:
-          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
-        parent_id: 0,
-        like_count: 9,
-        comment_count: 9,
-        star_count: 9,
-        user_id: "10001",
-        user_info: {
-          user_id: "10001",
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_tags: [],
-        },
-        topic: {
-          title: "技术交流",
-          topic_id: "100",
-          id: 1,
-        },
-        status: 1,
-        create_time: 1678705012000,
-      },
-      {
-        id: 2,
-        isOpen: false,
-        content:
-          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
-        parent_id: 0,
-        like_count: 9,
-        comment_count: 9,
-        star_count: 9,
-        user_id: "10001",
-        user_info: {
-          user_id: "10001",
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_tags: [],
-        },
-        topic: {
-          title: "面试交流",
-          topic_id: "101",
-          id: 2,
-        },
-        status: 1,
-        create_time: 1678705012000,
-      },
-      {
-        id: 3,
-        isOpen: false,
-        content:
-          "欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的😊",
-        parent_id: 0,
-        like_count: 9,
-        comment_count: 9,
-        star_count: 9,
-        user_id: "10001",
-        user_info: {
-          user_id: "10001",
-          user_name: "ZYY",
-          user_avatar_url: "",
-          user_tags: [],
-        },
-        topic: {
-          title: "技术交流",
-          topic_id: "100",
-          id: 1,
-        },
-        status: 1,
-        create_time: 1678705012000,
-      },
-    ]);
+    const cList = ref([]);
     const recommedTopic = reactive([
       {
         title: "技术交流",
@@ -386,6 +314,19 @@ export default {
         id: 4,
       },
     ]);
+    const getDiff = (timestamp) => {
+      return TimeUtils.getTimeDiff(timestamp);
+    }
+    const getList = async () => {
+      const res = await getCommentList();
+      if (res.data.code === 100) {
+        cList.value = res.data.data;
+        cList.value.forEach(item => {
+          item.isOpen = false;
+        })
+        console.log(cList.value);
+      }
+    }
     const clearLinkInfo = () => {
       Object.keys(linkInfo).forEach(key => {
         linkInfo[key] = '';
@@ -404,10 +345,14 @@ export default {
       linkInfo,
       clearLinkInfo,
       getLinkLoading,
+      getDiff,
+      getList,
     };
   },
   created() {
+    this.getList();
     setTimeout(() => {
+
       if (this.cListLoading) {
         this.cListLoading = false;
       }
@@ -474,7 +419,15 @@ export default {
           break;
         }
       }
-
+      if (favicon) {
+        if (favicon.startsWith('//')) {
+          favicon = `https:${favicon}`;
+        } else if (favicon.startsWith('/')) {
+          favicon = `https://${domain}${favicon}`;
+        } else if (!favicon.startsWith('http')) {
+          favicon = `https://${domain}/${favicon}`;
+        }
+      }
       return {
         title: title,
         domain: domain,
@@ -501,11 +454,13 @@ export default {
     padding: 1rem;
     border-radius: 5px;
     background-color: var(--color-neutral-2);
+
     .link-loading {
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
     .link-clear {
       position: absolute;
       cursor: pointer;
@@ -746,6 +701,7 @@ export default {
 
     .user-title {
       font-size: 16px;
+      margin-bottom: 5px;
     }
 
     .user-meta {

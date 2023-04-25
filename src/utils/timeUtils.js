@@ -1,5 +1,6 @@
 class TimeUtils {
   static getTimeDiff(ms) {
+    ms = Number(ms);
     const diff = Date.now() - ms;
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
