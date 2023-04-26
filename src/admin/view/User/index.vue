@@ -65,7 +65,7 @@
         </template>
         <div>
             <a-form :model="editForm" @submit="handleSubmit">
-                <a-form-item field="userId" label="用户ID">
+                <a-form-item field="userId" label="用户ID" tooltip="用户ID不可修改">
                     <a-input v-model="editForm.userId" disabled />
                 </a-form-item>
                 <a-form-item field="userName" label="用户名">
@@ -75,13 +75,13 @@
                     <a-input v-model="editForm.email" />
                 </a-form-item>
                 <a-form-item field="createTime" label="注册日期">
-                    <div>{{ editForm.createTime }}</div>
+                    <div class="form-createTime">{{ handleCreateTime(editForm.createTime) }}</div>
                 </a-form-item>
                 <a-form-item field="description" label="用户简介">
                     <a-textarea v-model="editForm.userDes" :auto-size="{
-                            minRows: 2,
-                            maxRows: 5
-                        }" />
+                        minRows: 2,
+                        maxRows: 5
+                    }" />
                 </a-form-item>
                 <a-form-item field="status" label="激活状态">
                     <a-switch v-model="editForm.status" @change="statusChange" :loading="switchLoading" />
@@ -118,9 +118,9 @@
                 </a-form-item>
                 <a-form-item field="description" label="用户简介">
                     <a-textarea v-model="addForm.userDes" placeholder="简介（选填）" :auto-size="{
-                            minRows: 2,
-                            maxRows: 5
-                        }" />
+                        minRows: 2,
+                        maxRows: 5
+                    }" />
                 </a-form-item>
                 <a-form-item class="edit-btn">
                     <div class="btns">
@@ -154,6 +154,7 @@ import {
     IconRefresh,
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
+import TimeUtils from '@/utils/timeUtils'
 export default {
     components: {
         IconCaretRight,
@@ -170,6 +171,9 @@ export default {
         IconRefresh,
     },
     methods: {
+        handleCreateTime(time) {
+            return TimeUtils.formatTime(time)
+        },
         handlePageChange(page) {
             this.currentPage = page;
         },
@@ -192,14 +196,16 @@ export default {
             this.userList.forEach(element => {
                 element.status = element.status === 0 ? true : false;
             });
-            this.editForm = this.userList[this.currentIndex];
+            //深拷贝
+            this.editForm = Object.assign({}, this.userList[this.currentIndex])
+
         });
     },
     setup() {
         const currentIndex = ref(0);
         const userList = ref([]);
         const pagedUserList = computed(() => {
-            return userList.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value);
+            return Object.assign({}, userList.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value));
         });
         const userListloading = ref(false);
         const switchLoading = ref(false);
@@ -246,19 +252,8 @@ export default {
                 Message.error(err);
             });
         }
-        const editForm = ref({
-            userName: '',
-            userId: '',
-            password: '',
-            userDes: ''
-        });
-        const addForm = reactive({
-            userName: '',
-            password: '',
-            userDes: '',
-            email: '',
-            roleId: '10001'
-        });
+        const editForm = ref({});
+        const addForm = reactive({});
         const handleAddSubmit = ({ values, errors }) => {
             console.log(values);
             adminAddUser(values).then(res => {
@@ -302,7 +297,7 @@ export default {
         const addVisible = ref(false);
         const editUser = (index) => {
             currentIndex.value = index;
-            editForm.value = userList.value[index];
+            editForm.value = Object.assign({}, userList.value[index]);
             detailVisible.value = true;
         };
         const cancelEdit = () => {
@@ -336,6 +331,10 @@ export default {
 }
 </script>
 <style lang="less">
+.form-createTime {
+    color: var(--color-neutral-6);
+}
+
 .spin-row {
     display: flex;
     margin: 1rem;

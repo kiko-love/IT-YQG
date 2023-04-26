@@ -26,6 +26,9 @@ class TimeUtils {
 
   //将时间戳转换成年月日时分秒
   static formatTime(timestamp) {
+    if (!timestamp) {
+      return "";
+    }
     const parsedTimestamp = Number(timestamp);
     if (isNaN(parsedTimestamp)) {
       throw new Error("Invalid timestamp");

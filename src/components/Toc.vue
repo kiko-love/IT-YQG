@@ -48,13 +48,11 @@ export default {
         }
     },
     created() {
-        // this.nextHash = this.getLink(this.$props.nodes[0])
     },
     methods: {
         getLink(node) {
             return '#' + node
         },
-
     }
 }
 </script>
