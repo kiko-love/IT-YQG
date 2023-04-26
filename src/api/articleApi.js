@@ -1,6 +1,6 @@
 import http from "./http";
 
-const updateArticle = (v) => {
+const addArticle = (v) => {
   //data是参数，里面传入登录信息
   return http({
     method: "post", //请求方法
@@ -36,8 +36,20 @@ const getArticleDetail = (id) => {
     },
   });
 };
+const updateArticle = (v) => {
+  //data是参数，里面传入登录信息
+  return http({
+    method: "post", //请求方法
+    url: "/api/article/update",
+    responseType: "json",
+    data: v,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 
-export { updateArticle, getMoreArticles, getArticleDetail };
+export { addArticle, getMoreArticles, getArticleDetail, updateArticle };
 
 /*
 不会写es6，看传统es5写法

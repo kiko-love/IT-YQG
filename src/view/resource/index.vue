@@ -97,7 +97,12 @@
                       height: '110px',
                       overflow: 'hidden',
                     }">
-                      <img class="r-cover-img" alt="dessert" src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
+                      <img v-if="i.fileType==='other'" class="r-cover-img other" alt="dessert" src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
+                      <img v-else-if="i.fileType==='audio'" class="r-cover-img" alt="dessert" src="@/assets/fileType/audio.png" />
+                      <img v-else-if="i.fileType==='video'" class="r-cover-img" alt="dessert" src="@/assets/fileType/video.png" />
+                      <img v-else-if="i.fileType==='text'" class="r-cover-img" alt="dessert" src="@/assets/fileType/text.png" />
+                      <img v-else-if="i.fileType==='image'" class="r-cover-img" alt="dessert" src="@/assets/fileType/image.png" />
+                      <img v-else-if="i.fileType==='compressed'" class="r-cover-img" alt="dessert" src="@/assets/fileType/zip.png" />
                     </div>
                   </template>
                   <a-card-meta>
@@ -221,7 +226,7 @@ const IconFont = Icon.addFromIconFontCn({
 
 export default {
   setup(props) {
-    const pageSize = ref(3);
+    const pageSize = ref(9);
     const currentPage = ref(1);
     const currentIndex = ref(0);
     const listLoading = ref(true);
@@ -236,6 +241,7 @@ export default {
       currentIndex.value = (page - 1) * pageSize.value;
     };
     const getRlist = async () => {
+      currentIndex.value = 0
       const res = await getResourceList()
       resList.value = res.data.data
       console.log(resList.value)
@@ -541,9 +547,13 @@ export default {
 }
 
 .r-cover-img {
-  height: 90px;
-  width: 90px;
+  height: 70px;
+  width: 70px;
   -o-object-fit: contain;
   object-fit: contain;
 }
+.other{
+    height: 100px;
+    width: 100px;
+  }
 </style>

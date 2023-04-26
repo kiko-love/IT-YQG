@@ -57,7 +57,14 @@
             </div>
             <div class="toolbar">
               <div class="tools">
-                <div class="tool-item"><icon-tags />话题</div>
+                <a-popover trigger="click" title="想要分享的话题" position="bl">
+                  <div class="tool-item"><icon-tags />话题</div>
+                  <template #content>
+                    <a-select v-model="myTopic" :style="{ width: '260px', margin: '8px 0' }">
+                      <a-option v-for="item of topicList" :value="item.title" :label="item.title" />
+                    </a-select>
+                  </template>
+                </a-popover>
                 <a-popover trigger="click" position="bl">
                   <div class="tool-item"><icon-link />链接</div>
                   <template #content>
@@ -76,7 +83,8 @@
                 </a-popover>
               </div>
               <div>
-                <a-button type="primary" :disabled="editor_content === ''">发表心得</a-button>
+                <a-button type="primary" :disabled="editor_content === '' || addCommentLoading"
+                  :loading="addCommentLoading" @click="addMyComment">发表心得</a-button>
               </div>
             </div>
 
@@ -102,12 +110,15 @@
                   <div class="user-meta">{{ getDiff(i.createTime) }}</div>
                 </div>
               </div>
-              <div class="user-action">
-                <a-button type="text">
-                  <template #icon>
-                    <icon-more-vertical :style="{ color: '#000' }" :size="18" />
-                  </template>
-                </a-button>
+              <div class="user-action" v-if="user.loginStatus && i.user.userId === user.userId">
+                <a-popconfirm @ok="delMyComment(i.commentId)" popup-container="user-action" position="tr" 
+                content="是否确认删除您的心得?">
+                  <a-button type="text" shape="circle">
+                    <template #icon>
+                      <icon-delete :style="{ color: 'var(--color-neutral-6)' }" :size="16" />
+                    </template>
+                  </a-button>
+                </a-popconfirm>
               </div>
             </div>
             <div class="c-content-row">
@@ -127,7 +138,7 @@
             </div>
             <div class="c-topic-row">
               <div class="topic-box">
-                <a-tag class="topic-tag" color="arcoblue">
+                <a-tag v-if="i.topic" class="topic-tag" color="arcoblue">
                   <template #icon>
                     <icon-bookmark />
                   </template>
@@ -166,7 +177,7 @@
               <div class="reply-list-wrapper">
                 <div class="reply-list-title">全部回复（99）</div>
                 <div class="reply-list">
-                  <div class="r-list-item">
+                  <div v-for="ierm in i.commentCount" class="r-list-item">
                     <a-avatar style="background: #3370ff" class="user-avatar">
                       <IconUser />
                       <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
@@ -177,21 +188,7 @@
                         <a-divider direction="vertical" />
                         <div class="user-time">5分钟前</div>
                       </div>
-                      <div class="r-content">这是评论回复内容</div>
-                    </div>
-                  </div>
-                  <div class="r-list-item">
-                    <a-avatar style="background: #3370ff" class="user-avatar">
-                      <IconUser />
-                      <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
-                    </a-avatar>
-                    <div class="item-content-box">
-                      <div class="user-box">
-                        <div>Jack</div>
-                        <a-divider direction="vertical" />
-                        <div class="user-time">5分钟前</div>
-                      </div>
-                      <div class="r-content">这是评论回复内容</div>
+                      <div class="r-content">这是子评论回复内容</div>
                     </div>
                   </div>
                 </div>
@@ -253,14 +250,16 @@ import {
   IconFire,
   IconReply,
   IconPlus,
-  IconCloseCircleFill
+  IconCloseCircleFill,
+  IconDelete,
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-import { getCommentList } from '@/api/commentApi'
+import { getCommentList, addComment, getTopicList } from '@/api/commentApi'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
+import { userStore } from "@/store/userStore";
 
 export default {
   components: {
@@ -281,7 +280,8 @@ export default {
     IconMoreVertical,
     IconReply,
     IconPlus,
-    IconCloseCircleFill
+    IconCloseCircleFill,
+    IconDelete
   },
   setup(props) {
     const linkInfo = reactive({
@@ -291,6 +291,8 @@ export default {
       favicon: '',
     });
     const cList = ref([]);
+    const topicList = ref([])
+    const addCommentLoading = ref(false)
     const recommedTopic = reactive([
       {
         title: "技术交流",
@@ -323,7 +325,6 @@ export default {
         cList.value.forEach(item => {
           item.isOpen = false;
         })
-        console.log(cList.value);
       }
     }
     const clearLinkInfo = () => {
@@ -335,6 +336,46 @@ export default {
     const editor_reply = ref("");
     const cListLoading = ref(true);
     const getLinkLoading = ref(false);
+    const user = userStore()
+    const myTopic = ref('')
+    const getTopic = async () => {
+      const res = await getTopicList()
+      if (res.data.code === 100) {
+        topicList.value = res.data.data
+        myTopic.value = topicList.value[0].title
+      }
+    }
+    const addMyComment = async () => {
+      addCommentLoading.value = true
+      let v = {
+        articleId: '0',
+        userId: user.userId,
+        content: editor_content.value,
+        parentId: '0',
+        topic: myTopic.value,
+        link: linkInfo.url ? linkInfo.url : null,
+      }
+      const res = await addComment(v)
+      if (res.data.code === 100) {
+        Message.success('发表心得成功')
+        editor_content.value = ''
+        myTopic.value = topicList.value[0].title
+        clearLinkInfo()
+        getList()
+      } else {
+        Message.error('发表心得失败')
+      }
+      addCommentLoading.value = false
+    }
+    const delMyComment = async (id)=>{
+      const res = await delComment(id)
+      if (res.data.code === 100) {
+        Message.success('删除成功')
+        getList()
+      } else {
+        Message.error('删除失败')
+      }
+    }
     return {
       editor_content,
       editor_reply,
@@ -346,16 +387,23 @@ export default {
       getLinkLoading,
       getDiff,
       getList,
+      myTopic,
+      user,
+      addMyComment,
+      topicList,
+      getTopic,
+      addCommentLoading,
     };
   },
   created() {
-    this.getList();
-    setTimeout(() => {
+    Promise.all([this.getList(), this.getTopic()]).then(() => {
+      setTimeout(() => {
+        if (this.cListLoading) {
+          this.cListLoading = false;
+        }
+      }, 1000);
+    });
 
-      if (this.cListLoading) {
-        this.cListLoading = false;
-      }
-    }, 1000);
   },
   data() {
     return {};
@@ -438,6 +486,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.user-action{
+  position: relative;
+}
 .blue-bg {
   background: #3370ff;
 }
@@ -684,6 +735,7 @@ export default {
   }
 
   .c-header-row {
+    position: relative;
     display: flex;
     justify-content: space-between;
   }

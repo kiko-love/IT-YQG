@@ -2,11 +2,9 @@
     <div class="toc-list">
         <ul class="toc">
             <li v-for="(node, k) in nodes">
-                <div class="a-container" :class="{ 'hash-active': nextHash === getLink(node) }"
-                    :title="node.title">
-                    <a :href="getLink(node)" :class="node.children ? 'has-children' : ''"
-                        @click="toActive(getLink(node))">{{ node.title
-                        }}</a>
+                <div class="a-container" :class="{ 'hash-active': nextHash === getLink(node.id) }" :title="node.title">
+                    <a :href="getLink(node.id)" :class="node.children ? 'has-children' : ''"
+                        @click="toActive(getLink(node))">{{ node.title }}</a>
                 </div>
                 <Toc v-if="node.children" :nodes="node.children"></Toc>
             </li>
@@ -19,11 +17,21 @@ import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 export default {
     name: 'Toc',
-    props: ['nodes'],
-    setup() {
+    props: {
+        nodes: {
+            type: Array,
+            default: () => []
+        },
+        uuidList: {
+            type: Array,
+            default: () => []
+        }
+    },
+    setup(props) {
         const router = useRouter()
         const nextHash = ref('')
         const firstLoad = ref(true)
+        const ulist = ref([])
         const toActive = (hash) => {
             router.beforeEach((to, from, next) => {
                 nextHash.value = to.hash;
@@ -31,10 +39,12 @@ export default {
             });
         }
         toActive()
+        ulist.value = props.uuidList
         return {
             toActive,
             nextHash,
             firstLoad,
+            ulist,
         }
     },
     created() {
@@ -42,7 +52,7 @@ export default {
     },
     methods: {
         getLink(node) {
-            return '#' + node.title.toLowerCase().replace(/\s+/g, '-')
+            return '#' + node
         },
 
     }

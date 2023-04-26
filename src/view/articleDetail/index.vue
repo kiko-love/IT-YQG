@@ -55,7 +55,7 @@
                             <div class="tip">目录</div>
                             <a-divider />
                             <div class="outline">
-                                <Toc :nodes="toc"></Toc>
+                                <Toc :nodes="toc" :uuidList="uuidList"></Toc>
                             </div>
                         </div>
                     </a-card>
@@ -108,6 +108,7 @@ import { getArticleDetail } from '@/api/articleApi'
 import { reactive, ref } from 'vue'
 import Toc from '@/components/Toc.vue';
 import TimeUtils from '@/utils/timeUtils'
+import { getUUID } from '@/utils/encryptUtils'
 export default {
     name: 'articleDetail',
     components: {
@@ -122,6 +123,7 @@ export default {
         const toc = ref([])
         const router = useRouter()
         const article = ref(null)
+        const uuidList = ref([])
         const notFountShow = ref(false)
         const aid = router.currentRoute.value.params.articleId
         const getDetail = (aid) => {
@@ -147,6 +149,7 @@ export default {
             toc,
             content,
             formatDate,
+            uuidList,
         }
     },
     mounted() {
@@ -174,7 +177,7 @@ export default {
             for (let i = 0; i < headings.length; i++) {
                 let title = headings[i].textContent;
                 let level = parseInt(headings[i].tagName.charAt(1));
-                let node = { title: title, children: [] };
+                let node = { title: title, children: [], id: headings[i].id };
                 while (stack.length > 0 && stack[stack.length - 1].level >= level) {
                     stack.pop();
                 }
@@ -190,14 +193,15 @@ export default {
         },
         addAnchors(headings) {
             // 在渲染后的 HTML 文本中，为每个标题添加带有 id 和 href 属性的锚点标签 a
-            headings.forEach((h) => {
-                const id = encodeURIComponent(h.innerText.toLowerCase().replace(/\s+/g, '-'))
-                h.id = id
+            for (let i = 0; i < headings.length; i++) {
+                const id = "heading-" + i
+                headings[i].id = id
+                this.uuidList.push(headings[i].id)
                 const anchor = document.createElement('a')
                 anchor.classList.add('header-anchor')
                 anchor.setAttribute('href', `#${id}`)
-                h.appendChild(anchor)
-            })
+                headings[i].appendChild(anchor)
+            }
 
         },
     }

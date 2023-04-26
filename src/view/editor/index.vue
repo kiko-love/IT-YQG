@@ -147,6 +147,7 @@
                 <a-button class="user-actions" @click="previewText" :disabled="state.content === ''">
                   预览
                 </a-button>
+                <!-- <a-button class="user-actions" type="primary" @click="articleUpload"> 修改 </a-button> -->
                 <a-button class="user-actions" type="primary" @click="articleUpload"> 发布 </a-button>
               </div>
             </div>
@@ -186,7 +187,7 @@ import { ref, reactive } from "vue";
 import { userStore } from "@/store/userStore";
 import { Decrypt, Encrypt } from "@/utils/encryptUtils";
 import { getTagsList } from "@/api/getTagsList";
-import { updateArticle } from "@/api/articleApi";
+import { addArticle, updateArticle } from "@/api/articleApi";
 import {
   IconUser,
   IconPoweroff,
@@ -317,7 +318,6 @@ export default {
           saveTime.value = "最近保存 " + time;
           localStorage.setItem("draft_saveData", encrypt_content);
           localStorage.setItem("draft_saveTime", time);
-          console.log("保存成功");
         }
       }, 3000);
     };
@@ -373,7 +373,6 @@ export default {
               saveTime.value = "最近保存 " + time;
               localStorage.setItem("draft_saveData", encrypt_content);
               localStorage.setItem("draft_saveTime", time);
-              console.log("保存成功");
               // 执行保存操作
             }, 3000);
           });
@@ -393,55 +392,67 @@ export default {
     const eDataHTML = ref("");
     const uploadResultShow = ref(false);
     const articleUpload = () => {
+      const article_id = localStorage.getItem("article_id");
       const user = JSON.parse(localStorage.getItem("user"))
       let v = {
+        articleId: article_id ? article_id : '',
         title: textaeraTitle.value,
         content: tinyMCE.activeEditor.getContent(),
-        summary: (tinyMCE.activeEditor.getContent({ format: 'text' })).replaceAll(/[\r\n]/g, ""),
+        summary: (tinyMCE.activeEditor.getContent({ format: 'text' })).replaceAll(/[\r\n]/g, "").substring(0, 50),
         tags: uploadTags.value.join(','),
         userId: user.userId,
       }
-      console.log(v);
-      if (v.tags === '') {
-        Message.error({
-          content: '请选择文章标签',
-        });
-        return
-      } else if (v.title === '') {
-        Message.error({
-          content: '请输入文章标题',
-        });
-        return
-      } else if (v.content === '') {
-        Message.error({
-          content: '请输入文章内容',
-        });
-        return
-      }
-      updateArticle(v).then((res) => {
-        if (res.data.code === 100) {
-          Message.success({
-            content: '文章上传成功，请等待后台审核',
+      if (article_id) {
+        updateArticle(v).then((res) => {
+          if (res.data.code === 100) {
+            Message.success({
+              content: '文章修改成功，请等待后台审核',
+            });
+            uploadResultShow.value = true;
+          } else if (res.data.code === 110) {
+            Message.error({
+              content: '文章修改失败',
+            });
+          }
+        })
+      } else {
+        if (v.tags === '') {
+          Message.error({
+            content: '请选择文章标签',
           });
-          uploadResultShow.value = true;
+          return
+        } else if (v.title === '') {
+          Message.error({
+            content: '请输入文章标题',
+          });
+          return
+        } else if (v.content === '') {
+          Message.error({
+            content: '请输入文章内容',
+          });
+          return
+        }
+        addArticle(v).then((res) => {
+          if (res.data.code === 100) {
+            Message.success({
+              content: '文章上传成功，请等待后台审核',
+            });
+            localStorage.setItem("article_id", res.data.data.articleId);
+            uploadResultShow.value = true;
 
-        } else if (res.data.code === 110) {
-          Message.error({
-            content: '文章上传失败',
-          });
-        }
-      }).catch((err) => {
-        if (err) {
-          Message.error({
-            content: '上传失败',
-            duration: 2,
-          });
-        }
-      })
-    }
-    const backRefresh = ()=>{
-      uploadResultShow.value = false;
+          } else if (res.data.code === 110) {
+            Message.error({
+              content: '文章上传失败',
+            });
+          }
+        })
       }
+
+
+    }
+    const backRefresh = () => {
+      uploadResultShow.value = false;
+    }
     return {
       uploadResultShow,
       articleUpload,

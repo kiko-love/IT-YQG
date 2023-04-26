@@ -49,7 +49,7 @@
                   show-collapse-button breakpoint="md" @menu-item-click="handleMenuItem">
                   <a-menu-item key="home">首页</a-menu-item>
                   <a-menu-item key="resource">资源库</a-menu-item>
-                  <a-menu-item key="communication">交流广场</a-menu-item>
+                  <a-menu-item key="communication">心得广场</a-menu-item>
                   <a-menu-item key="suggestion">建议</a-menu-item>
                 </a-menu>
               </div>
