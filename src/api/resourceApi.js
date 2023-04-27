@@ -56,6 +56,13 @@ const getResourceBytag = (tag) => {
     },
   });
 };
+const downloadFile = (v) => {
+  return http({
+    method: "get", //请求方法
+    url: "/api/resource/download/"+v.userId+"/"+v.fileId,
+    responseType: "arraybuffer",
+  });
+};
 //data是参数，里面传入登录信息
 
 export {
@@ -64,6 +71,7 @@ export {
   getResourceList,
   getHotList,
   getResourceBytag,
+  downloadFile,
 };
 
 /*

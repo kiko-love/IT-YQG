@@ -97,12 +97,18 @@
                       height: '110px',
                       overflow: 'hidden',
                     }">
-                      <img v-if="i.fileType==='other'" class="r-cover-img other" alt="dessert" src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
-                      <img v-else-if="i.fileType==='audio'" class="r-cover-img" alt="dessert" src="@/assets/fileType/audio.png" />
-                      <img v-else-if="i.fileType==='video'" class="r-cover-img" alt="dessert" src="@/assets/fileType/video.png" />
-                      <img v-else-if="i.fileType==='text'" class="r-cover-img" alt="dessert" src="@/assets/fileType/text.png" />
-                      <img v-else-if="i.fileType==='image'" class="r-cover-img" alt="dessert" src="@/assets/fileType/image.png" />
-                      <img v-else-if="i.fileType==='compressed'" class="r-cover-img" alt="dessert" src="@/assets/fileType/zip.png" />
+                      <img v-if="i.fileType === 'other'" class="r-cover-img other" alt="dessert"
+                        src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
+                      <img v-else-if="i.fileType === 'audio'" class="r-cover-img" alt="dessert"
+                        src="@/assets/fileType/audio.png" />
+                      <img v-else-if="i.fileType === 'video'" class="r-cover-img" alt="dessert"
+                        src="@/assets/fileType/video.png" />
+                      <img v-else-if="i.fileType === 'text'" class="r-cover-img" alt="dessert"
+                        src="@/assets/fileType/text.png" />
+                      <img v-else-if="i.fileType === 'image'" class="r-cover-img" alt="dessert"
+                        src="@/assets/fileType/image.png" />
+                      <img v-else-if="i.fileType === 'compressed'" class="r-cover-img" alt="dessert"
+                        src="@/assets/fileType/zip.png" />
                     </div>
                   </template>
                   <a-card-meta>
@@ -118,16 +124,23 @@
                       </div>
                       <div class="r-card-a-a">
                         <div class="r-card-avatar">
-                          <a-avatar :size="32" :style="{
-                            marginRight: '8px',
-                            background: '#3370ff',
-                          }" :image-url="i.user.userAvatarUrl">
-                            <IconUser />
-                          </a-avatar>
-                          <div class="r-card-info">
-                            <span>{{ i.user.userName }}</span>
-                            <span class="r-card-info-time">{{ formatDate(i.createTime) }}</span>
+                          <div class="avatar-info">
+                            <a-avatar :size="32" :style="{
+                              marginRight: '8px',
+                              background: '#3370ff',
+                            }" :image-url="i.user.userAvatarUrl">
+                              <IconUser />
+                            </a-avatar>
+
+                            <div class="r-card-info">
+                              <span>{{ i.user.userName }}</span>
+                              <span class="r-card-info-time">{{ formatDate(i.createTime) }}</span>
+                            </div>
                           </div>
+                          <a-button type="primary" shape="round" size="mini" status="success"
+                            @click="downLoadResource(i.user.userId, i.id)">
+                            下载
+                          </a-button>
                         </div>
                         <div class="r-card-actions">
                           <div class="icon-group">
@@ -144,6 +157,7 @@
                             <a-tag v-if="i.fee === 0" color="green">免费</a-tag>
                             <a-tag v-else color="orangered">付费</a-tag>
                           </div>
+
                         </div>
                       </div>
                     </template>
@@ -203,7 +217,7 @@
 </template>
 
 <script>
-import { Icon } from "@arco-design/web-vue";
+import { Icon,Message } from "@arco-design/web-vue";
 import {
   IconThumbUp,
   IconShareInternal,
@@ -217,15 +231,17 @@ import {
   IconFire,
 } from "@arco-design/web-vue/es/icon";
 import { ref, computed } from "vue";
-import { getResourceList, getHotList, getResourceBytag } from '@/api/resourceApi'
+import { getResourceList, getHotList, getResourceBytag, downloadFile } from '@/api/resourceApi'
 import TimeUtils from '@/utils/timeUtils'
 import { calculateHotness } from '@/utils/resourceUtils'
+import { userStore } from '@/store/userStore'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_qmfhbmthj4o.js",
 });
 
 export default {
   setup(props) {
+    const user = userStore()
     const pageSize = ref(9);
     const currentPage = ref(1);
     const currentIndex = ref(0);
@@ -264,11 +280,34 @@ export default {
       resList.value = res.data.data ? res.data.data : []
       resLoading.value = false
     }
+    const downLoadResource = async (uid, rid) => {
+      if (user.loginStatus === false) {
+        Message.error('请先登录后进行下载')
+        return
+      }
+      const v = {
+        userId: uid,
+        fileId: rid
+      }
+      const response = await downloadFile(v)
+      console.log(response);
+      // 将响应数据转换成 Blob 对象
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      // 创建 URL 和下载链接
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // 设置链接的下载属性为服务端返回的文件名
+      a.download = response.headers['content-disposition'] ? response.headers['content-disposition'].split('filename=')[1].replace(/^"(.*)"$/, '$1') : 'download';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
     return {
       listLoading, resList, getRlist, formatDate,
       pageSize, currentPage, currentIndex,
       handlePageChange, pagedResList, getHot, hotList,
-      calculateHot, handleMenu, resLoading
+      calculateHot, handleMenu, resLoading, downLoadResource
     };
   },
   components: {
@@ -516,6 +555,11 @@ export default {
   padding: 0 8px 10px 8px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  .avatar-info {
+    display: flex;
+  }
 }
 
 .r-card-description {
@@ -552,8 +596,9 @@ export default {
   -o-object-fit: contain;
   object-fit: contain;
 }
-.other{
-    height: 100px;
-    width: 100px;
-  }
+
+.other {
+  height: 100px;
+  width: 100px;
+}
 </style>

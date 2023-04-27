@@ -806,6 +806,7 @@ export default {
           if (r.code === 100) {
             localStorage.removeItem("login_token");
             that.user.loginStatus = false;
+            localStorage.setItem("user", JSON.stringify(that.user));
             Message.success("退出登录成功");
             router.go(0);
           } else {

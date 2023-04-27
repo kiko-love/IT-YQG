@@ -111,7 +111,7 @@
                 </div>
               </div>
               <div class="user-action" v-if="user.loginStatus && i.user.userId === user.userId">
-                <a-popconfirm @ok="delMyComment(i.commentId)" popup-container="user-action" position="tr"
+                <a-popconfirm @ok="delMyComment(i.commentId)" popup-container="user-action" position="lb"
                   content="是否确认删除您的心得?">
                   <a-button type="text" shape="circle">
                     <template #icon>
@@ -157,8 +157,7 @@
             <div class="c-action-row">
               <div class="action-box">
                 <div class="action"><icon-thumb-up />{{ i.likeCount }}</div>
-                <div class="action" :class="{ 'action-active': cList[k].isOpen }"
-                  @click="getReply(commentId,k)">
+                <div class="action" :class="{ 'action-active': cList[k].isOpen }" @click="getReply(commentId, k)">
                   <icon-message />{{ i.commentCount }}
                 </div>
                 <div class="action"><icon-reply /></div>
@@ -264,12 +263,11 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-import { getCommentList, addComment, getTopicList } from '@/api/commentApi'
+import { getCommentList, addComment, getTopicList, deleteComment } from '@/api/commentApi'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
 import { userStore } from "@/store/userStore";
-
 export default {
   components: {
     IconFont,
@@ -299,6 +297,7 @@ export default {
       subtitle: '',
       favicon: '',
     });
+    const user = userStore()
     const cList = ref([]);
     const topicList = ref([])
     const addCommentLoading = ref(false)
@@ -346,7 +345,6 @@ export default {
     const editor_reply = ref("");
     const cListLoading = ref(true);
     const getLinkLoading = ref(false);
-    const user = userStore()
     const myTopic = ref('')
     const getTopic = async () => {
       const res = await getTopicList()
@@ -356,6 +354,10 @@ export default {
       }
     }
     const addMyComment = async () => {
+      if(user.loginStatus === false) {
+        Message.error('您还没有登录')
+        return
+      }
       addCommentLoading.value = true
       let v = {
         articleId: '0',
@@ -377,8 +379,8 @@ export default {
       }
       addCommentLoading.value = false
     }
-    const delMyComment = async (id) => {
-      const res = await delComment(id)
+    const delMyComment = async (cid) => {
+      const res = await deleteComment(cid)
       if (res.data.code === 100) {
         Message.success('删除成功')
         getList()
@@ -386,8 +388,8 @@ export default {
         Message.error('删除失败')
       }
     }
-    const getReply = async (cid,k)=>{
-      if(cList.value[k].commentCount===0){
+    const getReply = async (cid, k) => {
+      if (cList.value[k].commentCount === 0) {
         return false
       }
       cList.value[k].isOpen = !cList.value[k].isOpen
@@ -410,6 +412,7 @@ export default {
       getTopic,
       addCommentLoading,
       getReply,
+      delMyComment,
     };
   },
   created() {
@@ -516,9 +519,10 @@ export default {
 }
 
 .link-container {
-  a{
+  a {
     text-decoration: none;
   }
+
   .link-warpper {
     position: relative;
     display: flex;
@@ -570,6 +574,7 @@ export default {
     padding: 1rem;
     border-radius: 5px;
     background-color: var(--color-neutral-2);
+
     .link-loading {
       display: flex;
       justify-content: center;
@@ -594,7 +599,7 @@ export default {
       flex-direction: column;
 
       .main-title {
-        font-size: 16px;
+        font-size: 14px;
         margin-bottom: 5px;
         color: var(--color-neutral-10);
       }
@@ -795,6 +800,7 @@ export default {
       background: #f5f5f5;
       border-radius: 4px;
       white-space: pre-line;
+      font-size: 15px;
     }
   }
 

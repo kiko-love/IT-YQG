@@ -32,7 +32,7 @@
                 </a-popover>
             </div>
         </a-layout-header>
-        <a-layout>
+        <a-layout class="home-sider">
             <a-layout-sider class="home-sider" collapsible>
                 <a-menu :defaultSelectedKeys="[$route.name]" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
                     <a-menu-item key="info">

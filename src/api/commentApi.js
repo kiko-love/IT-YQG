@@ -35,7 +35,18 @@ const getTopicList = () => {
     },
   });
 };
-export { getCommentList, addComment, getTopicList };
+const deleteComment = (cid) => {
+  return http({
+    method: "delete", //请求方法
+    url: "/api/comment/delete/" + cid,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export { getCommentList, addComment, getTopicList,deleteComment };
 
 /*
 不会写es6，看传统es5写法

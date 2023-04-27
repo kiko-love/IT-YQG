@@ -5,7 +5,7 @@
                 <div class="top-title">
                     <icon-book />文章管理
                 </div>
-                
+
                 <div class="top-actions">
                     <a-button shape="round">
                         <template #icon>
@@ -13,13 +13,14 @@
                         </template>
                     </a-button>
                     <div>
-                    <a-select v-model="aListType" defaultValue="全部" :style="{width:'100px'}" @change="handleAuditChange">
-                        <a-option value="all">全部</a-option>
-                        <a-option value="1">已通过</a-option>
-                        <a-option value="-1">未通过</a-option>
-                        <a-option value="0">待审核</a-option>
-                    </a-select>
-                </div>
+                        <a-select v-model="aListType" defaultValue="全部" :style="{ width: '100px' }"
+                            @change="handleAuditChange">
+                            <a-option value="100">全部</a-option>
+                            <a-option value="1">已通过</a-option>
+                            <a-option value="-1">未通过</a-option>
+                            <a-option value="0">待审核</a-option>
+                        </a-select>
+                    </div>
                 </div>
             </div>
         </a-card>
@@ -42,7 +43,13 @@
                 </a-list-item-meta>
                 <template #actions>
                     <icon-edit @click="editArticle(k)" />
-                    <icon-delete />
+                    <!-- <a-popconfirm content="是否封禁该文章?">
+                        <icon-lock />
+                    </a-popconfirm> -->
+                    <a-popconfirm type="error" content="该操作不可逆，是否删除该文章?" @ok="delArticle(idx.articleId)">
+                        <icon-delete />
+                    </a-popconfirm>
+
                 </template>
             </a-list-item>
         </a-list>
@@ -76,7 +83,7 @@
                     }" />
                 </a-form-item>
                 <a-form-item field="audit" label="审核状态">
-                    <a-switch v-model="articleForm.auditStatus" />
+                    <a-switch v-model="articleForm.auditStatus" @change="switchAudit" />
                 </a-form-item>
                 <a-form-item class="edit-btn">
                     <div class="btns">
@@ -92,7 +99,7 @@
 <script>
 import TimeUtils from '@/utils/timeUtils';
 import { ref, reactive, computed } from 'vue';
-import { getArticleList } from '@/api/adminArticleApi'
+import { getArticleList, getAuditArtcle, updateAudit, deleteArticle } from '@/api/adminArticleApi'
 import {
     IconEdit,
     IconDelete,
@@ -103,7 +110,9 @@ import {
     IconBook,
     IconApps,
     IconPoweroff,
+    IconLock,
 } from '@arco-design/web-vue/es/icon';
+import { Icon, Message } from "@arco-design/web-vue";
 export default {
     components: {
         IconEdit,
@@ -116,6 +125,7 @@ export default {
         IconApps,
         IconPoweroff,
         TimeUtils,
+        IconLock,
     },
     setup() {
         const currentPage = ref(1);
@@ -123,10 +133,9 @@ export default {
         const aList = ref([]);
         const total = ref(0);
         const articleForm = ref({})
-        const aListType = ref('全部');
+        const aListType = ref('100');
         const detailVisible = ref(false);
         const editArticle = (k) => {
-            console.log(k);
             articleForm.value = JSON.parse(JSON.stringify(aList.value[k]));
             detailVisible.value = true;
         };
@@ -142,33 +151,69 @@ export default {
         const handlePageChange = async (page) => {
             currentPage.value = page;
             const v = {
+                audit: aListType.value,
                 pageNum: currentPage.value,
                 pageSize: pageSize.value,
             };
-            const res = await getArticleList(v);
+            const res = await getAuditArtcle(v);
             aList.value = res.data.data ? res.data.data.list : [];
             total.value = res.data.data ? res.data.data.total : 0;
             aList.value.forEach((item) => {
                 item.auditStatus = item.audit === 1 ? true : false;
             });
         };
-        const handleAuditChange = async (v) =>{           
 
+
+        const handleAuditChange = async () => {
+            const v = {
+                audit: aListType.value,
+                pageNum: currentPage.value,
+                pageSize: pageSize.value,
+            };
+            const res = await getAuditArtcle(v);
+            aList.value = res.data.data ? res.data.data.list : [];
+            total.value = res.data.data ? res.data.data.total : 0;
+            aList.value.forEach((item) => {
+                item.auditStatus = item.audit === 1 ? true : false;
+            });
         }
 
         const getAList = async () => {
             const v = {
+                audit: 100,
                 pageNum: currentPage.value,
                 pageSize: pageSize.value,
             };
-            const res = await getArticleList(v);
+            const res = await getAuditArtcle(v);
             aList.value = res.data.data ? res.data.data.list : [];
             total.value = res.data.data ? res.data.data.total : 0;
             aList.value.forEach((item) => {
                 item.auditStatus = item.audit === 1 ? true : false;
             });
         };
+        const switchAudit = async (value) => {
+            const v = {
+                articleId: articleForm.value.articleId,
+                audit: value ? 1 : 0
+            }
+            const res = await updateAudit(v);
+            if (res.data.code === 100) {
+                Message.success('审核状态修改成功');
 
+            } else {
+                Message.error('审核状态修改失败');
+            }
+            getAList();
+        }
+        const delArticle = async (aid) => {
+            const res = await deleteArticle(aid);
+            if (res.data.code === 100) {
+                Message.success('删除成功');
+            } else {
+                Message.error('删除失败');
+            }
+            handleAuditChange();
+        }
         return {
             detailVisible,
             editArticle,
@@ -183,7 +228,9 @@ export default {
             handlePageChange,
             total,
             aListType,
-            handleAuditChange
+            handleAuditChange,
+            switchAudit,
+            delArticle
         };
     },
     created() {
@@ -206,10 +253,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.top-actions{
+.top-actions {
     display: flex;
     gap: 1rem;
 }
+
 .footer-page {
     display: flex;
     justify-content: flex-end;
