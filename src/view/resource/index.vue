@@ -260,12 +260,10 @@ export default {
       currentIndex.value = 0
       const res = await getResourceList()
       resList.value = res.data.data
-      console.log(resList.value)
     }
     const getHot = async () => {
       const res = await getHotList()
       hotList.value = res.data.data
-      console.log(res.data.data)
     }
     const formatDate = (date) => {
       return TimeUtils.formatTime(date)
