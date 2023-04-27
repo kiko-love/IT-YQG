@@ -205,7 +205,7 @@ export default {
         const currentIndex = ref(0);
         const userList = ref([]);
         const pagedUserList = computed(() => {
-            return Object.assign({}, userList.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value));
+            return userList.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value);
         });
         const userListloading = ref(false);
         const switchLoading = ref(false);

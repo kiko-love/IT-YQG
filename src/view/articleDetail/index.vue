@@ -1,9 +1,9 @@
 <template>
     <div class="detail-row">
         <a-row v-if="!notFountShow && article">
-            <!-- <a-col :xs="0" :sm="2" :md="2" :lg="2" :xl="2" :xxl="2">
-            </a-col> -->
-            <a-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18" :xxl="18">
+            <a-col :xs="0" :sm="0" :md="0" :lg="2" :xl="2" :xxl="2">
+            </a-col>
+            <a-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16" :xxl="16">
                 <div>
                     <a-card class="detail-card">
                         <div class="detail-top">
@@ -20,7 +20,10 @@
                                 </div>
                             </div>
                             <div class="d-tags">
-                                <a-tag v-for="(i, k) in article.tagsArray" color="arcoblue" :key="k">{{ i }}</a-tag>
+                                <div v-for="(i, k) in article.tagsArray">
+                                    <a-tag v-if="i !== ''" color="arcoblue" :key="k">{{ i }}</a-tag>
+                                </div>
+
                             </div>
                             <div>
                                 <a-space>

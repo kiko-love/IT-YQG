@@ -111,8 +111,8 @@
                 </div>
               </div>
               <div class="user-action" v-if="user.loginStatus && i.user.userId === user.userId">
-                <a-popconfirm @ok="delMyComment(i.commentId)" popup-container="user-action" position="tr" 
-                content="是否确认删除您的心得?">
+                <a-popconfirm @ok="delMyComment(i.commentId)" popup-container="user-action" position="tr"
+                  content="是否确认删除您的心得?">
                   <a-button type="text" shape="circle">
                     <template #icon>
                       <icon-delete :style="{ color: 'var(--color-neutral-6)' }" :size="16" />
@@ -129,12 +129,21 @@
               }">
                 {{ i.content }}
               </a-typography-paragraph>
-              <!-- <div class="content-box">
-              欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
-              欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
-              欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
-              欢迎来到猿趣阁，这是我的第一条心得分享，希望大家多多支持，我会继续努力的
-            </div> -->
+              <div class="link-container" v-if="i.link !== null">
+                <a :href="i.link?.url" target="_blank">
+                  <div class="link-warpper-preview">
+                    <a-avatar class="link-favicon" :size="40"
+                      :class="[{ 'blue-bg': !i.link?.favicon }, { 'white-bg': i.link?.favicon }]" shape="square"
+                      :imageUrl="i.link?.favicon">
+                      <icon-link v-if="isEmpty(i.link?.favico)" />
+                    </a-avatar>
+                    <div class="link-title">
+                      <div class="main-title">{{ i.link?.title }}</div>
+                      <div class="sub-title">{{ i.link?.subtitle }}</div>
+                    </div>
+                  </div>
+                </a>
+              </div>
             </div>
             <div class="c-topic-row">
               <div class="topic-box">
@@ -149,7 +158,7 @@
               <div class="action-box">
                 <div class="action"><icon-thumb-up />{{ i.likeCount }}</div>
                 <div class="action" :class="{ 'action-active': cList[k].isOpen }"
-                  @click="cList[k].isOpen = !cList[k].isOpen">
+                  @click="getReply(commentId,k)">
                   <icon-message />{{ i.commentCount }}
                 </div>
                 <div class="action"><icon-reply /></div>
@@ -324,6 +333,7 @@ export default {
         cList.value = res.data.data;
         cList.value.forEach(item => {
           item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
         })
       }
     }
@@ -353,7 +363,7 @@ export default {
         content: editor_content.value,
         parentId: '0',
         topic: myTopic.value,
-        link: linkInfo.url ? linkInfo.url : null,
+        link: linkInfo.url ? JSON.stringify(linkInfo) : null,
       }
       const res = await addComment(v)
       if (res.data.code === 100) {
@@ -367,7 +377,7 @@ export default {
       }
       addCommentLoading.value = false
     }
-    const delMyComment = async (id)=>{
+    const delMyComment = async (id) => {
       const res = await delComment(id)
       if (res.data.code === 100) {
         Message.success('删除成功')
@@ -375,6 +385,12 @@ export default {
       } else {
         Message.error('删除失败')
       }
+    }
+    const getReply = async (cid,k)=>{
+      if(cList.value[k].commentCount===0){
+        return false
+      }
+      cList.value[k].isOpen = !cList.value[k].isOpen
     }
     return {
       editor_content,
@@ -393,6 +409,7 @@ export default {
       topicList,
       getTopic,
       addCommentLoading,
+      getReply,
     };
   },
   created() {
@@ -486,18 +503,22 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.user-action{
+.user-action {
   position: relative;
 }
+
 .blue-bg {
   background: #3370ff;
 }
 
 .white-bg {
-  background: #fff;
+  background: transparent;
 }
 
 .link-container {
+  a{
+    text-decoration: none;
+  }
   .link-warpper {
     position: relative;
     display: flex;
@@ -506,6 +527,49 @@ export default {
     border-radius: 5px;
     background-color: var(--color-neutral-2);
 
+    .link-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .link-clear {
+      position: absolute;
+      cursor: pointer;
+      right: -3px;
+      top: -5px;
+
+    }
+
+    .link-favicon {
+      margin-right: 1rem;
+      cursor: default;
+    }
+
+    .link-title {
+      display: flex;
+      flex-direction: column;
+
+      .main-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+        color: var(--color-neutral-10);
+      }
+
+      .sub-title {
+        font-size: 13px;
+        color: var(--color-neutral-6);
+      }
+    }
+  }
+
+  .link-warpper-preview {
+    position: relative;
+    display: flex;
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 5px;
+    background-color: var(--color-neutral-2);
     .link-loading {
       display: flex;
       justify-content: center;

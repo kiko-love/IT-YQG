@@ -33,7 +33,7 @@
             </div>
         </a-layout-header>
         <a-layout>
-            <a-layout-sider collapsible>
+            <a-layout-sider class="home-sider" collapsible>
                 <a-menu :defaultSelectedKeys="[$route.name]" :style="{ width: '100%' }" @menuItemClick="onClickMenuItem">
                     <a-menu-item key="info">
                         <icon-idcard />
@@ -51,7 +51,7 @@
                     <a-menu-item key="resource"><icon-apps />资源管理</a-menu-item>
                 </a-menu>
             </a-layout-sider>
-            <a-layout-content>
+            <a-layout-content class="home-content">
                 <router-view></router-view>
             </a-layout-content>
         </a-layout>
@@ -101,6 +101,13 @@ export default {
 }
 </script>
 <style lang="less">
+.home-sider{
+    overflow: hidden;
+}
+.home-content{
+    padding: 1rem;
+    overflow: auto;
+}
 .admin-header {
     height: 75px;
     display: flex;
