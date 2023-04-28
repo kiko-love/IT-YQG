@@ -894,6 +894,9 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+.rank-container{
+  margin:-12px -5px;
+}
 
 .rank-cover {
   width: 64px;

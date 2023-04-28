@@ -41,6 +41,11 @@ const routes = [
         component: () => import("@/view/uploadResource/index.vue"),
       },
       {
+        path: "/search/:type/:keyword",
+        name: "search",
+        component: () => import("@/view/searchResult/index.vue"),
+      },
+      {
         path: "/articleDetail/:articleId",
         name: "articleDetail",
         component: () => import("@/view/articleDetail/index.vue"),
