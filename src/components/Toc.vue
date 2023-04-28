@@ -29,7 +29,7 @@ export default {
     },
     setup(props) {
         const router = useRouter()
-        const nextHash = ref('')
+        const nextHash = ref('#heading-0')
         const firstLoad = ref(true)
         const ulist = ref([])
         const toActive = (hash) => {
@@ -38,7 +38,6 @@ export default {
                 next(); // 确保导航成功
             });
         }
-        toActive()
         ulist.value = props.uuidList
         return {
             toActive,

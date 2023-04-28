@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="top-actions">
-                    <a-button shape="round">
+                    <a-button shape="round" @click="refreshArticleList">
                         <template #icon>
                             <icon-refresh />
                         </template>
@@ -42,10 +42,11 @@
                     </template>
                 </a-list-item-meta>
                 <template #actions>
+                    <a-tooltip content="点击预览该文章">
+                        <icon-eye @click="previewArticle(idx.articleId)" />
+                    </a-tooltip>
                     <icon-edit @click="editArticle(k)" />
-                    <!-- <a-popconfirm content="是否封禁该文章?">
-                        <icon-lock />
-                    </a-popconfirm> -->
+
                     <a-popconfirm type="error" content="该操作不可逆，是否删除该文章?" @ok="delArticle(idx.articleId)">
                         <icon-delete />
                     </a-popconfirm>
@@ -78,9 +79,9 @@
                 </a-form-item>
                 <a-form-item field="summary" label="文章摘要">
                     <a-textarea v-model="articleForm.summary" :auto-size="{
-                        minRows: 2,
-                        maxRows: 5
-                    }" />
+                            minRows: 2,
+                            maxRows: 5
+                        }" />
                 </a-form-item>
                 <a-form-item field="audit" label="审核状态">
                     <a-switch v-model="articleForm.auditStatus" @change="switchAudit" />
@@ -111,6 +112,7 @@ import {
     IconApps,
     IconPoweroff,
     IconLock,
+    IconEye,
 } from '@arco-design/web-vue/es/icon';
 import { Icon, Message } from "@arco-design/web-vue";
 export default {
@@ -126,6 +128,7 @@ export default {
         IconPoweroff,
         TimeUtils,
         IconLock,
+        IconEye,
     },
     setup() {
         const currentPage = ref(1);
@@ -162,7 +165,9 @@ export default {
                 item.auditStatus = item.audit === 1 ? true : false;
             });
         };
-
+        const previewArticle = (id) => {
+            window.open(`/articleDetail/${id}`);
+        };
 
         const handleAuditChange = async () => {
             const v = {
@@ -214,6 +219,27 @@ export default {
             }
             handleAuditChange();
         }
+        const refreshArticleList = async () => {
+            currentPage.value = 1;
+            const v = {
+                audit: aListType.value,
+                pageNum: currentPage.value,
+                pageSize: pageSize.value,
+            };
+            const res = await getAuditArtcle(v);
+            if (res.data.code === 100) {
+                aList.value = res.data.data ? res.data.data.list : [];
+                total.value = res.data.data ? res.data.data.total : 0;
+                aList.value.forEach((item) => {
+                    item.auditStatus = item.audit === 1 ? true : false;
+                });
+                Message.success('文章列表刷新成功');
+            } else {
+                Message.error('文章列表刷新失败');
+            }
+
+
+        }
         return {
             detailVisible,
             editArticle,
@@ -230,7 +256,9 @@ export default {
             aListType,
             handleAuditChange,
             switchAudit,
-            delArticle
+            delArticle,
+            previewArticle,
+            refreshArticleList
         };
     },
     created() {

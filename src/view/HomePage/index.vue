@@ -1,5 +1,5 @@
 <template>
-  <div style="text-align: center; margin: 10px auto;">
+  <div style="text-align: center; margin: 10px auto;font-size: 14px;">
     HomePage开发测试 这里是首页内容区域
     文章推送（实现思路：懒加载or分页-基于用户行为的协同过滤CF）
   </div>
@@ -124,22 +124,21 @@
                       </a-skeleton>
                     </div>
                     <div v-else>
-                      <div class="rank-item" v-for="(i, index) in 3">
-                        <div class="rank-number">{{ i }}</div>
+                      <div class="rank-item" v-for="(i, index) in hotUserList">
+                        <div class="rank-number">{{ index+1 }}</div>
                         <div class="rank-avatar">
-                          <a-avatar :style="{ backgroundColor: '#3370ff' }">
-                            <IconUser />
+                          <a-avatar :style="{ backgroundColor: '#3370ff' }" :image-url="i.userAvatarUrl">
                           </a-avatar>
                         </div>
                         <div class="rank-username">
                           <div class="rank-user">
-                            <div>JackSon {{ i }} 号</div>
+                            <div>{{ i.userName }}</div>
                             <div class="rank-lv">
-                              <a-tag bordered color="arcoblue" size="small">Lv.4</a-tag>
+                              <a-tag bordered color="arcoblue" size="small">Lv.{{ i.userLevel }}</a-tag>
                             </div>
                           </div>
 
-                          <div class="description">后端工程师，热爱软件工程</div>
+                          <div class="description">{{ i.userDes?i.userDes:'暂无简介' }}</div>
                         </div>
                       </div>
                     </div>
@@ -174,7 +173,7 @@
 </template>
 
 <script>
-import { getMoreArticles } from "@/api/articleApi";
+import { getMoreArticles, getHotUserList } from "@/api/articleApi";
 import {
   IconHeart,
   IconMessage,
@@ -201,6 +200,14 @@ export default {
   setup(props) {
     const userInfo = userStore();
     const articleList = reactive([]);
+    const hotUserList = ref([]);
+    const getHotUser = async () => {
+      const res = await getHotUserList();
+      if (res.data.code === 100) {
+        hotUserList.value = res.data.data;
+        console.log(hotUserList.value);
+      }
+    };
     return {
       signTitle: "Hello",
       listLoading: ref(true),
@@ -214,6 +221,8 @@ export default {
       articleList,
       moreLoading: ref(false),
       rankLoading: ref(true),
+      getHotUser,
+      hotUserList,
     };
   },
   data() {
@@ -223,7 +232,8 @@ export default {
   },
 
   created() {
-    Promise.all([this.getSignTitle(), this.recommendList()])
+    Promise.all([this.getSignTitle(), this.recommendList(),this.getHotUser()])
+    
   },
 
   mounted() {
@@ -489,7 +499,7 @@ export default {
 
 .skelenton {
   padding: 0 1rem;
-  margin: 1rem 1rem;
+  margin: 1rem .5rem;
 }
 
 .col-right {

@@ -102,6 +102,11 @@ const routes = [
         name: "article",
         component: () => import("@/admin/view/Article/index.vue"),
       },
+      {
+        path: "resources",
+        name: "resources",
+        component: () => import("@/admin/view/Resource/index.vue"),
+      },
     ],
   },
   // {

@@ -137,7 +137,7 @@
                               <span class="r-card-info-time">{{ formatDate(i.createTime) }}</span>
                             </div>
                           </div>
-                          <a-button type="primary" shape="round" size="mini" status="success"
+                          <a-button shape="round" size="mini" status="success"
                             @click="downLoadResource(i.user.userId, i.id)">
                             下载
                           </a-button>

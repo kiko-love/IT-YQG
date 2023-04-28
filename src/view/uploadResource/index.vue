@@ -186,11 +186,19 @@ export default {
             tagsList.value = res.data.data;
         };
         const uploadFile = (v) => {
+            if(userInfo.loginStatus === false){
+                Message.error("请先登录后上传");
+                return;
+            }
             //上传form表单
             v.tags = v.tags.filter((item) => {
                 return item !== "";
             })
             let form = new FormData();
+            if (file.value === null || file.value === undefined) {
+                Message.error("请先上传您的文件");
+                return;
+            }
             form.append("file", file.value?.file);
             form.append("title", v.title);
             form.append("description", v.description);
@@ -239,14 +247,6 @@ export default {
         backRefresh() {
             this.resultShow = false;
             this.file = null;
-            this.uploadForm = {
-                title: '',
-                description: '',
-                tags: '',
-                fee: 0,
-                feeCost: 0,
-            };
-            this.rfee = '0';
             this.rtags = [];
         },
         handleSubmit({ values, errors }) {

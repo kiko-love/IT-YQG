@@ -45,8 +45,19 @@ const deleteComment = (cid) => {
     },
   });
 };
+const getUrlInfo = (url) => {
+  return http({
+    method: "post", //请求方法
+    url: "/api/comment/linkInfo",
+    responseType: "json",
+    data: { url: url },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+  });
+};
 
-export { getCommentList, addComment, getTopicList,deleteComment };
+export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo };
 
 /*
 不会写es6，看传统es5写法

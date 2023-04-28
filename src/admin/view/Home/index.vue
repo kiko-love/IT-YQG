@@ -25,7 +25,7 @@
                         </template>
                         草稿箱</a-button
                       > -->
-                            <a-button size="small" long>
+                            <a-button size="small" long @click="adminLogOut">
                                 <template #icon> <icon-poweroff /> </template>退出登录</a-button>
                         </a-space>
                     </template>
@@ -48,7 +48,7 @@
                         标签管理
                     </a-menu-item>
                     <a-menu-item key="article"><icon-book />文章管理</a-menu-item>
-                    <a-menu-item key="resource"><icon-apps />资源管理</a-menu-item>
+                    <a-menu-item key="resources"><icon-apps />资源管理</a-menu-item>
                 </a-menu>
             </a-layout-sider>
             <a-layout-content class="home-content">
@@ -71,6 +71,7 @@ import {
     IconApps,
     IconPoweroff,
 } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
 export default {
     components: {
         IconCaretRight,
@@ -89,30 +90,43 @@ export default {
         const router = useRouter();
         const collapsed = ref(false);
         const onClickMenuItem = (e) => {
-            console.log(e);
             router.push({ path: e });
+        };
+        const adminLogOut = () => {
+            Message.success({
+                content: '退出成功',
+                onClose: () => {
+                    router.push({ path: '/admin' });
+                },
+            });
+
         };
         return {
             collapsed,
             onClickMenuItem,
+            adminLogOut,
         };
     },
 
 }
 </script>
 <style lang="less">
-.home-sider{
+.home-sider {
     overflow: hidden;
 }
-.home-content{
+
+.home-content {
     padding: 1rem;
     overflow: auto;
 }
+
 .admin-header {
     height: 75px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid #e8e8e8;
+    padding: 0 1rem 0 0;
 
     .admin-avatar {
         margin-right: 2rem;
