@@ -115,7 +115,7 @@
                       <span style="margin-left: 5px">社区作者排行榜</span>
                     </div>
                   </template>
-                  <div class="rank-container" v-on:scroll="handleListScroll">
+                  <div class="rank-container">
                     <div v-if="rankLoading" class="rank-skeleton">
                       <a-skeleton :animation="true" :style="{ width: '277px' }">
                         <div>

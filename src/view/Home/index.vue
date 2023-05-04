@@ -1113,6 +1113,7 @@ export default {
   background-color: var(--color-bg-popup);
   border-radius: 4px;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  z-index: 9999;
 }
 
 .search-trigger-top {
@@ -1120,6 +1121,7 @@ export default {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid var(--color-neutral-3);
+  z-index: 9999;
 }
 
 .search-trigger-top-del {
@@ -1129,6 +1131,7 @@ export default {
 .search-trigger-top-tip {
   color: #8a8a8a;
   margin-right: 8px;
+  z-index: 9999;
 }
 
 .myAvatar {
