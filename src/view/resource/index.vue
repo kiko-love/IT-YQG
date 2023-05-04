@@ -575,6 +575,7 @@ export default {
   -webkit-line-clamp: 2;
   width: 100%;
   margin: 8px 0 0 0;
+  min-height: 16px;
 }
 
 .r-card-title {

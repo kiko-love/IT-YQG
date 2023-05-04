@@ -115,7 +115,7 @@
                       <span style="margin-left: 5px">社区作者排行榜</span>
                     </div>
                   </template>
-                  <div class="rank-container" v-on:scroll="handleListScroll">
+                  <div class="rank-container">
                     <div v-if="rankLoading" class="rank-skeleton">
                       <a-skeleton :animation="true" :style="{ width: '277px' }">
                         <div>
@@ -125,7 +125,7 @@
                     </div>
                     <div v-else>
                       <div class="rank-item" v-for="(i, index) in hotUserList">
-                        <div class="rank-number">{{ index+1 }}</div>
+                        <div class="rank-number">{{ index + 1 }}</div>
                         <div class="rank-avatar">
                           <a-avatar :style="{ backgroundColor: '#3370ff' }" :image-url="i.userAvatarUrl">
                           </a-avatar>
@@ -138,7 +138,7 @@
                             </div>
                           </div>
 
-                          <div class="description">{{ i.userDes?i.userDes:'暂无简介' }}</div>
+                          <div class="description">{{ i.userDes ? i.userDes : '暂无简介' }}</div>
                         </div>
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export default {
   },
   setup(props) {
     const userInfo = userStore();
-    const articleList = reactive([]);
+    const articleList = ref([]);
     const hotUserList = ref([]);
     const getHotUser = async () => {
       const res = await getHotUserList();
@@ -232,8 +232,8 @@ export default {
   },
 
   created() {
-    Promise.all([this.getSignTitle(), this.recommendList(),this.getHotUser()])
-    
+    Promise.all([this.getSignTitle(), this.recommendList(), this.getHotUser()])
+
   },
 
   mounted() {
@@ -306,8 +306,8 @@ export default {
       getMoreArticles().then(res => {
         // console.log(res.data)
         moreList = res.data.data;
-        this.articleList.push(...moreList);
         setTimeout(() => {
+          this.articleList.push(...moreList);
           this.moreLoading = false;
         }, delay);
       })

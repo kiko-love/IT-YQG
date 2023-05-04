@@ -1,9 +1,9 @@
 <template>
-  <div class="resource-container">
+  <div class="resource-container" ref="commentContainer" v-on:scroll="handleListScroll">
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="5" :xxl="5">
         <div class="side-bar">
-          <a-menu :default-selected-keys="['1']" :auto-open="true">
+          <a-menu :default-selected-keys="typeKey" :auto-open="true" @menu-item-click="changeMenu">
             <a-menu-item key="1">
               <template #icon>
                 <icon-schedule :size="20" />
@@ -19,7 +19,7 @@
             <a-sub-menu key="3">
               <template #icon><icon-bookmark :size="20" /></template>
               <template #title>推荐话题</template>
-              <a-menu-item v-for="(i, k) in recommedTopic" :key="3 + i.id">
+              <a-menu-item v-for="(i, k) in recommedTopic" :key="i.title">
                 {{ i.title }}
               </a-menu-item>
             </a-sub-menu>
@@ -32,9 +32,9 @@
             <div class="con-body">
               <a-textarea v-model:model-value="editor_content" placeholder="在这里和大家分享你的心得吧~" class="r-textarea"
                 :max-length="1000" show-word-limit :auto-size="{
-                    minRows: 5,
-                    maxRows: 7,
-                  }" />
+                  minRows: 5,
+                  maxRows: 7,
+                }" />
             </div>
             <div class="link-container" v-if="linkInfo.title !== '' || getLinkLoading">
               <div class="link-warpper">
@@ -98,6 +98,9 @@
               </a-space>
             </a-skeleton>
           </a-card>
+          <a-card v-if="cList?.length === 0 && !cListLoading">
+            <a-empty />
+          </a-card>
           <a-card v-if="!cListLoading" v-for="(i, k) in cList" class="c-item">
             <div class="c-header-row">
               <div class="user-group">
@@ -123,10 +126,10 @@
             </div>
             <div class="c-content-row">
               <a-typography-paragraph class="content-box" tooltip="" :ellipsis="{
-                  rows: 4,
-                  expandable: true,
-                  showTooltip: false,
-                }">
+                rows: 4,
+                expandable: true,
+                showTooltip: false,
+              }">
                 {{ i.content }}
               </a-typography-paragraph>
               <div class="link-container" v-if="i.link !== null">
@@ -178,14 +181,15 @@
                     <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                   </a-avatar>
                   <a-textarea v-model:model-value="editor_reply" placeholder="输入评论回复（Enter换行）" :auto-size="{
-                      minRows: 1,
-                      maxRows: 7,
-                    }" />
+                    minRows: 1,
+                    maxRows: 7,
+                  }" />
                 </div>
                 <div class="reply-action">
                   <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
                 </div>
               </div>
+<<<<<<< HEAD
               <div class="reply-list-wrapper">
                 <div class="reply-list-title">全部回复（{{ i.commentCount }}）</div>
                 <div v-if="replyListLoading">
@@ -199,6 +203,11 @@
                   </div>
                 </div>
                 <div v-else class="reply-list">
+=======
+              <div v-if="i.commentCount > 0" class="reply-list-wrapper">
+                <div class="reply-list-title">全部回复（99）</div>
+                <div class="reply-list">
+>>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
                   <div v-for="ierm in i.commentCount" class="r-list-item">
                     <a-avatar style="background: #3370ff" class="user-avatar">
                       <IconUser />
@@ -277,7 +286,12 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
+<<<<<<< HEAD
 import { getCommentList, addComment, getTopicList, deleteComment, getReply } from '@/api/commentApi'
+=======
+import { getCommentList, addComment, getTopicList, deleteComment, getHotCommentList, getCommentListByTopic } from '@/api/commentApi'
+import { getRandomElementsFromArray } from '@/utils/ArrayUtils'
+>>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
@@ -312,33 +326,17 @@ export default {
       favicon: '',
     });
     const user = userStore()
-    const cList = ref([]);
+    const cList = ref([])
+    const moreCommentList = ref([])
+    const pageNum = ref(1)
+    const pageSize = ref(5)
     const topicList = ref([])
     const replyList = ref([])
     const replyListLoading = ref(false)
     const addCommentLoading = ref(false)
-    const recommedTopic = reactive([
-      {
-        title: "技术交流",
-        topic_id: "100",
-        id: 1,
-      },
-      {
-        title: "面试交流",
-        topic_id: "101",
-        id: 2,
-      },
-      {
-        title: "闲聊一下",
-        topic_id: "102",
-        id: 3,
-      },
-      {
-        title: "今日趣闻",
-        topic_id: "103",
-        id: 4,
-      },
-    ]);
+    const recommedTopic = ref([])
+    const typeKey = ref(['1'])
+
     const getDiff = (timestamp) => {
       return TimeUtils.getTimeDiff(timestamp);
     }
@@ -357,7 +355,7 @@ export default {
       }
     }
     const getList = async () => {
-      const res = await getCommentList();
+      const res = await getCommentList(pageNum.value, pageSize.value);
       if (res.data.code === 100) {
         cList.value = res.data.data;
         cList.value.forEach(item => {
@@ -368,6 +366,32 @@ export default {
             item.link = null;
           }
         })
+      } else {
+        cList.value = []
+      }
+    }
+    const getTopicCommentList = async (topic) => {
+      const res = await getCommentListByTopic(topic);
+      if (res.data.code === 100) {
+        cList.value = res.data.data;
+        cList.value.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        cList.value = []
+      }
+    }
+    const getHotComment = async () => {
+      const res = await getHotCommentList(pageNum.value, pageSize.value)
+      if (res.data.code === 100) {
+        cList.value = res.data.data ? res.data.data : [];
+        cList.value.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        cList.value = []
       }
     }
     const clearLinkInfo = () => {
@@ -385,6 +409,7 @@ export default {
       if (res.data.code === 100) {
         topicList.value = res.data.data
         myTopic.value = topicList.value[0].title
+        recommedTopic.value = getRandomElementsFromArray(topicList.value, 4)
       }
     }
     const addMyComment = async () => {
@@ -423,10 +448,23 @@ export default {
       }
     }
     const getReply = async (cid, k) => {
-      if (cList.value[k].commentCount === 0) {
-        return false
-      }
       cList.value[k].isOpen = !cList.value[k].isOpen
+    }
+    const changeMenu = (key) => {
+      typeKey.value[0] = key
+      console.log(typeKey.value[0]);
+      pageNum.value = 1
+      cListLoading.value = true
+      if (key === '1') {
+        getList()
+      } else if (key === '2') {
+        getHotComment()
+      } else {
+        getTopicCommentList(key)
+      }
+      setTimeout(() => {
+        cListLoading.value = false
+      }, 500);
     }
     return {
       editor_content,
@@ -447,9 +485,18 @@ export default {
       addCommentLoading,
       getReply,
       delMyComment,
+<<<<<<< HEAD
       replyList,
       getRplyList,
       replyListLoading,
+=======
+      getHotComment,
+      changeMenu,
+      moreCommentList,
+      pageNum,
+      pageSize,
+      typeKey
+>>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
     };
   },
   created() {
@@ -469,6 +516,73 @@ export default {
   mounted() { },
 
   methods: {
+    handleListScroll(e) {
+      // 获取滚动容器的高度、滚动高度和内容高度
+      const scrollContainer = this.$refs.commentContainer;
+      const { scrollTop, offsetHeight, scrollHeight } = scrollContainer;
+      // 如果滚动到了底部，执行加载更多数据的操作
+      if (scrollTop + offsetHeight >= scrollHeight - 1) {
+        if (this.typeKey[0] === '1') {
+          this.loadMoreComment();
+          console.log('loadMoreComment');
+        }
+        else if (this.typeKey[0] === '2') {
+          this.loadMoreHotComment();
+          console.log('loadMoreHotComment');
+        }
+        else {
+          this.loadMoreTopicComment();
+          console.log('loadMoreTopicComment');
+        }
+
+
+      }
+    },
+    async loadMoreTopicComment() {
+      this.pageNum++;
+      const res = await getCommentListByTopic(this.typeKey, this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+        this.pageNum--;
+      }
+      this.cList.push(...this.moreCommentList)
+    },
+    async loadMoreHotComment() {
+      this.pageNum++;
+      const res = await getHotCommentList(this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+        this.pageNum--;
+      }
+      this.cList.push(...this.moreCommentList)
+    },
+    async loadMoreComment() {
+      this.pageNum++;
+      const res = await getCommentList(this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+        this.pageNum--;
+      }
+      this.cList.push(...this.moreCommentList)
+    },
     isEmpty: (obj) => {
       if (obj === null) return true;
       if (obj === undefined || obj === '') return true;
@@ -744,7 +858,7 @@ export default {
   position: relative;
 
   .reply-box {
-    border-bottom: 1px solid #e4e6eb;
+    // border-bottom: 1px solid #e4e6eb;
     padding-bottom: 10px;
   }
 
@@ -974,6 +1088,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
+  max-width: 212px;
 }
 
 .rank-lv {

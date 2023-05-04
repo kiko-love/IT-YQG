@@ -1,12 +1,13 @@
 import http from "./http";
 
-const getCommentList = (v) => {
+const getCommentList = (pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
   //data是参数，里面传入登录信息
   return http({
     method: "get", //请求方法
-    url: "/api/comment/list",
+    url: "/api/comment/list/" + pageNum + "/" + pageSize,
     responseType: "json",
-    data: v,
     headers: {
       "Content-Type": "application/json",
     },
@@ -52,7 +53,31 @@ const getUrlInfo = (url) => {
     responseType: "json",
     data: { url: url },
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+};
+const getHotCommentList = (pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
+  return http({
+    method: "get", //请求方法
+    url: "/api/comment/list/hot/" + pageNum + "/" + pageSize,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+const getCommentListByTopic = (topic, pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
+  return http({
+    method: "get", //请求方法
+    url: "/api/comment/list/topic/" + topic + "/" + pageNum + "/" + pageSize,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
     },
   });
 };
@@ -67,9 +92,21 @@ const getReply = (v) => {
   });
 };
 
+<<<<<<< HEAD
 
 
 export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo, getReply };
+=======
+export {
+  getCommentList,
+  addComment,
+  getTopicList,
+  deleteComment,
+  getUrlInfo,
+  getHotCommentList,
+  getCommentListByTopic,
+};
+>>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
 
 /*
 不会写es6，看传统es5写法
