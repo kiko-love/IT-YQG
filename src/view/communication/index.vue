@@ -3,7 +3,7 @@
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="5" :xxl="5">
         <div class="side-bar">
-          <a-menu :default-selected-keys="['1']" :auto-open="true" @menu-item-click="changeMenu">
+          <a-menu :default-selected-keys="typeKey" :auto-open="true" @menu-item-click="changeMenu">
             <a-menu-item key="1">
               <template #icon>
                 <icon-schedule :size="20" />
@@ -309,6 +309,7 @@ export default {
     const topicList = ref([])
     const addCommentLoading = ref(false)
     const recommedTopic = ref([])
+    const typeKey = ref(['1'])
 
     const getDiff = (timestamp) => {
       return TimeUtils.getTimeDiff(timestamp);
@@ -338,7 +339,7 @@ export default {
       }
     }
     const getHotComment = async () => {
-      const res = await getHotCommentList()
+      const res = await getHotCommentList(pageNum.value, pageSize.value)
       if (res.data.code === 100) {
         cList.value = res.data.data ? res.data.data : [];
         cList.value.forEach(item => {
@@ -406,6 +407,8 @@ export default {
       cList.value[k].isOpen = !cList.value[k].isOpen
     }
     const changeMenu = (key) => {
+      typeKey.value[0] = key
+      console.log(typeKey.value[0]);
       pageNum.value = 1
       cListLoading.value = true
       if (key === '1') {
@@ -418,7 +421,6 @@ export default {
       setTimeout(() => {
         cListLoading.value = false
       }, 500);
-      console.log(key);
     }
     return {
       editor_content,
@@ -444,6 +446,7 @@ export default {
       moreCommentList,
       pageNum,
       pageSize,
+      typeKey
     };
   },
   created() {
@@ -469,8 +472,51 @@ export default {
       const { scrollTop, offsetHeight, scrollHeight } = scrollContainer;
       // 如果滚动到了底部，执行加载更多数据的操作
       if (scrollTop + offsetHeight >= scrollHeight - 1) {
-        this.loadMoreComment();
+        if (this.typeKey[0] === '1') {
+          this.loadMoreComment();
+          console.log('loadMoreComment');
+        }
+        else if (this.typeKey[0] === '2') {
+          this.loadMoreHotComment();
+          console.log('loadMoreHotComment');
+        }
+        else {
+          this.loadMoreTopicComment();
+          console.log('loadMoreTopicComment');
+        }
+
+
       }
+    },
+    async loadMoreTopicComment() {
+      this.pageNum++;
+      const res = await getCommentListByTopic(this.typeKey, this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+        this.pageNum--;
+      }
+      this.cList.push(...this.moreCommentList)
+    },
+    async loadMoreHotComment() {
+      this.pageNum++;
+      const res = await getHotCommentList(this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+        this.pageNum--;
+      }
+      this.cList.push(...this.moreCommentList)
     },
     async loadMoreComment() {
       this.pageNum++;
@@ -483,6 +529,7 @@ export default {
         })
       } else {
         this.moreCommentList = []
+        this.pageNum--;
       }
       this.cList.push(...this.moreCommentList)
     },

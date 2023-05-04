@@ -57,20 +57,24 @@ const getUrlInfo = (url) => {
     },
   });
 };
-const getHotCommentList = () => {
+const getHotCommentList = (pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
   return http({
-    method: "post", //请求方法
-    url: "/api/comment/list/hot",
+    method: "get", //请求方法
+    url: "/api/comment/list/hot/" + pageNum + "/" + pageSize,
     responseType: "json",
     headers: {
       "Content-Type": "application/json",
     },
   });
 };
-const getCommentListByTopic = (topic) => {
+const getCommentListByTopic = (topic, pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
   return http({
     method: "get", //请求方法
-    url: "/api/comment/list/topic/" + topic,
+    url: "/api/comment/list/topic/" + topic + "/" + pageNum + "/" + pageSize,
     responseType: "json",
     headers: {
       "Content-Type": "application/json",
