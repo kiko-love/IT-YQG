@@ -32,9 +32,9 @@
             <div class="con-body">
               <a-textarea v-model:model-value="editor_content" placeholder="在这里和大家分享你的心得吧~" class="r-textarea"
                 :max-length="1000" show-word-limit :auto-size="{
-                    minRows: 5,
-                    maxRows: 7,
-                  }" />
+                  minRows: 5,
+                  maxRows: 7,
+                }" />
             </div>
             <div class="link-container" v-if="linkInfo.title !== '' || getLinkLoading">
               <div class="link-warpper">
@@ -126,10 +126,10 @@
             </div>
             <div class="c-content-row">
               <a-typography-paragraph class="content-box" tooltip="" :ellipsis="{
-                  rows: 4,
-                  expandable: true,
-                  showTooltip: false,
-                }">
+                rows: 4,
+                expandable: true,
+                showTooltip: false,
+              }">
                 {{ i.content }}
               </a-typography-paragraph>
               <div class="link-container" v-if="i.link !== null">
@@ -181,16 +181,16 @@
                     <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                   </a-avatar>
                   <a-textarea v-model:model-value="editor_reply" placeholder="输入评论回复（Enter换行）" :auto-size="{
-                      minRows: 1,
-                      maxRows: 7,
-                    }" />
+                    minRows: 1,
+                    maxRows: 7,
+                  }" />
                 </div>
                 <div class="reply-action">
                   <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
                 </div>
               </div>
               <div v-if="i.commentCount > 0" class="reply-list-wrapper">
-                <div class="reply-list-title">全部回复（{{i.commentCount}}）</div>
+                <div class="reply-list-title">全部回复（{{ i.commentCount }}）</div>
                 <div class="reply-list">
                   <div v-for="ierm in i.commentCount" class="r-list-item">
                     <a-avatar style="background: #3370ff" class="user-avatar">

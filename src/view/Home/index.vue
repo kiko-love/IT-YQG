@@ -63,12 +63,11 @@
                       <a-input-search v-model:model-value="searchContent" class="home-search-input"
                         :class="{ 'search-active': searchFoucs }" :max-length="20" placeholder="搜索猿趣阁" search-button
                         @press-enter="handleSearchHistory(searchContent)" @search="handleSearchHistory(searchContent)"
-                        @focus="
-                          () => {
+                        @focus="() => {
                             searchFoucs = true;
                             searchPopVisible = true;
                           }
-                        " @blur="handleSearchBlur" />
+                          " @blur="handleSearchBlur" />
                       <!-- 输入框下方触发器内容 -->
                       <template #content>
                         <div class="search-trigger">
@@ -86,11 +85,10 @@
                               <span @click.stop="deleteHistoryItem(i)"><icon-close class="close" /></span>
                             </div>
                           </div>
-                          <a-empty v-if="
-                            searchHistory.length === 0 ||
+                          <a-empty v-if="searchHistory.length === 0 ||
                             searchHistory === null ||
                             searchHistory === undefined
-                          ">暂无历史记录</a-empty>
+                            ">暂无历史记录</a-empty>
                         </div>
                       </template>
                     </a-trigger>
@@ -238,11 +236,10 @@
                                 </div>
                                 <div class="level-process">{{ getLevel(user.userexp) }}/5</div>
                               </div>
-                              <a-progress :show-text="false" :percent="
-                                (this.user.userexp
+                              <a-progress :show-text="false" :percent="(this.user.userexp
                                   ? this.user.userexp
                                   : 0) / 3000.0
-                              " :style="{ width: '100%' }" />
+                                " :style="{ width: '100%' }" />
                             </div>
                           </a-card>
                         </template>
@@ -791,6 +788,7 @@ export default {
         localStorage.setItem("searchHistory", JSON.stringify(newArr));
         this.searchHistory = newArr;
       }
+      this.$router.push('/search/0/' + k)
     },
     //退出登录
     logOut() {

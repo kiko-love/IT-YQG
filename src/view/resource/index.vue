@@ -98,7 +98,7 @@
                         overflow: 'hidden',
                       }">
                       <img v-if="i.fileType === 'other'" class="r-cover-img other" alt="dessert"
-                        src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
+                        src="@/assets/fileType/file.png" />
                       <img v-else-if="i.fileType === 'audio'" class="r-cover-img" alt="dessert"
                         src="@/assets/fileType/audio.png" />
                       <img v-else-if="i.fileType === 'video'" class="r-cover-img" alt="dessert"

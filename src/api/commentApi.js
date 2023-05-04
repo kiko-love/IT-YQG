@@ -92,11 +92,7 @@ const getReply = (v) => {
   });
 };
 
-<<<<<<< HEAD
 
-
-export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo, getReply };
-=======
 export {
   getCommentList,
   addComment,
@@ -105,8 +101,8 @@ export {
   getUrlInfo,
   getHotCommentList,
   getCommentListByTopic,
+  getReply,
 };
->>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
 
 /*
 不会写es6，看传统es5写法
