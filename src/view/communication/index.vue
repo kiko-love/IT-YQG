@@ -1,5 +1,5 @@
 <template>
-  <div class="resource-container">
+  <div class="resource-container" ref="commentContainer" v-on:scroll="handleListScroll">
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="5" :xxl="5">
         <div class="side-bar">
@@ -185,7 +185,7 @@
                   <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
                 </div>
               </div>
-              <div class="reply-list-wrapper">
+              <div v-if="i.commentCount > 0" class="reply-list-wrapper">
                 <div class="reply-list-title">全部回复（99）</div>
                 <div class="reply-list">
                   <div v-for="ierm in i.commentCount" class="r-list-item">
@@ -302,7 +302,10 @@ export default {
       favicon: '',
     });
     const user = userStore()
-    const cList = ref([]);
+    const cList = ref([])
+    const moreCommentList = ref([])
+    const pageNum = ref(1)
+    const pageSize = ref(5)
     const topicList = ref([])
     const addCommentLoading = ref(false)
     const recommedTopic = ref([])
@@ -311,7 +314,7 @@ export default {
       return TimeUtils.getTimeDiff(timestamp);
     }
     const getList = async () => {
-      const res = await getCommentList();
+      const res = await getCommentList(pageNum.value, pageSize.value);
       if (res.data.code === 100) {
         cList.value = res.data.data;
         cList.value.forEach(item => {
@@ -337,7 +340,7 @@ export default {
     const getHotComment = async () => {
       const res = await getHotCommentList()
       if (res.data.code === 100) {
-        cList.value = res.data.data;
+        cList.value = res.data.data ? res.data.data : [];
         cList.value.forEach(item => {
           item.isOpen = false;
           item.link = item.link ? JSON.parse(item.link) : null;
@@ -400,12 +403,10 @@ export default {
       }
     }
     const getReply = async (cid, k) => {
-      if (cList.value[k].commentCount === 0) {
-        return false
-      }
       cList.value[k].isOpen = !cList.value[k].isOpen
     }
     const changeMenu = (key) => {
+      pageNum.value = 1
       cListLoading.value = true
       if (key === '1') {
         getList()
@@ -440,6 +441,9 @@ export default {
       delMyComment,
       getHotComment,
       changeMenu,
+      moreCommentList,
+      pageNum,
+      pageSize,
     };
   },
   created() {
@@ -459,6 +463,29 @@ export default {
   mounted() { },
 
   methods: {
+    handleListScroll(e) {
+      // 获取滚动容器的高度、滚动高度和内容高度
+      const scrollContainer = this.$refs.commentContainer;
+      const { scrollTop, offsetHeight, scrollHeight } = scrollContainer;
+      // 如果滚动到了底部，执行加载更多数据的操作
+      if (scrollTop + offsetHeight >= scrollHeight - 1) {
+        this.loadMoreComment();
+      }
+    },
+    async loadMoreComment() {
+      this.pageNum++;
+      const res = await getCommentList(this.pageNum, this.pageSize)
+      if (res.data.code === 100) {
+        this.moreCommentList = res.data.data ? res.data.data : [];
+        this.moreCommentList.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        this.moreCommentList = []
+      }
+      this.cList.push(...this.moreCommentList)
+    },
     isEmpty: (obj) => {
       if (obj === null) return true;
       if (obj === undefined || obj === '') return true;
@@ -704,7 +731,7 @@ export default {
   position: relative;
 
   .reply-box {
-    border-bottom: 1px solid #e4e6eb;
+    // border-bottom: 1px solid #e4e6eb;
     padding-bottom: 10px;
   }
 

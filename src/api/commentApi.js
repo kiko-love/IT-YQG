@@ -1,12 +1,13 @@
 import http from "./http";
 
-const getCommentList = (v) => {
+const getCommentList = (pageNum, pageSize) => {
+  pageNum = pageNum || 1;
+  pageSize = pageSize || 10;
   //data是参数，里面传入登录信息
   return http({
     method: "get", //请求方法
-    url: "/api/comment/list",
+    url: "/api/comment/list/" + pageNum + "/" + pageSize,
     responseType: "json",
-    data: v,
     headers: {
       "Content-Type": "application/json",
     },
