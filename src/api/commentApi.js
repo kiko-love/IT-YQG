@@ -52,12 +52,40 @@ const getUrlInfo = (url) => {
     responseType: "json",
     data: { url: url },
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+};
+const getHotCommentList = () => {
+  return http({
+    method: "post", //请求方法
+    url: "/api/comment/list/hot",
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+const getCommentListByTopic = (topic) => {
+  return http({
+    method: "get", //请求方法
+    url: "/api/comment/list/topic/" + topic,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
     },
   });
 };
 
-export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo };
+export {
+  getCommentList,
+  addComment,
+  getTopicList,
+  deleteComment,
+  getUrlInfo,
+  getHotCommentList,
+  getCommentListByTopic,
+};
 
 /*
 不会写es6，看传统es5写法

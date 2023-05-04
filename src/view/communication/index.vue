@@ -3,7 +3,7 @@
     <a-row>
       <a-col :xs="0" :sm="0" :md="0" :lg="0" :xl="5" :xxl="5">
         <div class="side-bar">
-          <a-menu :default-selected-keys="['1']" :auto-open="true">
+          <a-menu :default-selected-keys="['1']" :auto-open="true" @menu-item-click="changeMenu">
             <a-menu-item key="1">
               <template #icon>
                 <icon-schedule :size="20" />
@@ -19,7 +19,7 @@
             <a-sub-menu key="3">
               <template #icon><icon-bookmark :size="20" /></template>
               <template #title>推荐话题</template>
-              <a-menu-item v-for="(i, k) in recommedTopic" :key="3 + i.id">
+              <a-menu-item v-for="(i, k) in recommedTopic" :key="i.title">
                 {{ i.title }}
               </a-menu-item>
             </a-sub-menu>
@@ -32,9 +32,9 @@
             <div class="con-body">
               <a-textarea v-model:model-value="editor_content" placeholder="在这里和大家分享你的心得吧~" class="r-textarea"
                 :max-length="1000" show-word-limit :auto-size="{
-                    minRows: 5,
-                    maxRows: 7,
-                  }" />
+                  minRows: 5,
+                  maxRows: 7,
+                }" />
             </div>
             <div class="link-container" v-if="linkInfo.title !== '' || getLinkLoading">
               <div class="link-warpper">
@@ -98,6 +98,9 @@
               </a-space>
             </a-skeleton>
           </a-card>
+          <a-card v-if="cList?.length === 0 && !cListLoading">
+            <a-empty />
+          </a-card>
           <a-card v-if="!cListLoading" v-for="(i, k) in cList" class="c-item">
             <div class="c-header-row">
               <div class="user-group">
@@ -123,10 +126,10 @@
             </div>
             <div class="c-content-row">
               <a-typography-paragraph class="content-box" tooltip="" :ellipsis="{
-                  rows: 4,
-                  expandable: true,
-                  showTooltip: false,
-                }">
+                rows: 4,
+                expandable: true,
+                showTooltip: false,
+              }">
                 {{ i.content }}
               </a-typography-paragraph>
               <div class="link-container" v-if="i.link !== null">
@@ -174,9 +177,9 @@
                     <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                   </a-avatar>
                   <a-textarea v-model:model-value="editor_reply" placeholder="输入评论回复（Enter换行）" :auto-size="{
-                      minRows: 1,
-                      maxRows: 7,
-                    }" />
+                    minRows: 1,
+                    maxRows: 7,
+                  }" />
                 </div>
                 <div class="reply-action">
                   <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
@@ -263,7 +266,8 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-import { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo } from '@/api/commentApi'
+import { getCommentList, addComment, getTopicList, deleteComment, getHotCommentList, getCommentListByTopic } from '@/api/commentApi'
+import { getRandomElementsFromArray } from '@/utils/ArrayUtils'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
@@ -301,28 +305,8 @@ export default {
     const cList = ref([]);
     const topicList = ref([])
     const addCommentLoading = ref(false)
-    const recommedTopic = reactive([
-      {
-        title: "技术交流",
-        topic_id: "100",
-        id: 1,
-      },
-      {
-        title: "面试交流",
-        topic_id: "101",
-        id: 2,
-      },
-      {
-        title: "闲聊一下",
-        topic_id: "102",
-        id: 3,
-      },
-      {
-        title: "今日趣闻",
-        topic_id: "103",
-        id: 4,
-      },
-    ]);
+    const recommedTopic = ref([])
+
     const getDiff = (timestamp) => {
       return TimeUtils.getTimeDiff(timestamp);
     }
@@ -334,6 +318,32 @@ export default {
           item.isOpen = false;
           item.link = item.link ? JSON.parse(item.link) : null;
         })
+      } else {
+        cList.value = []
+      }
+    }
+    const getTopicCommentList = async (topic) => {
+      const res = await getCommentListByTopic(topic);
+      if (res.data.code === 100) {
+        cList.value = res.data.data;
+        cList.value.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        cList.value = []
+      }
+    }
+    const getHotComment = async () => {
+      const res = await getHotCommentList()
+      if (res.data.code === 100) {
+        cList.value = res.data.data;
+        cList.value.forEach(item => {
+          item.isOpen = false;
+          item.link = item.link ? JSON.parse(item.link) : null;
+        })
+      } else {
+        cList.value = []
       }
     }
     const clearLinkInfo = () => {
@@ -351,6 +361,7 @@ export default {
       if (res.data.code === 100) {
         topicList.value = res.data.data
         myTopic.value = topicList.value[0].title
+        recommedTopic.value = getRandomElementsFromArray(topicList.value, 4)
       }
     }
     const addMyComment = async () => {
@@ -394,6 +405,20 @@ export default {
       }
       cList.value[k].isOpen = !cList.value[k].isOpen
     }
+    const changeMenu = (key) => {
+      cListLoading.value = true
+      if (key === '1') {
+        getList()
+      } else if (key === '2') {
+        getHotComment()
+      } else {
+        getTopicCommentList(key)
+      }
+      setTimeout(() => {
+        cListLoading.value = false
+      }, 500);
+      console.log(key);
+    }
     return {
       editor_content,
       editor_reply,
@@ -413,6 +438,8 @@ export default {
       addCommentLoading,
       getReply,
       delMyComment,
+      getHotComment,
+      changeMenu,
     };
   },
   created() {
@@ -466,7 +493,7 @@ export default {
 
     },
     async scrapeLink(url) {
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+      const response = await fetch(`http://localhost:1458/get?url=${encodeURIComponent(url)}`);
       const data = await response.json();
       const parser = new DOMParser();
       const htmlDoc = parser.parseFromString(data.contents, 'text/html');
@@ -477,7 +504,6 @@ export default {
       } catch (error) {
         console.error(error);
       }
-
       let favicon;
       const linkTags = htmlDoc.getElementsByTagName('link');
       for (let i = 0; i < linkTags.length; i++) {
@@ -894,8 +920,9 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-.rank-container{
-  margin:-12px -5px;
+
+.rank-container {
+  margin: -12px -5px;
 }
 
 .rank-cover {
