@@ -1008,6 +1008,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
+  max-width: 212px;
 }
 
 .rank-lv {
