@@ -32,9 +32,9 @@
             <div class="con-body">
               <a-textarea v-model:model-value="editor_content" placeholder="在这里和大家分享你的心得吧~" class="r-textarea"
                 :max-length="1000" show-word-limit :auto-size="{
-                  minRows: 5,
-                  maxRows: 7,
-                }" />
+                    minRows: 5,
+                    maxRows: 7,
+                  }" />
             </div>
             <div class="link-container" v-if="linkInfo.title !== '' || getLinkLoading">
               <div class="link-warpper">
@@ -126,10 +126,10 @@
             </div>
             <div class="c-content-row">
               <a-typography-paragraph class="content-box" tooltip="" :ellipsis="{
-                rows: 4,
-                expandable: true,
-                showTooltip: false,
-              }">
+                  rows: 4,
+                  expandable: true,
+                  showTooltip: false,
+                }">
                 {{ i.content }}
               </a-typography-paragraph>
               <div class="link-container" v-if="i.link !== null">
@@ -181,33 +181,17 @@
                     <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                   </a-avatar>
                   <a-textarea v-model:model-value="editor_reply" placeholder="输入评论回复（Enter换行）" :auto-size="{
-                    minRows: 1,
-                    maxRows: 7,
-                  }" />
+                      minRows: 1,
+                      maxRows: 7,
+                    }" />
                 </div>
                 <div class="reply-action">
                   <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
                 </div>
               </div>
-<<<<<<< HEAD
-              <div class="reply-list-wrapper">
-                <div class="reply-list-title">全部回复（{{ i.commentCount }}）</div>
-                <div v-if="replyListLoading">
-                  <div class="loading-skeleton">
-                    <a-skeleton :animation="true">
-                      <a-space direction="vertical" :style="{ width: '100%' }">
-                        <a-skeleton-shape shape="circle" />
-                        <a-skeleton-line :rows="2" :widths="['30%', '80%']" />
-                      </a-space>
-                    </a-skeleton>
-                  </div>
-                </div>
-                <div v-else class="reply-list">
-=======
               <div v-if="i.commentCount > 0" class="reply-list-wrapper">
-                <div class="reply-list-title">全部回复（99）</div>
+                <div class="reply-list-title">全部回复（{{i.commentCount}}）</div>
                 <div class="reply-list">
->>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
                   <div v-for="ierm in i.commentCount" class="r-list-item">
                     <a-avatar style="background: #3370ff" class="user-avatar">
                       <IconUser />
@@ -286,12 +270,8 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-<<<<<<< HEAD
-import { getCommentList, addComment, getTopicList, deleteComment, getReply } from '@/api/commentApi'
-=======
 import { getCommentList, addComment, getTopicList, deleteComment, getHotCommentList, getCommentListByTopic } from '@/api/commentApi'
 import { getRandomElementsFromArray } from '@/utils/ArrayUtils'
->>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
@@ -485,18 +465,15 @@ export default {
       addCommentLoading,
       getReply,
       delMyComment,
-<<<<<<< HEAD
       replyList,
       getRplyList,
       replyListLoading,
-=======
       getHotComment,
       changeMenu,
       moreCommentList,
       pageNum,
       pageSize,
       typeKey
->>>>>>> 71c2328ffa8002f44baa77a5fcde53a2a3f9da6a
     };
   },
   created() {
