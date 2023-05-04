@@ -56,8 +56,20 @@ const getUrlInfo = (url) => {
     },
   });
 };
+const getReply = (v) => {
+  return http({
+    method: "get", //请求方法
+    url: "/api/comment/children/" + v.parentId + "/" + v.pageNum + "/" + v.pageSize,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+  });
+};
 
-export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo };
+
+
+export { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo, getReply };
 
 /*
 不会写es6，看传统es5写法

@@ -94,9 +94,9 @@
                   <template #actions></template>
                   <template #cover>
                     <div class="r-cover" :style="{
-                      height: '110px',
-                      overflow: 'hidden',
-                    }">
+                        height: '110px',
+                        overflow: 'hidden',
+                      }">
                       <img v-if="i.fileType === 'other'" class="r-cover-img other" alt="dessert"
                         src="https://i.328888.xyz/2023/04/23/iSpr2P.png" />
                       <img v-else-if="i.fileType === 'audio'" class="r-cover-img" alt="dessert"
@@ -126,9 +126,9 @@
                         <div class="r-card-avatar">
                           <div class="avatar-info">
                             <a-avatar :size="32" :style="{
-                              marginRight: '8px',
-                              background: '#3370ff',
-                            }" :image-url="i.user.userAvatarUrl">
+                                marginRight: '8px',
+                                background: '#3370ff',
+                              }" :image-url="i.user.userAvatarUrl">
                               <IconUser />
                             </a-avatar>
 
@@ -217,7 +217,7 @@
 </template>
 
 <script>
-import { Icon,Message } from "@arco-design/web-vue";
+import { Icon, Message } from "@arco-design/web-vue";
 import {
   IconThumbUp,
   IconShareInternal,
@@ -272,11 +272,15 @@ export default {
       return calculateHotness(viewCount, likeCount, downloadCount)
     }
     const handleMenu = async (key) => {
+      listLoading.value = true;
       currentIndex.value = 0
       resLoading.value = true
       const res = await getResourceBytag(key)
-      resList.value = res.data.data ? res.data.data : []
-      resLoading.value = false
+      setTimeout(() => {
+        resList.value = res.data.data ? res.data.data : []
+        resLoading.value = false
+        listLoading.value = false;
+      }, 800);
     }
     const downLoadResource = async (uid, rid) => {
       if (user.loginStatus === false) {
@@ -367,7 +371,8 @@ export default {
 .tagArr {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 1rem 0 0 0;
 }
 

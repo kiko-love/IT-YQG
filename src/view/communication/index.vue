@@ -139,7 +139,11 @@
                     </a-avatar>
                     <div class="link-title">
                       <div class="main-title">{{ i.link?.title }}</div>
-                      <div class="sub-title">{{ i.link?.subtitle }}</div>
+                      <div class="sub-title">
+                        <div class="link-info-sub"><icon-link />
+                          <div>{{ i.link?.subtitle }}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -183,8 +187,18 @@
                 </div>
               </div>
               <div class="reply-list-wrapper">
-                <div class="reply-list-title">全部回复（99）</div>
-                <div class="reply-list">
+                <div class="reply-list-title">全部回复（{{ i.commentCount }}）</div>
+                <div v-if="replyListLoading">
+                  <div class="loading-skeleton">
+                    <a-skeleton :animation="true">
+                      <a-space direction="vertical" :style="{ width: '100%' }">
+                        <a-skeleton-shape shape="circle" />
+                        <a-skeleton-line :rows="2" :widths="['30%', '80%']" />
+                      </a-space>
+                    </a-skeleton>
+                  </div>
+                </div>
+                <div v-else class="reply-list">
                   <div v-for="ierm in i.commentCount" class="r-list-item">
                     <a-avatar style="background: #3370ff" class="user-avatar">
                       <IconUser />
@@ -263,7 +277,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-import { getCommentList, addComment, getTopicList, deleteComment, getUrlInfo } from '@/api/commentApi'
+import { getCommentList, addComment, getTopicList, deleteComment, getReply } from '@/api/commentApi'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
 });
@@ -288,7 +302,7 @@ export default {
     IconReply,
     IconPlus,
     IconCloseCircleFill,
-    IconDelete
+    IconDelete,
   },
   setup(props) {
     const linkInfo = reactive({
@@ -300,6 +314,8 @@ export default {
     const user = userStore()
     const cList = ref([]);
     const topicList = ref([])
+    const replyList = ref([])
+    const replyListLoading = ref(false)
     const addCommentLoading = ref(false)
     const recommedTopic = reactive([
       {
@@ -326,13 +342,31 @@ export default {
     const getDiff = (timestamp) => {
       return TimeUtils.getTimeDiff(timestamp);
     }
+    const getRplyList = async (pid, pNum, pSize) => {
+      const v = {
+        parentId: pid,
+        pageNum: pNum,
+        pageSize: pSize
+      }
+      const res = await getReply(v)
+      if (res.data.code === 100) {
+        replyList.value = res.data.data.list
+        return res.data.data
+      } else {
+        Message.error(res.data.msg)
+      }
+    }
     const getList = async () => {
       const res = await getCommentList();
       if (res.data.code === 100) {
         cList.value = res.data.data;
         cList.value.forEach(item => {
           item.isOpen = false;
-          item.link = item.link ? JSON.parse(item.link) : null;
+          try {
+            item.link = item.link ? JSON.parse(item.link) : null;
+          } catch {
+            item.link = null;
+          }
         })
       }
     }
@@ -413,6 +447,9 @@ export default {
       addCommentLoading,
       getReply,
       delMyComment,
+      replyList,
+      getRplyList,
+      replyListLoading,
     };
   },
   created() {
@@ -448,7 +485,6 @@ export default {
       const that = this
       const urlRegex = /^(((ht|f)tps?):\/\/)?([^!@#$%^&*?.\s-]([^!@#$%^&*?.\s]{0,63}[^!@#$%^&*?.\s])?\.)+[a-z]{2,6}\/?/;
       if (urlRegex.test(link.url)) {
-        Message.success("正在获取链接信息");
         that.getLinkLoading = true;
         this.scrapeLink(link.url)
           .then(result => {
@@ -456,6 +492,7 @@ export default {
             link.favicon = result.favicon;
             link.subtitle = result.domain;
             that.getLinkLoading = false;
+            Message.success("获取链接信息成功");
           })
           .catch(error => {
             console.error(error);
@@ -466,18 +503,17 @@ export default {
 
     },
     async scrapeLink(url) {
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+      const response = await fetch(`http://localhost:1458/get?url=${encodeURIComponent(url)}`);
       const data = await response.json();
       const parser = new DOMParser();
       const htmlDoc = parser.parseFromString(data.contents, 'text/html');
-      const title = htmlDoc.querySelector('title').textContent;
+      const title = htmlDoc.querySelector('title')?.textContent;
       let domain;
       try {
         domain = new URL(url).hostname;
       } catch (error) {
         console.error(error);
       }
-
       let favicon;
       const linkTags = htmlDoc.getElementsByTagName('link');
       for (let i = 0; i < linkTags.length; i++) {
@@ -505,6 +541,10 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.loading-skeleton {
+  padding: 10px 15px;
+}
+
 .user-action {
   position: relative;
 }
@@ -555,15 +595,41 @@ export default {
 
       .main-title {
         font-size: 16px;
-        margin-bottom: 5px;
         color: var(--color-neutral-10);
+        max-height: 40px;
+        font-weight: 500;
+        line-height: 1.25;
+        color: #121212;
+        margin: 0 0 5px;
+        letter-spacing: 0.2px;
+        word-break: break-all;
+        display: -webkit-box;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
       }
 
       .sub-title {
         font-size: 13px;
         color: var(--color-neutral-6);
+        display: -webkit-box;
+        font-size: 13px;
+        margin: 0;
+        line-height: 1.3;
+        overflow: hidden;
+        word-break: break-word;
+        text-overflow: ellipsis;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
       }
     }
+  }
+
+  .link-info-sub {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
   }
 
   .link-warpper-preview {
@@ -894,8 +960,9 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-.rank-container{
-  margin:-12px -5px;
+
+.rank-container {
+  margin: -12px -5px;
 }
 
 .rank-cover {
