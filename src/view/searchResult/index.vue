@@ -185,7 +185,6 @@ export default {
             if (type.value == 0) {
                 const res = await searchArticle(keyword.value, pageNum.value, pageSize.value);
                 articleList.value = res.data.data;
-                console.log(res.data);
             } else if (type.value == 1) {
                 const res = await searchUser(keyword.value, pageNum.value, pageSize.value);
                 userList.value = res.data.data;
@@ -351,7 +350,6 @@ export default {
     transition: .1s;
 
     &:hover {
-        text-decoration: underline;
         color: rgb(var(--arcoblue-6));
     }
 }
