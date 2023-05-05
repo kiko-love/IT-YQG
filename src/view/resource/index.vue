@@ -61,21 +61,11 @@
             <div>
               <a-tabs class="list-tab" default-active-key="1" type="rounded">
                 <a-tab-pane key="1" title="推荐"></a-tab-pane>
-                <a-tab-pane key="2" title="最热"></a-tab-pane>
+                <!-- <a-tab-pane key="2" title="最热"></a-tab-pane>
                 <a-tab-pane key="3">
                   <template #title>最新</template>
-                </a-tab-pane>
+                </a-tab-pane> -->
               </a-tabs>
-            </div>
-          </template>
-          <template #extra>
-            <div>
-              <a-input-search :style="{ width: '220px' }" placeholder="搜索资源" allow-clear search-button />
-              <!-- <a-button type="text">
-              <template #icon>
-                <icon-search />
-              </template>
-              </a-button>-->
             </div>
           </template>
           <div class="r-container">

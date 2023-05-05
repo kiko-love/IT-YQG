@@ -1,7 +1,7 @@
 <template>
   <div style="text-align: center; margin: 10px auto;font-size: 14px;">
-    HomePage开发测试 这里是首页内容区域
-    文章推送（实现思路：懒加载or分页-基于用户行为的协同过滤CF）
+    HomePage开发测试页面 这里是首页内容区域
+    文章推送（设计与实现思路：懒加载-基于用户行为的协同过滤CF）
   </div>
   <div ref="scrollContainer" class="content-container" v-on:scroll="handleListScroll">
     <a-row class="col-list">

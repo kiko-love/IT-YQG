@@ -2,7 +2,7 @@
     <div class="search-container" ref="searchTable" v-on:scroll="handleListScroll">
         <div class="search-type">
             <a-card>
-                <a-radio-group :default-value="type" @change="changeMenu">
+                <a-radio-group v-model="type" @change="changeMenu">
                     <a-radio value="0">
                         <template #radio="{ checked }">
                             <a-tag size="large" color="arcoblue" :checked="checked" checkable>文章</a-tag>
@@ -151,8 +151,8 @@
     </div>
 </template>
 <script>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { searchArticle, searchUser, searchResource } from '@/api/searchApi'
 import { downloadFile } from '@/api/resourceApi'
 import TimeUtils from '@/utils/timeUtils'
@@ -164,6 +164,7 @@ export default {
         const pageSize = ref(10);
         const user = userStore();
         const router = useRouter();
+        const route = useRoute();
         const type = ref(0)//router.currentRoute.value.params.type;
         const keyword = ref('')//router.currentRoute.value.params.keyword;
         type.value = router.currentRoute.value.params.type;
@@ -178,6 +179,7 @@ export default {
         const getTimeDiff = (time) => {
             return TimeUtils.getTimeDiff(time);
         }
+
         const searchRes = async () => {
             resLoading.value = true;
             if (type.value == 0) {
@@ -216,7 +218,6 @@ export default {
             type.value = k;
             pageNum.value = 1;
             router.push('/search/' + k + '/' + keyword.value)
-            searchRes()
         }
         const downLoadResource = async (uid, rid) => {
             if (user.loginStatus === false) {
@@ -242,6 +243,14 @@ export default {
         }
         console.log(type.value, keyword.value);
         searchRes();
+        watch(() => route.params,
+            (newValue, oldValue) => {
+                type.value = newValue.type;
+                keyword.value = newValue.keyword;
+                pageNum.value = 1;
+                searchRes();
+            },
+            { immediate: true });
         return {
             type,
             keyword,

@@ -64,9 +64,9 @@
                         :class="{ 'search-active': searchFoucs }" :max-length="20" placeholder="搜索猿趣阁" search-button
                         @press-enter="handleSearchHistory(searchContent)" @search="handleSearchHistory(searchContent)"
                         @focus="() => {
-                            searchFoucs = true;
-                            searchPopVisible = true;
-                          }
+                          searchFoucs = true;
+                          searchPopVisible = true;
+                        }
                           " @blur="handleSearchBlur" />
                       <!-- 输入框下方触发器内容 -->
                       <template #content>
@@ -237,8 +237,8 @@
                                 <div class="level-process">{{ getLevel(user.userexp) }}/5</div>
                               </div>
                               <a-progress :show-text="false" :percent="(this.user.userexp
-                                  ? this.user.userexp
-                                  : 0) / 3000.0
+                                ? this.user.userexp
+                                : 0) / 3000.0
                                 " :style="{ width: '100%' }" />
                             </div>
                           </a-card>
@@ -748,7 +748,7 @@ export default {
         this.searchContent = k;
       }
       console.log("搜索关键词", k);
-      // this.handleSearch();
+      this.$router.replace('/search/0/' + k)
     },
     //清空搜索历史
     clearSearchHistory() {
@@ -788,7 +788,7 @@ export default {
         localStorage.setItem("searchHistory", JSON.stringify(newArr));
         this.searchHistory = newArr;
       }
-      this.$router.push('/search/0/' + k)
+      this.$router.replace('/search/0/' + k)
     },
     //退出登录
     logOut() {
