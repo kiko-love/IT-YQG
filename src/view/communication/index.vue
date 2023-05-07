@@ -83,7 +83,7 @@
                 </a-popover>
               </div>
               <div>
-                <a-button type="primary" :disabled="editor_content === '' || addCommentLoading"
+                <a-button type="primary" :disabled="editor_content === '' || addCommentLoading || getLinkLoading"
                   :loading="addCommentLoading" @click="addMyComment">发表心得</a-button>
               </div>
             </div>
@@ -163,8 +163,8 @@
             </div>
             <div class="c-action-row">
               <div class="action-box">
-                <div class="action"><icon-thumb-up />{{ i.likeCount }}</div>
-                <div class="action" :class="{ 'action-active': cList[k].isOpen }" @click="getReply(commentId, k)">
+                <div class="action" @click="likeComment(i.commentId)"><icon-thumb-up />{{ i.likeCount }}</div>
+                <div class="action" :class="{ 'action-active': cList[k].isOpen }" @click="getReply(i.commentId, k)">
                   <icon-message />{{ i.commentCount }}
                 </div>
                 <div class="action"><icon-reply /></div>
@@ -180,30 +180,55 @@
                     <IconUser />
                     <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
                   </a-avatar>
-                  <a-textarea v-model:model-value="editor_reply" placeholder="输入评论回复（Enter换行）" :auto-size="{
+                  <a-textarea v-model:model-value="i.replyContent" placeholder="输入评论回复（Enter换行）" :auto-size="{
                     minRows: 1,
                     maxRows: 7,
                   }" />
                 </div>
                 <div class="reply-action">
-                  <a-button type="primary" :disabled="editor_reply === ''">回复</a-button>
+                  <a-button type="primary" :disabled="i.replyContent === ''"
+                    @click="addReply(i.replyContent, i.commentId, k)">回复</a-button>
                 </div>
               </div>
               <div v-if="i.commentCount > 0" class="reply-list-wrapper">
                 <div class="reply-list-title">全部回复（{{ i.commentCount }}）</div>
                 <div class="reply-list">
-                  <div v-for="ierm in i.commentCount" class="r-list-item">
-                    <a-avatar style="background: #3370ff" class="user-avatar">
-                      <IconUser />
-                      <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
-                    </a-avatar>
-                    <div class="item-content-box">
-                      <div class="user-box">
-                        <div>Jack</div>
-                        <a-divider direction="vertical" />
-                        <div class="user-time">5分钟前</div>
+                  <div class="reply-skeleton" v-if="replyLoading">
+                    <a-skeleton animation :style="{ width: '10%' }">
+                      <a-space direction="vertical" :style="{ width: '100%' }" size="large">
+                        <a-skeleton-shape shape="circle" />
+                      </a-space>
+                    </a-skeleton>
+                    <a-skeleton animation :style="{ width: '70%' }">
+                      <a-space direction="vertical" :style="{ width: '100%' }" size="large">
+                        <a-skeleton-line :rows="2" :widths="['30%', '100%']" />
+                      </a-space>
+                    </a-skeleton>
+                  </div>
+                  <div v-else>
+                    <div v-for="(item, index) in i.replyList" class="r-list-item" :key="index">
+                      <a-avatar style="background: transparent" class="user-avatar" :image-url="item.user?.userAvatarUrl">
+                        <IconUser />
+                        <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                      </a-avatar>
+                      <div class="item-content-box">
+                        <div class="user-box">
+                          <div>{{ item.user?.userName }}</div>
+                          <a-divider direction="vertical" />
+                          <div class="user-time">{{ getDiff(item.createTime) }}</div>
+                        </div>
+                        <div class="r-content">{{ item.content }}</div>
                       </div>
-                      <div class="r-content">这是子评论回复内容</div>
+                      <span class="reply-del">
+                        <a-popconfirm @ok="delMyReply(item.commentId, i.commentId, k)" popup-container="user-action"
+                          position="lb" content="是否确认删除您的回复?">
+                          <a-button type="text" shape="circle">
+                            <template #icon>
+                              <icon-delete :style="{ color: 'var(--color-neutral-6)' }" :size="16" />
+                            </template>
+                          </a-button>
+                        </a-popconfirm>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -221,20 +246,27 @@
               </div>
             </template>
             <div class="rank-container">
-              <div class="rank-item" v-for="(i, index) in 3">
+              <div class="rank-item" v-for="(i, index) in hotCommentList" :key="index">
                 <div class="rank-avatar"></div>
                 <div class="rank-username">
                   <div class="rank-header">
                     <div class="rank-title">
-                      猿趣阁精选话题：当代年轻人是否需要养生
+                      <a-tooltip :content="i.content" mini>
+                        <div>
+                          {{ i.content }}
+                        </div>
+                      </a-tooltip>
+
                     </div>
                     <div class="rank-cover">
-                      <a-avatar :style="{ backgroundColor: '#3370ff' }" :size="50" shape="square">猿</a-avatar>
+                      <a-avatar :style="{ backgroundColor: '#3370ff' }" :size="50" shape="square">
+                        {{ i.content.slice(0, 1) }}
+                      </a-avatar>
                     </div>
                   </div>
                   <div class="description">
-                    <div><icon-thumb-up :size="15" />99</div>
-                    <div><icon-message :size="15" />256</div>
+                    <div><icon-thumb-up :size="15" />{{ i.likeCount }}</div>
+                    <div><icon-message :size="15" />{{ i.commentCount }}</div>
                   </div>
                 </div>
               </div>
@@ -270,7 +302,18 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { reactive, ref } from "vue";
 import TimeUtils from '@/utils/timeUtils'
-import { getCommentList, addComment, getTopicList, deleteComment, getHotCommentList, getCommentListByTopic } from '@/api/commentApi'
+import {
+  getCommentList,
+  addComment,
+  getTopicList,
+  deleteComment,
+  getHotCommentList,
+  getCommentListByTopic,
+  addCommentLike,
+  getCommentReplyList,
+  addCommentReply,
+  deleteReply,
+} from '@/api/commentApi'
 import { getRandomElementsFromArray } from '@/utils/ArrayUtils'
 const IconFont = Icon.addFromIconFontCn({
   src: "https://at.alicdn.com/t/c/font_3869138_hlqdy8cckfp.js",
@@ -310,35 +353,28 @@ export default {
     const moreCommentList = ref([])
     const pageNum = ref(1)
     const pageSize = ref(5)
+    const hotCommentList = ref([])
     const topicList = ref([])
-    const replyList = ref([])
     const replyListLoading = ref(false)
     const addCommentLoading = ref(false)
     const recommedTopic = ref([])
     const typeKey = ref(['1'])
-
+    const editor_content = ref("");
+    const editor_reply = ref("");
+    const cListLoading = ref(true);
+    const getLinkLoading = ref(false);
+    const myTopic = ref('')
+    const replyLoading = ref(false)
     const getDiff = (timestamp) => {
       return TimeUtils.getTimeDiff(timestamp);
-    }
-    const getRplyList = async (pid, pNum, pSize) => {
-      const v = {
-        parentId: pid,
-        pageNum: pNum,
-        pageSize: pSize
-      }
-      const res = await getReply(v)
-      if (res.data.code === 100) {
-        replyList.value = res.data.data.list
-        return res.data.data
-      } else {
-        Message.error(res.data.msg)
-      }
     }
     const getList = async () => {
       const res = await getCommentList(pageNum.value, pageSize.value);
       if (res.data.code === 100) {
         cList.value = res.data.data;
         cList.value.forEach(item => {
+          item.replyList = []
+          item.replyContent = ''
           item.isOpen = false;
           try {
             item.link = item.link ? JSON.parse(item.link) : null;
@@ -379,11 +415,21 @@ export default {
         linkInfo[key] = '';
       });
     }
-    const editor_content = ref("");
-    const editor_reply = ref("");
-    const cListLoading = ref(true);
-    const getLinkLoading = ref(false);
-    const myTopic = ref('')
+
+    const refreshReply = async (cid, k) => {
+      const v = {
+        parentId: cid,
+        pageNum: 1,
+        pageSize: 3
+      }
+      const res = await getCommentReplyList(v)
+      if (res.data.code === 100) {
+        cList.value[k].replyList = res.data.data.list
+        cList.value[k].commentCount = res.data.data.total
+      } else {
+        cList.value[k].replyList = []
+      }
+    }
     const getTopic = async () => {
       const res = await getTopicList()
       if (res.data.code === 100) {
@@ -427,9 +473,42 @@ export default {
         Message.error('删除失败')
       }
     }
+    const delMyReply = async (cid, pid, k) => {
+      const res = await deleteReply(cid, pid)
+      if (res.data.code === 100) {
+        Message.success('删除回复成功')
+        refreshReply(pid, k)
+      } else {
+        Message.error('删除回复失败')
+      }
+    }
     const getReply = async (cid, k) => {
       cList.value[k].isOpen = !cList.value[k].isOpen
+      if (cList.value[k].commentCount <= 0) {
+        return
+      }
+      if (cList.value[k].isOpen) {
+        replyLoading.value = true
+        const v = {
+          parentId: cid,
+          pageNum: 1,
+          pageSize: 3
+        }
+        const res = await getCommentReplyList(v)
+        if (res.data.code === 100) {
+          cList.value[k].replyList = res.data.data.list
+          cList.value[k].commentCount = res.data.data.total
+        } else {
+          cList.value[k].replyList = []
+        }
+      } else {
+        replyLoading.value = true
+      }
+      setTimeout(() => {
+        replyLoading.value = false
+      }, 500);
     }
+
     const changeMenu = (key) => {
       typeKey.value[0] = key
       console.log(typeKey.value[0]);
@@ -445,6 +524,45 @@ export default {
       setTimeout(() => {
         cListLoading.value = false
       }, 500);
+    }
+    const getHotComments = async () => {
+      const res = await getHotCommentList(pageNum.value, 3)
+      if (res.data.code === 100) {
+        hotCommentList.value = res.data.data ? res.data.data : [];
+      } else {
+        hotCommentList.value = []
+      }
+    }
+    const likeComment = async (cid) => {
+      if (user.loginStatus === false) {
+        Message.error('请先登录后再操作')
+        return
+      }
+      const v = {
+        commentId: cid,
+        userId: user.userId
+      }
+      const res = await addCommentLike(v)
+      if (res.data.code === 100) {
+        Message.success('点赞成功')
+        getList()
+      } else {
+        Message.error('点赞失败')
+      }
+    }
+    const addReply = async (replyContent, pid, k) => {
+      const v = {
+        parentId: pid,
+        content: replyContent,
+        userId: user.userId ? user.userId : null
+      }
+      const res = await addCommentReply(v)
+      if (res.data.code === 100) {
+        Message.success("回复成功")
+        refreshReply(pid, k)
+      } else {
+        Message.error("回复失败")
+      }
     }
     return {
       editor_content,
@@ -465,19 +583,24 @@ export default {
       addCommentLoading,
       getReply,
       delMyComment,
-      replyList,
-      getRplyList,
       replyListLoading,
       getHotComment,
       changeMenu,
       moreCommentList,
       pageNum,
       pageSize,
-      typeKey
+      typeKey,
+      getHotComments,
+      hotCommentList,
+      likeComment,
+      addReply,
+      delMyReply,
+      refreshReply,
+      replyLoading,
     };
   },
   created() {
-    Promise.all([this.getList(), this.getTopic()]).then(() => {
+    Promise.all([this.getList(), this.getTopic(), this.getHotComments()]).then(() => {
       setTimeout(() => {
         if (this.cListLoading) {
           this.cListLoading = false;
@@ -777,8 +900,18 @@ export default {
   padding: 6px;
 }
 
+.reply-list:not(:last-child) {
+  border-bottom: 1px solid #e3e3e3;
+}
+
 .reply-list {
   position: relative;
+
+  .reply-skeleton {
+    padding: 10px 15px;
+    display: flex;
+    width: 100%;
+  }
 
   .r-list-item:not(:last-child) {
     border-bottom: 1px solid #f0f1f5;
@@ -787,6 +920,12 @@ export default {
   .r-list-item {
     display: flex;
     padding: 10px 15px;
+    position: relative;
+
+    .reply-del {
+      position: absolute;
+      right: 0;
+    }
 
     .item-content-box {
       margin-left: 16px;
@@ -804,13 +943,18 @@ export default {
         padding: 15px 0;
         border-radius: 4px;
         white-space: pre-line;
+        display: -webkit-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
       }
     }
   }
 }
 
 .reply-list-wrapper {
-  padding-top: 24px;
+  padding-top: 8px;
   padding-bottom: 5px;
 
   .reply-list-title {

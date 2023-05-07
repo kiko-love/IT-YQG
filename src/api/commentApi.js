@@ -46,6 +46,16 @@ const deleteComment = (cid) => {
     },
   });
 };
+const deleteReply = (cid, pid) => {
+  return http({
+    method: "delete", //请求方法
+    url: "/api/comment/delete/reply/" + cid + "/" + pid,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 const getUrlInfo = (url) => {
   return http({
     method: "post", //请求方法
@@ -91,6 +101,38 @@ const getReply = (v) => {
     },
   });
 };
+const addCommentLike = (v) => {
+  return http({
+    method: "post", //请求方法
+    url: "/api/comment/like",
+    responseType: "json",
+    data: v,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+  });
+};
+const getCommentReplyList = (v) => {
+  return http({
+    method: "get", //请求方法
+    url: "/api/comment/list/reply/" + v.parentId + "/" + v.pageNum + "/" + v.pageSize,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+  });
+};
+const addCommentReply = (v) => {
+  return http({
+    method: "post", //请求方法
+    url: "/api/comment/reply",
+    responseType: "json",
+    data: v,
+    headers: {
+      "Content-Type": "application/json"
+    },
+  });
+};
 
 
 export {
@@ -102,6 +144,10 @@ export {
   getHotCommentList,
   getCommentListByTopic,
   getReply,
+  addCommentLike,
+  getCommentReplyList,
+  addCommentReply,
+  deleteReply,
 };
 
 /*
