@@ -219,7 +219,7 @@
                         </div>
                         <div class="r-content">{{ item.content }}</div>
                       </div>
-                      <span class="reply-del">
+                      <span class="reply-del" v-if="user.loginStatus && i.user.userId === user.userId">
                         <a-popconfirm @ok="delMyReply(item.commentId, i.commentId, k)" popup-container="user-action"
                           position="lb" content="是否确认删除您的回复?">
                           <a-button type="text" shape="circle">

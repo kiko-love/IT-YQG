@@ -54,7 +54,7 @@ http.interceptors.response.use(
     //   // 超出 2xx 范围的状态码都会触发该函数。
 
     //   // 对响应错误做点什么
-    Message.error(error.message);
+    Message.error("服务器异常，请稍后重试");
     return Promise.reject(error);
   }
 );
