@@ -92,29 +92,29 @@
                         </div>
                       </template>
                     </a-trigger>
-                    <a-button-group class="home-btn-group" :class="[{ hide: searchFoucs }, 'search-release']">
-                      <a-button type="primary">创作中心</a-button>
-                      <a-trigger trigger="click" click-to-close :unmount-on-close="false" :popup-translate="[-40, 5]">
+                    <a-trigger trigger="click" click-to-close :unmount-on-close="false" :popup-translate="[15, 5]">
+                      <template #content>
+                        <div class="create-menu">
+                          <div class="create-menu-item" @click="toEdit">
+                            <icon-edit /><span>发布文章</span>
+                          </div>
+                          <div class="create-menu-item" @click="toUploadResource">
+                            <icon-common /><span>上传资源</span>
+                          </div>
+                          <div class="create-menu-item" @click="toConmmunication">
+                            <icon-bulb /><span>发表想法</span>
+                          </div>
+                        </div>
+                      </template>
+                      <a-button-group class="home-btn-group" :class="[{ hide: searchFoucs }, 'search-release']">
+                        <a-button type="primary">创作中心</a-button>
                         <a-button type="primary" class="select-btn">
                           <template #icon>
                             <icon-down />
                           </template>
                         </a-button>
-                        <template #content>
-                          <div class="create-menu">
-                            <div class="create-menu-item" @click="toEdit">
-                              <icon-edit /><span>发布文章</span>
-                            </div>
-                            <div class="create-menu-item" @click="toUploadResource">
-                              <icon-common /><span>上传资源</span>
-                            </div>
-                            <div class="create-menu-item" @click="toConmmunication">
-                              <icon-bulb /><span>发表想法</span>
-                            </div>
-                          </div>
-                        </template>
-                      </a-trigger>
-                    </a-button-group>
+                      </a-button-group>
+                    </a-trigger>
                   </div>
                 </a-col>
                 <a-col :xs="0" :sm="6" :md="4" :lg="8" :xl="8" :xxl="8">
@@ -1813,7 +1813,7 @@ export default {
   .search-active {
     width: 100%;
     margin-right: 0;
-    transition: width 0.25s;
+    transition: width 0.2s ease-in;
   }
 
   width: 45vw;

@@ -46,7 +46,7 @@ const routes = [
         component: () => import("@/view/searchResult/index.vue"),
       },
       {
-        path: "/articleDetail/:articleId",
+        path: "/articleDetail/:articleId/:userId",
         name: "articleDetail",
         component: () => import("@/view/articleDetail/index.vue"),
       },

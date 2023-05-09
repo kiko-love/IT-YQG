@@ -65,6 +65,10 @@
         </template>
         <div>
             <a-form :model="editForm" @submit="handleSubmit">
+                <a-form-item field="userAvatarUrl" label="用户头像">
+                    <!-- <a-input v-model="editForm.userAvatarUrl" disabled /> -->
+                    <a-avatar :image-url="editForm.userAvatarUrl"></a-avatar>
+                </a-form-item>
                 <a-form-item field="userId" label="用户ID" tooltip="用户ID不可修改">
                     <a-input v-model="editForm.userId" disabled />
                 </a-form-item>
@@ -283,7 +287,12 @@ export default {
             }
             adminUpdateStatus(v).then(res => {
                 if (res.data.code === 100) {
-                    Message.success("用户状态修改成功");
+                    if (editForm.value.status === true) {
+                        Message.success("用户已激活");
+                    } else {
+                        Message.error("用户已冻结");
+                    }
+                    // Message.success("用户状态修改成功");
                 } else {
                     Message.error(res.data.msg);
                 }

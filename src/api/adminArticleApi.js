@@ -46,4 +46,16 @@ const deleteArticle = (aid) => {
   });
 };
 
-export { getArticleList, getAuditArtcle, updateAudit, deleteArticle };
+const updateArticle = (v)=>{
+  return http({
+    method: "post", //请求方法
+    url: "/api/admin/article/update",
+    data:v,
+    responseType: "json",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export { getArticleList, getAuditArtcle, updateAudit, deleteArticle,updateArticle };

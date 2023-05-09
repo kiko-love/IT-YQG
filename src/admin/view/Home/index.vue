@@ -7,29 +7,32 @@
                     <div class="title">猿趣阁后台终端</div>
                 </div>
             </div>
-            <div class="admin-avatar">
-                <a-popover position="br" trigger="click" popup-container=".myAvatar">
-                    <a-avatar :style="{
-                        backgroundColor: '#3370ff',
-                        cursor: 'pointer',
-                        'user-select': 'none',
-                    }">
-                        <IconUser />
-                        <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
-                    </a-avatar>
-                    <template #content>
-                        <a-space direction="vertical" fill>
-                            <!-- <a-button size="small" long>
+            <div class="admin-user">
+                <div class="admin-avatar">
+                    <a-popover position="br" trigger="click" popup-container=".myAvatar">
+                        <a-avatar :style="{
+                            backgroundColor: '#3370ff',
+                            cursor: 'pointer',
+                            'user-select': 'none',
+                        }">
+                            admin
+                            <!-- <img v-else alt="avatar" :src="user.userAvatarUrl" /> -->
+                        </a-avatar>
+                        <template #content>
+                            <a-space direction="vertical" fill>
+                                <!-- <a-button size="small" long>
                         <template #icon>
                           <icon-archive />
                         </template>
                         草稿箱</a-button
                       > -->
-                            <a-button size="small" long @click="adminLogOut">
-                                <template #icon> <icon-poweroff /> </template>退出登录</a-button>
-                        </a-space>
-                    </template>
-                </a-popover>
+                                <a-button size="small" long @click="adminLogOut">
+                                    <template #icon> <icon-poweroff /> </template>退出登录</a-button>
+                            </a-space>
+                        </template>
+                    </a-popover>
+                </div>
+                <div></div>
             </div>
         </a-layout-header>
         <a-layout class="home-sider">
@@ -120,6 +123,10 @@ export default {
     overflow: auto;
 }
 
+.admin-user {
+    display: flex;
+}
+
 .admin-header {
     height: 75px;
     display: flex;
@@ -127,6 +134,7 @@ export default {
     align-items: center;
     border-bottom: 1px solid #e8e8e8;
     padding: 0 1rem 0 0;
+
 
     .admin-avatar {
         margin-right: 2rem;

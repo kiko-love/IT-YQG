@@ -18,7 +18,10 @@
                         用户名：ZYY
                     </a-typography-title>
                     <a-typography-title :heading="6">
-                        用户ID：10001
+                        用户ID：10000
+                    </a-typography-title>
+                    <a-typography-title :heading="6">
+                        用户权限：all
                     </a-typography-title>
                 </a-typography>
             </div>

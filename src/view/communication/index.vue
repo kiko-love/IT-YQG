@@ -183,7 +183,7 @@
                   <a-textarea v-model:model-value="i.replyContent" placeholder="输入评论回复（Enter换行）" :auto-size="{
                     minRows: 1,
                     maxRows: 7,
-                  }" />
+                  }" allow-clear/>
                 </div>
                 <div class="reply-action">
                   <a-button type="primary" :disabled="i.replyContent === ''"
@@ -219,7 +219,7 @@
                         </div>
                         <div class="r-content">{{ item.content }}</div>
                       </div>
-                      <span class="reply-del" v-if="user.loginStatus && i.user.userId === user.userId">
+                      <span class="reply-del" v-if="user.loginStatus && item.user.userId === user.userId">
                         <a-popconfirm @ok="delMyReply(item.commentId, i.commentId, k)" popup-container="user-action"
                           position="lb" content="是否确认删除您的回复?">
                           <a-button type="text" shape="circle">
@@ -428,6 +428,7 @@ export default {
         cList.value[k].commentCount = res.data.data.total
       } else {
         cList.value[k].replyList = []
+        cList.value[k].commentCount = 0
       }
     }
     const getTopic = async () => {
@@ -551,6 +552,10 @@ export default {
       }
     }
     const addReply = async (replyContent, pid, k) => {
+      if(!user.loginStatus || !user.userId){
+        Message.error("请先登录后再操作")
+        return
+      }
       const v = {
         parentId: pid,
         content: replyContent,
@@ -1096,11 +1101,10 @@ export default {
     margin: 8px 0 0 50px;
 
     .content-box {
-      padding: 10px 20px;
-      background: #f5f5f5;
+      padding: 10px 0;
       border-radius: 4px;
       white-space: pre-line;
-      font-size: 15px;
+      font-size: 14px;
     }
   }
 
@@ -1203,10 +1207,14 @@ export default {
 .rank-cover {
   width: 64px;
   height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .rank-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
   max-width: 212px;
@@ -1219,6 +1227,7 @@ export default {
 .rank-username {
   font-size: 14px;
   margin-left: 10px;
+  width: -webkit-fill-available;
 
   .description {
     font-size: 12px;
@@ -1264,6 +1273,7 @@ export default {
   padding: 0.5rem 0;
   width: 100%;
   margin-bottom: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .r-extra-container {

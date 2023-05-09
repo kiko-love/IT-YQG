@@ -211,7 +211,8 @@ export default {
             }, 500);
         }
         const toArticleDetail = (aid) => {
-            router.push('/articleDetail/' + aid)
+            const uid = user.userId
+            router.push('/articleDetail/' + aid+ '/' + uid)
         }
         const changeMenu = (k) => {
             type.value = k;

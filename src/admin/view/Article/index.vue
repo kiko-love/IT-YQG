@@ -71,17 +71,20 @@
                 <a-form-item field="title" label="文章标题">
                     <a-input v-model="articleForm.title" />
                 </a-form-item>
-                <a-form-item field="email" label="文章摘要">
-                    <a-input v-model="articleForm.summary" />
+                <a-form-item field="email" label="文章标签">
+                    <a-space>
+                        <a-tag v-for="(i, index) in articleForm.tags?.split(',')" :key="index" color="arcoblue">{{ i
+                        }}</a-tag>
+                    </a-space>
                 </a-form-item>
                 <a-form-item field="createTime" label="发布日期">
                     <div>{{ dateToNow(articleForm.createTime) }}</div>
                 </a-form-item>
                 <a-form-item field="summary" label="文章摘要">
                     <a-textarea v-model="articleForm.summary" :auto-size="{
-                            minRows: 2,
-                            maxRows: 5
-                        }" />
+                        minRows: 2,
+                        maxRows: 5
+                    }" />
                 </a-form-item>
                 <a-form-item field="audit" label="审核状态">
                     <a-switch v-model="articleForm.auditStatus" @change="switchAudit" />
@@ -100,7 +103,7 @@
 <script>
 import TimeUtils from '@/utils/timeUtils';
 import { ref, reactive, computed } from 'vue';
-import { getArticleList, getAuditArtcle, updateAudit, deleteArticle } from '@/api/adminArticleApi'
+import { getArticleList, getAuditArtcle, updateAudit, deleteArticle, updateArticle } from '@/api/adminArticleApi'
 import {
     IconEdit,
     IconDelete,
@@ -145,8 +148,22 @@ export default {
         const cancelEdit = () => {
             detailVisible.value = false;
         };
-        const handleSubmit = () => {
-            console.log(articleForm);
+        const handleSubmit = async () => {
+            const v = {
+                articleId: articleForm.value.articleId,
+                title: articleForm.value.title,
+                summary: articleForm.value.summary,
+                audit: articleForm.value.audit
+            }
+            const res = await updateArticle(v)
+            if (res.data.code === 100) {
+                detailVisible.value = false
+                Message.success('文章信息修改成功')
+                refreshArticleList(true)
+            } else {
+                Message.error('文章信息修改失败，请检查服务器是否正常运行服务')
+            }
+            console.log(articleForm.value);
         };
         const dateToNow = (timestamp) => {
             return TimeUtils.getTimeDiff(timestamp)
@@ -166,7 +183,7 @@ export default {
             });
         };
         const previewArticle = (id) => {
-            window.open(`/articleDetail/${id}`);
+            window.open(`/articleDetail/${id}/0`);
         };
 
         const handleAuditChange = async () => {
@@ -219,7 +236,8 @@ export default {
             }
             handleAuditChange();
         }
-        const refreshArticleList = async () => {
+        const refreshArticleList = async (quite) => {
+            quite = quite ? quite : false
             currentPage.value = 1;
             const v = {
                 audit: aListType.value,
@@ -233,7 +251,9 @@ export default {
                 aList.value.forEach((item) => {
                     item.auditStatus = item.audit === 1 ? true : false;
                 });
-                Message.success('文章列表刷新成功');
+                if (!quite) {
+                    Message.success('文章列表刷新成功');
+                }
             } else {
                 Message.error('文章列表刷新失败');
             }

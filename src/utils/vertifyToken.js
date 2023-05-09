@@ -25,12 +25,12 @@ const vertifyToken = async () => {
       localStorage.removeItem("login_token");
       userInfo.loginStatus = false;
       localStorage.setItem("user", JSON.stringify(userInfo));
-      Message.info({
+      Message.warning({
         content: "登录已过期，请重新登录",
         onClose: () => {
-          if (route.name !== "home") {
-            router.replace("/home");
-          }
+          // if (route.name !== "home") {
+          //   router.replace("/home");
+          // }
         },
       });
     }

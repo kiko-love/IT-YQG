@@ -129,8 +129,9 @@ export default {
         const uuidList = ref([])
         const notFountShow = ref(false)
         const aid = router.currentRoute.value.params.articleId
-        const getDetail = (aid) => {
-            getArticleDetail(aid).then(res => {
+        const uid = router.currentRoute.value.params.userId
+        const getDetail = (aid,uid) => {
+            getArticleDetail(aid,uid).then(res => {
 
                 if (res.data.code === 100) {
                     article.value = res.data.data
@@ -142,7 +143,7 @@ export default {
         const formatDate = (date) => {
             return TimeUtils.formatTime(date)
         }
-        getDetail(aid)
+        getDetail(aid,uid)
         return {
             router,
             aid,

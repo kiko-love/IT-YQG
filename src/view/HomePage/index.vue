@@ -13,9 +13,6 @@
                 <a-tabs @change="changeHomeResourceTab" class="list-tab" default-active-key="0" type="rounded">
                   <a-tab-pane key="0" title="推荐"></a-tab-pane>
                   <a-tab-pane key="1" title="最热"></a-tab-pane>
-                  <a-tab-pane key="2">
-                    <template #title>最新</template>
-                  </a-tab-pane>
                 </a-tabs>
               </div>
             </template>
@@ -50,7 +47,7 @@
                         </a-avatar>
                       </div>
                       <div>
-                        <div class="item-title">{{ i.title }}</div>
+                        <div class="item-title">{{ i.title }} <span><a-tag size="mini" color="arcoblue">{{ i.audit }}</a-tag></span></div>
                         <div class="item-description">
                           {{ i.summary }}
                         </div>
@@ -124,10 +121,14 @@
                       </a-skeleton>
                     </div>
                     <div v-else>
+                      <div class="rank-empty" v-if="hotUserList?.length === 0">
+                        <a-empty />
+                      </div>
+
                       <div class="rank-item" v-for="(i, index) in hotUserList">
                         <div class="rank-number">{{ index + 1 }}</div>
                         <div class="rank-avatar">
-                          <a-avatar :style="{ backgroundColor: '#3370ff' }" :image-url="i.userAvatarUrl">
+                          <a-avatar :image-url="i.userAvatarUrl">
                           </a-avatar>
                         </div>
                         <div class="rank-username">
@@ -330,8 +331,10 @@ export default {
       }
     },
     handleItem(idx) {
+      console.log(this.userInfo.userId);
+      const uid = this.userInfo.userId ? this.userInfo.userId : 0
       this.$message.success("文章编号：" + idx);
-      this.$router.push('/articleDetail/' + idx)
+      this.$router.push('/articleDetail/' + idx+'/'+uid)
     },
     handleSign() {
       if (!this.userInfo.loginStatus) {
@@ -384,6 +387,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.rank-empty {
+  width: 290px;
 }
 
 .rank-skeleton {
@@ -476,7 +483,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 190px;
+    width: 99%;
   }
 }
 
@@ -544,7 +551,8 @@ export default {
 .right-affix {
   position: fixed;
   top: 120px;
-  right: 70px;
+  right: 9%;
+  width: 260px;
 }
 
 .content-container {

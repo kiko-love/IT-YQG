@@ -5,7 +5,7 @@
                 <a-layout-sider class="login-sider" theme="dark">
                     <div class="ape-logo">
                         <div><img src="@/assets/logo-icon.svg" width="33" alt="logo"></div>
-                        <div class="title">Ape Fun Pavilion</div>
+                        <div class="title">猿趣阁（Ape Fun Pavilion）</div>
                     </div>
                 </a-layout-sider>
                 <a-layout-content class="content">
